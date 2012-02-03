@@ -2,7 +2,7 @@ module Omniship
   module Shipping
     class Carrier
       
-      include ActiveUtils::RequiresParameters
+      include 'active_utils/require_parametersi.rb'
       include PostsData
       include Quantified
       
