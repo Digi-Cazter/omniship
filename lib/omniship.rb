@@ -33,7 +33,6 @@ end
 
 autoload :XmlNode, 'vendor/xml_node/lib/xml_node'
 autoload :Quantified, 'vendor/quantified/lib/quantified'
-autoload :ActiveUtils, 'vendor/activ_utils/lib/active_utils'
 
 require 'net/https'
 require 'active_utils'
