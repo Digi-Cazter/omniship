@@ -3,7 +3,7 @@ module Omniship
     class Carrier
       
       include ActiveMerchant::RequiresParameters
-      include PostsData
+      include ActiveMerchant::PostsData
       include Quantified
       
       attr_reader :last_request
