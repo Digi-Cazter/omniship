@@ -2,7 +2,7 @@ module Omniship #:nodoc:
     
   module Shipping #:nodoc:
     
-    class Error < Omniship::OmnishipError
+    class Error < StandardError
     end
     
     class ResponseError < Error
