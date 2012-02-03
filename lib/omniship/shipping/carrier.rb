@@ -2,7 +2,7 @@ module Omniship
   module Shipping
     class Carrier
       
-      include RequiresParameters
+      include ActiveUtils
       include PostsData
       include Quantified
       
