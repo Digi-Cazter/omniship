@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 
-module ActiveMerchant
+module Omniship
   module Shipping
     class UPS < Carrier
       self.retry_safe = true

@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 require 'cgi'
 
-module ActiveMerchant
+module Omniship
   module Shipping
     
     # After getting an API login from USPS (looks like '123YOURNAME456'),

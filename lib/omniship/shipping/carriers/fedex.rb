@@ -1,7 +1,7 @@
 # FedEx module by Jimmy Baker
 # http://github.com/jimmyebaker
 
-module ActiveMerchant
+module Omniship
   module Shipping
     
     # :key is your developer API key
