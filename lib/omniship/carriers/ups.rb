@@ -1,5 +1,3 @@
-# -*- encoding: utf-8 -*-
-
 module Omniship
   class UPS < Carrier
     self.retry_safe = true
@@ -152,16 +150,51 @@ module Omniship
     end
 
     # Build the ship_confirm XML request      
-    #def build_ship_confirm(origin, destination, packages, option={})
-    #  packages = Array(packages)
-    #  xml_request = XmlNode.new('ShipmentConfirmRequest') do |root_node|
-    #	  root_node << XmlNode.new('Request') do |request|
-    #      request << XmlNode.new('RequestAction', 'ShipConfirm')
-    #      request << XmlNode.new('RequestOption', 'validate')
-    #    root_node << XmlNode.new('Shipment') do |shipment|
-    #      shipment << XmlNode.new('Shipper') do |shipper|
-    #        shipper << XmlNode.new('Name', '')
-    #end
+    def build_ship_confirm(origin, destination, packages, option={})
+      packages = Array(packages)
+      xml_request = XmlNode.new('ShipmentConfirmRequest') do |root_node|
+    	  root_node << XmlNode.new('Request') do |request|
+          request << XmlNode.new('RequestAction', 'ShipConfirm')
+          request << XmlNode.new('RequestOption', 'validate')
+        root_node << XmlNode.new('Shipment') do |shipment|
+          shipment << XmlNode.new('Shipper') do |shipper|
+            shipper << XmlNode.new('Name', '')
+						shipper << XmlNode.new('AttentionName', '')
+						shipper << XmlNode.new('ShipperNumber', '')
+						shipper << XmlNode.new('PhoneNumber', '')
+						shipper << XmlNode.new('EMailAddress', '')
+						shipper << XmlNode.new('Address') do |address|
+						  address << XmlNode.new('AddressLine1', '')
+							address << XmlNode.new('AddressLine2', '')
+							address << XmlNode.new('AddressLine3', '')
+							address << XmlNode.new('City', '')
+							address << XmlNode.new('State', '')
+							address << XmlNode.new('ProvinceCode', '')
+							address << XmlNode.new('PostalCode', '')
+							address << XmlNode.new('CountryCode', '')
+					  end
+					end
+					shipment << XmlNode.new('ShipTo') do |shipto|
+					  shipto << XmlNode.new('CompanyName', '')
+						shipto << XmlNode.new('AttentionName', '')
+						shipto << XmlNode.new('PhoneNumber', '')
+						shipto << XmlNode.new('EMailAddress', '')
+						shipto << XmlNode.new('Address') do |address|
+						  address << XmlNode.new('AddressLine1', '')
+							address << XmlNode.new('AddressLine2', '')
+							address << XmlNode.new('AddressLine3', '')
+							address << XmlNode.new('City', '')
+							address << XmlNode.new('State', '')
+							address << XmlNode.new('ProvinceCode', '')
+							address << XmlNode.new('PostalCode', '')
+							address << XmlNode.new('CountryCode', '')
+							address << XmlNode.new('ResidentialAddress')
+					  end
+					end
+				end
+			end
+			end
+    end
 
     def build_rate_request(origin, destination, packages, options={})
       packages = Array(packages)
