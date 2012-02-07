@@ -156,43 +156,67 @@ module Omniship
     	  root_node << XmlNode.new('Request') do |request|
           request << XmlNode.new('RequestAction', 'ShipConfirm')
           request << XmlNode.new('RequestOption', 'validate')
+				end
         root_node << XmlNode.new('Shipment') do |shipment|
-          shipment << XmlNode.new('Shipper') do |shipper|
-            shipper << XmlNode.new('Name', '')
-						shipper << XmlNode.new('AttentionName', '')
-						shipper << XmlNode.new('ShipperNumber', '')
-						shipper << XmlNode.new('PhoneNumber', '')
-						shipper << XmlNode.new('EMailAddress', '')
-						shipper << XmlNode.new('Address') do |address|
-						  address << XmlNode.new('AddressLine1', '')
-							address << XmlNode.new('AddressLine2', '')
-							address << XmlNode.new('AddressLine3', '')
-							address << XmlNode.new('City', '')
-							address << XmlNode.new('State', '')
-							address << XmlNode.new('ProvinceCode', '')
-							address << XmlNode.new('PostalCode', '')
-							address << XmlNode.new('CountryCode', '')
+          shipment << build_location_node('Shipper', (options[:shipper] || origin), options)
+          shipment << build_location_node('ShipTo', destination, options)
+          if options[:shipper] and options[:shipper] != origin
+            shipment << build_location_node('ShipFrom', origin, options)
+          end
+					shipment << XmlNode.new('PaymentInformation') do |paymentinformation|
+					  paymentinformation << XmlNode.new('Prepaid') do |prepaid|
+						  prepaid << XmlNode.new('BillShipper') do |billshipper|
+							  billshipper << XmlNode.new('AccountNumber', '')
+              end
 					  end
 					end
-					shipment << XmlNode.new('ShipTo') do |shipto|
-					  shipto << XmlNode.new('CompanyName', '')
-						shipto << XmlNode.new('AttentionName', '')
-						shipto << XmlNode.new('PhoneNumber', '')
-						shipto << XmlNode.new('EMailAddress', '')
-						shipto << XmlNode.new('Address') do |address|
-						  address << XmlNode.new('AddressLine1', '')
-							address << XmlNode.new('AddressLine2', '')
-							address << XmlNode.new('AddressLine3', '')
-							address << XmlNode.new('City', '')
-							address << XmlNode.new('State', '')
-							address << XmlNode.new('ProvinceCode', '')
-							address << XmlNode.new('PostalCode', '')
-							address << XmlNode.new('CountryCode', '')
-							address << XmlNode.new('ResidentialAddress')
-					  end
+					shipment << XmlNode.new('Service') do |service|
+					  service << XmlNode.new('Code', '')
+					end
+					shipment << XmlNode.new('ShipmentServiceOptions') do |shipmentserviceoptions|
+					  shipmentserviceoptions << XmlNode.new('SaturdayDelivery')
+					end
+          packages.each do |package|
+            imperial = ['US','LR','MM'].include?(origin.country_code(:alpha2))
+            
+            shipment << XmlNode.new("Package") do |package_node|
+              package_node << XmlNode.new("PackagingType") do |packaging_type|
+                packaging_type << XmlNode.new("Code", '02')
+              end
+              
+              package_node << XmlNode.new("Dimensions") do |dimensions|
+                dimensions << XmlNode.new("UnitOfMeasurement") do |units|
+                  units << XmlNode.new("Code", imperial ? 'IN' : 'CM')
+                end
+                [:length,:width,:height].each do |axis|
+                  value = ((imperial ? package.inches(axis) : package.cm(axis)).to_f*1000).round/1000.0 # 3 decimals
+                  dimensions << XmlNode.new(axis.to_s.capitalize, [value,0.1].max)
+                end
+              end
+            
+              package_node << XmlNode.new("PackageWeight") do |package_weight|
+                package_weight << XmlNode.new("UnitOfMeasurement") do |units|
+                  units << XmlNode.new("Code", imperial ? 'LBS' : 'KGS')
+                end
+                
+                value = ((imperial ? package.lbs : package.kgs).to_f*1000).round/1000.0 # 3 decimals
+                package_weight << XmlNode.new("Weight", [value,0.1].max)
+              end
+            end
+          end
+					shipment << XmlNode.new('LabelSpecifications') do |labelspec|
+					  labelspec << XmlNode.new('LabelPrintMethod') do |method|
+						  method << XmlNode.new('GIF')
+						end
+						labelspec << XmlNode.new('LabelStockSize') do |size|
+						  size << XmlNode.new('Height', '4"')
+							size << XmlNode.new('Width', '6"')
+						end
+            labelspec << XmlNode.new('LabelImageFormat') do |format|
+						  format << XmlNode.new('Code', 'GIF')
+						end
 					end
 				end
-			end
 			end
     end
 
@@ -294,11 +318,10 @@ module Omniship
     end
     
     def build_location_node(name,location,options={})
-      # not implemented:  * Shipment/Shipper/Name element
-      #                   * Shipment/(ShipTo|ShipFrom)/CompanyName element
-      #                   * Shipment/(Shipper|ShipTo|ShipFrom)/AttentionName element
-      #                   * Shipment/(Shipper|ShipTo|ShipFrom)/TaxIdentificationNumber element
       location_node = XmlNode.new(name) do |location_node|
+			  location_node << XmlNode.new('Name', location.name unless location.name.blank?
+				location_node << XmlNode.new('AttentionName', location.attention_name unless location.attention_name.blank?
+				location_node << XmlNode.new('CompanyName', location.company_name unless location.company_name.blank?
         location_node << XmlNode.new('PhoneNumber', location.phone.gsub(/[^\d]/,'')) unless location.phone.blank?
         location_node << XmlNode.new('FaxNumber', location.fax.gsub(/[^\d]/,'')) unless location.fax.blank?
         
