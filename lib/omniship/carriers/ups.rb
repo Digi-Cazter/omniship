@@ -437,10 +437,9 @@ module Omniship
     def parse_ship_confirm_response(origin, destination, packages, response, options={})
       #rates = []
       
-      #xml = 
-			REXML::Document.new(response)
-      #success = response_success?(xml)
-      #message = response_message(xml)
+      xml = REXML::Document.new(response)
+      success = response_success?(xml)
+      message = response_message(xml)
       
       #if success
       #  rate_estimates = []
@@ -460,6 +459,7 @@ module Omniship
       #  end
       #end
       #RateResponse.new(success, message, Hash.from_xml(response).values.first, :rates => rate_estimates, :xml => response, :request => last_request)
+      RateResponse.new(success, message, :xml => response, :request => last_request)
     end
 
     def location_from_address_node(address)
