@@ -113,7 +113,7 @@ module Omniship
     end
 
     # Creating shipping functionality for UPS
-    def create_ship_confirm(origin, destination, packages, option={})
+    def create_shipment(origin, destination, packages, option={})
       origin, destination = upsified_location(origin), upsified_location(destination)
      	options = @options.merge(options)
     	packages = Array(packages)
@@ -319,9 +319,9 @@ module Omniship
     
     def build_location_node(name,location,options={})
       location_node = XmlNode.new(name) do |location_node|
-			  location_node << XmlNode.new('Name', location.name unless location.name.blank?
-				location_node << XmlNode.new('AttentionName', location.attention_name unless location.attention_name.blank?
-				location_node << XmlNode.new('CompanyName', location.company_name unless location.company_name.blank?
+			  location_node << XmlNode.new('Name', location.name) unless location.name.blank?
+				location_node << XmlNode.new('AttentionName', location.attention_name) unless location.attention_name.blank?
+				location_node << XmlNode.new('CompanyName', location.company_name) unless location.company_name.blank?
         location_node << XmlNode.new('PhoneNumber', location.phone.gsub(/[^\d]/,'')) unless location.phone.blank?
         location_node << XmlNode.new('FaxNumber', location.fax.gsub(/[^\d]/,'')) unless location.fax.blank?
         
