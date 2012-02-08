@@ -171,7 +171,7 @@ module Omniship
 					  end
 					end
 					shipment << XmlNode.new('Service') do |service|
-					  service << XmlNode.new('Code', '7')
+					  service << XmlNode.new('Code', '3')
 					end
 					#shipment << XmlNode.new('ShipmentServiceOptions') do |shipmentserviceoptions|
 					#  shipmentserviceoptions << XmlNode.new('SaturdayDelivery')
@@ -207,10 +207,6 @@ module Omniship
 					shipment << XmlNode.new('LabelSpecifications') do |labelspec|
 					  labelspec << XmlNode.new('LabelPrintMethod') do |method|
 						  method << XmlNode.new('GIF')
-						end
-						labelspec << XmlNode.new('LabelStockSize') do |size|
-						  size << XmlNode.new('Height', '4"')
-							size << XmlNode.new('Width', '6"')
 						end
             labelspec << XmlNode.new('LabelImageFormat') do |format|
 						  format << XmlNode.new('Code', 'GIF')
