@@ -174,7 +174,7 @@ module Omniship
 					  service << XmlNode.new('Code', options[:service])
 					end
 					shipment << XmlNode.new('ShipmentServiceOptions') do |shipmentserviceoptions|
-					  shipmentserviceoptions << XmlNode.new('SaturdayDelivery')
+					  shipmentserviceoptions << XmlNode.new('SaturdayDelivery') if options[:saturday] == true
 					end
           packages.each do |package|
             imperial = ['US','LR','MM'].include?(origin.country_code(:alpha2))
