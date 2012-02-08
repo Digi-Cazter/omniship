@@ -171,17 +171,17 @@ module Omniship
 					  end
 					end
 					shipment << XmlNode.new('Service') do |service|
-					  service << XmlNode.new('Code', '03')
+					  service << XmlNode.new('Code', options[:service])
 					end
-					#shipment << XmlNode.new('ShipmentServiceOptions') do |shipmentserviceoptions|
-					#  shipmentserviceoptions << XmlNode.new('SaturdayDelivery')
-					#end
+					shipment << XmlNode.new('ShipmentServiceOptions') do |shipmentserviceoptions|
+					  shipmentserviceoptions << XmlNode.new('SaturdayDelivery')
+					end
           packages.each do |package|
             imperial = ['US','LR','MM'].include?(origin.country_code(:alpha2))
             
             shipment << XmlNode.new("Package") do |package_node|
               package_node << XmlNode.new("PackagingType") do |packaging_type|
-                packaging_type << XmlNode.new("Code", '02')
+                packaging_type << XmlNode.new("Code", options[:package_type])
               end
               
               package_node << XmlNode.new("Dimensions") do |dimensions|
@@ -322,8 +322,8 @@ module Omniship
         location_node << XmlNode.new('PhoneNumber', location.phone.gsub(/[^\d]/,'')) unless location.phone.blank?
         location_node << XmlNode.new('FaxNumber', location.fax.gsub(/[^\d]/,'')) unless location.fax.blank?
         
-        if name == 'Shipper' #and (origin_account = @options[:origin_account] || options[:origin_account])
-          location_node << XmlNode.new('ShipperNumber', options[:origin_account])
+        if name == 'Shipper' and (origin_account = @options[:origin_account] || options[:origin_account])
+          location_node << XmlNode.new('ShipperNumber', origin_account)
         elsif name == 'ShipTo' and (destination_account = @options[:destination_account] || options[:destination_account])
           location_node << XmlNode.new('ShipperAssignedIdentificationNumber', destination_account)
         end
