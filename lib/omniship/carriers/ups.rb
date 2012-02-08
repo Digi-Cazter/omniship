@@ -150,7 +150,7 @@ module Omniship
     end
 
     # Build the ship_confirm XML request      
-    def build_ship_confirm(origin, destination, packages, option={})
+    def build_ship_confirm(origin, destination, packages, options={})
       packages = Array(packages)
       xml_request = XmlNode.new('ShipmentConfirmRequest') do |root_node|
     	  root_node << XmlNode.new('Request') do |request|
