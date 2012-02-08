@@ -171,7 +171,7 @@ module Omniship
 					  end
 					end
 					shipment << XmlNode.new('Service') do |service|
-					  service << XmlNode.new('Code', '3')
+					  service << XmlNode.new('Code', '03')
 					end
 					#shipment << XmlNode.new('ShipmentServiceOptions') do |shipmentserviceoptions|
 					#  shipmentserviceoptions << XmlNode.new('SaturdayDelivery')
