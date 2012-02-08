@@ -113,7 +113,7 @@ module Omniship
     end
 
     # Creating shipping functionality for UPS
-    def create_shipment(origin, destination, packages, option={})
+    def create_shipment(origin, destination, packages, options={})
       origin, destination = upsified_location(origin), upsified_location(destination)
      	options = @options.merge(options)
     	packages = Array(packages)
