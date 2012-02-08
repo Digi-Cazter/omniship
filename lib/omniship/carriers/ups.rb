@@ -322,7 +322,7 @@ module Omniship
         location_node << XmlNode.new('PhoneNumber', location.phone.gsub(/[^\d]/,'')) unless location.phone.blank?
         location_node << XmlNode.new('FaxNumber', location.fax.gsub(/[^\d]/,'')) unless location.fax.blank?
         
-        if name == 'Shipper' and (origin_account = @options[:origin_account] || options[:origin_account])
+        if name == 'Shipper' #and (origin_account = @options[:origin_account] || options[:origin_account])
           location_node << XmlNode.new('ShipperNumber', '4856YR')
         elsif name == 'ShipTo' and (destination_account = @options[:destination_account] || options[:destination_account])
           location_node << XmlNode.new('ShipperAssignedIdentificationNumber', destination_account)
