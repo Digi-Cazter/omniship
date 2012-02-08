@@ -119,7 +119,7 @@ module Omniship
     	packages = Array(packages)
      	access_request = build_access_request
 	    ship_confirm_request = build_ship_confirm(origin, destination, packages, options)
-	    response = commit(:shipconfirm, save_request(access_request + ship_confirm_request), (options[:test] || false))
+	    response = commit(:shipconfirm, save_request(access_request + ship_confirm_request), (options[:test] || true)
 	    parse_ship_confirm_response(origin, destination, packages, response, options)
     end
 
@@ -166,7 +166,7 @@ module Omniship
 					shipment << XmlNode.new('PaymentInformation') do |paymentinformation|
 					  paymentinformation << XmlNode.new('Prepaid') do |prepaid|
 						  prepaid << XmlNode.new('BillShipper') do |billshipper|
-							  billshipper << XmlNode.new('AccountNumber', '***REMOVED***')
+							  billshipper << XmlNode.new('AccountNumber', '')
               end
 					  end
 					end
