@@ -435,30 +435,31 @@ module Omniship
     end
     
     def parse_ship_confirm_response(origin, destination, packages, response, options={})
-      rates = []
+      #rates = []
       
-      xml = REXML::Document.new(response)
-      success = response_success?(xml)
-      message = response_message(xml)
+      #xml = 
+			REXML::Document.new(response)
+      #success = response_success?(xml)
+      #message = response_message(xml)
       
-      if success
-        rate_estimates = []
+      #if success
+      #  rate_estimates = []
         
-        xml.elements.each('/*/RatedShipment') do |rated_shipment|
-          service_code = rated_shipment.get_text('Service/Code').to_s
-          days_to_delivery = rated_shipment.get_text('GuaranteedDaysToDelivery').to_s.to_i
-          delivery_date  = days_to_delivery >= 1 ? days_to_delivery.days.from_now.strftime("%Y-%m-%d") : nil
+      #  xml.elements.each('/*/RatedShipment') do |rated_shipment|
+      #    service_code = rated_shipment.get_text('Service/Code').to_s
+      #    days_to_delivery = rated_shipment.get_text('GuaranteedDaysToDelivery').to_s.to_i
+      #    delivery_date  = days_to_delivery >= 1 ? days_to_delivery.days.from_now.strftime("%Y-%m-%d") : nil
 
-          rate_estimates << RateEstimate.new(origin, destination, @@name,
-                              service_name_for(origin, service_code),
-                              :total_price => rated_shipment.get_text('TotalCharges/MonetaryValue').to_s.to_f,
-                              :currency => rated_shipment.get_text('TotalCharges/CurrencyCode').to_s,
-                              :service_code => service_code,
-                              :packages => packages,
-                              :delivery_range => [delivery_date])
-        end
-      end
-      RateResponse.new(success, message, Hash.from_xml(response).values.first, :rates => rate_estimates, :xml => response, :request => last_request)
+      #    rate_estimates << RateEstimate.new(origin, destination, @@name,
+      #                        service_name_for(origin, service_code),
+      #                        :total_price => rated_shipment.get_text('TotalCharges/MonetaryValue').to_s.to_f,
+      #                        :currency => rated_shipment.get_text('TotalCharges/CurrencyCode').to_s,
+      #                        :service_code => service_code,
+      #                        :packages => packages,
+      #                        :delivery_range => [delivery_date])
+      #  end
+      #end
+      #RateResponse.new(success, message, Hash.from_xml(response).values.first, :rates => rate_estimates, :xml => response, :request => last_request)
     end
 
     def location_from_address_node(address)
