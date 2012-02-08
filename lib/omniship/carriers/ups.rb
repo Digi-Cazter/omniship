@@ -166,16 +166,16 @@ module Omniship
 					shipment << XmlNode.new('PaymentInformation') do |paymentinformation|
 					  paymentinformation << XmlNode.new('Prepaid') do |prepaid|
 						  prepaid << XmlNode.new('BillShipper') do |billshipper|
-							  billshipper << XmlNode.new('AccountNumber', '')
+							  billshipper << XmlNode.new('AccountNumber', '4856YR')
               end
 					  end
 					end
 					shipment << XmlNode.new('Service') do |service|
-					  service << XmlNode.new('Code', '')
+					  service << XmlNode.new('Code', '7')
 					end
-					shipment << XmlNode.new('ShipmentServiceOptions') do |shipmentserviceoptions|
-					  shipmentserviceoptions << XmlNode.new('SaturdayDelivery')
-					end
+					#shipment << XmlNode.new('ShipmentServiceOptions') do |shipmentserviceoptions|
+					#  shipmentserviceoptions << XmlNode.new('SaturdayDelivery')
+					#end
           packages.each do |package|
             imperial = ['US','LR','MM'].include?(origin.country_code(:alpha2))
             
