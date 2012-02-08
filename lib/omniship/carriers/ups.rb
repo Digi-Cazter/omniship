@@ -166,7 +166,7 @@ module Omniship
 					shipment << XmlNode.new('PaymentInformation') do |paymentinformation|
 					  paymentinformation << XmlNode.new('Prepaid') do |prepaid|
 						  prepaid << XmlNode.new('BillShipper') do |billshipper|
-							  billshipper << XmlNode.new('AccountNumber', '')
+							  billshipper << XmlNode.new('AccountNumber', '***REMOVED***')
               end
 					  end
 					end
