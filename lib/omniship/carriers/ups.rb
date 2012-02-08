@@ -166,7 +166,7 @@ module Omniship
 					shipment << XmlNode.new('PaymentInformation') do |paymentinformation|
 					  paymentinformation << XmlNode.new('Prepaid') do |prepaid|
 						  prepaid << XmlNode.new('BillShipper') do |billshipper|
-							  billshipper << XmlNode.new('AccountNumber', '4856YR')
+							  billshipper << XmlNode.new('AccountNumber', options[:origin_account])
               end
 					  end
 					end
@@ -323,7 +323,7 @@ module Omniship
         location_node << XmlNode.new('FaxNumber', location.fax.gsub(/[^\d]/,'')) unless location.fax.blank?
         
         if name == 'Shipper' #and (origin_account = @options[:origin_account] || options[:origin_account])
-          location_node << XmlNode.new('ShipperNumber', '4856YR')
+          location_node << XmlNode.new('ShipperNumber', options[:origin_account])
         elsif name == 'ShipTo' and (destination_account = @options[:destination_account] || options[:destination_account])
           location_node << XmlNode.new('ShipperAssignedIdentificationNumber', destination_account)
         end
