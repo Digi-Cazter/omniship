@@ -8,7 +8,7 @@ module Omniship #:nodoc:
                 :province,
                 :city,
                 :name,
-								:attention_name
+								:attention_name,
                 :address1,
                 :address2,
                 :address3,
