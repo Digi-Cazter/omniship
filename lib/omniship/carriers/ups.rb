@@ -442,7 +442,7 @@ module Omniship
       end
       #RateResponse.new(success, message, Hash.from_xml(response).values.first, :rates => rate_estimates, :xml => response, :request => last_request)
       #RateResponse.new(success, message, :xml => response, :request => last_request)
-			response
+		  digest	
     end
 
     def location_from_address_node(address)
