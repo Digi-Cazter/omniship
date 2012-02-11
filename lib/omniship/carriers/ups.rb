@@ -450,7 +450,7 @@ module Omniship
       if success
         @digest = root.elements['ShipmentDigest'].text
       end
-		  return @digest 
+		  return response 
     end
 
 		def parse_ship_accept_response(response)
