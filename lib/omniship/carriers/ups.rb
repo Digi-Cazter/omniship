@@ -123,10 +123,10 @@ module Omniship
 	    parse_ship_confirm_response(origin, destination, packages, response, options)
     end
 
-    def accept_shipment(digest)
+    def accept_shipment(digest, options={})
 		  ship_accept_request = build_ship_accept(digest)
-			response = commit(:shipaccept, save_request(ship_accept_request))
-			parse_ship_accept_response(response)
+	    response = commit(:shipaccept, save_request(access_request + ship_accept_request), (options[:test] || true))
+			parse_ship_accept_response(response, options)
     end
     
     protected
@@ -448,18 +448,18 @@ module Omniship
       success = response_success?(xml)
       
       if success
-        @digest = root.elements['ShipmentDigest'].text
+        @digest = root.elements['ShipmentDigest'].get_text
       end
-		  return response 
+		  return @digest 
     end
 
-		def parse_ship_accept_response(response)
+		def parse_ship_accept_response(response, options={})
 		  xml = REXML::Document.new(response)
 			success = response_success?(xml)
 
 			if success
 			end
-      response
+      return response
 		end
 
     def location_from_address_node(address)
