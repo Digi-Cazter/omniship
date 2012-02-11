@@ -124,6 +124,7 @@ module Omniship
     end
 
     def accept_shipment(digest, options={})
+     	access_request = build_access_request
 		  ship_accept_request = build_ship_accept(digest)
 	    response = commit(:shipaccept, save_request(access_request + ship_accept_request), (options[:test] || true))
 			parse_ship_accept_response(response, options)
