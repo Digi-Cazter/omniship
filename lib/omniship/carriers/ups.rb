@@ -432,13 +432,12 @@ module Omniship
     
     def parse_ship_confirm_response(origin, destination, packages, response, options={})
       xml = REXML::Document.new(response)
+			root = xml.root
       success = response_success?(xml)
       message = response_message(xml)
       
       if success
-        xml.elements.each('/*/ShipmentConfirmResponse') do |confirm_response|
-          @digest = confirm_response.get_text('ShipmentDigest').to_s
-        end
+        @digest = root.attributes['ShipmentDigest'].to_s
       end
       #RateResponse.new(success, message, Hash.from_xml(response).values.first, :rates => rate_estimates, :xml => response, :request => last_request)
       #RateResponse.new(success, message, :xml => response, :request => last_request)
