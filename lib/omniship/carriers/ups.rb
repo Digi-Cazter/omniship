@@ -457,11 +457,14 @@ module Omniship
 
 		def parse_ship_accept_response(response, options={})
 		  xml = REXML::Document.new(response)
+			root = xml.root
 			success = response_success?(xml)
 
 			if success
+			  shipment = []
+        shipment[:tracking_number] = root.elements['ShipmentResults/PackageResults/TrackingNumber'].get_text
+        shipment[:label] = root.elements['ShipmentResults/PackageResults/LabelImage/HTMLImage'].get_text
 			end
-      return response
 		end
 
     def location_from_address_node(address)
