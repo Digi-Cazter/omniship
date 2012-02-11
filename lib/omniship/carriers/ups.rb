@@ -437,11 +437,11 @@ module Omniship
       message = response_message(xml)
       
       if success
-        @digest = root.attributes['ShipmentDigest'].to_s
+        @digest = root.elements['ShipmentDigest'].text
       end
       #RateResponse.new(success, message, Hash.from_xml(response).values.first, :rates => rate_estimates, :xml => response, :request => last_request)
       #RateResponse.new(success, message, :xml => response, :request => last_request)
-		  response
+		  return @digest 
     end
 
     def location_from_address_node(address)
