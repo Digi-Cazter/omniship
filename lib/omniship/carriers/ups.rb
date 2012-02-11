@@ -123,7 +123,10 @@ module Omniship
 	    parse_ship_confirm_response(origin, destination, packages, response, options)
     end
 
-    def create_ship_accept(origin, destination, packages, digest, options={})
+    def accept_shipment(digest)
+		  ship_accept_request = build_ship_accept(digest)
+			response = commit(:shipaccept, save_request(ship_accept_request), (options[:test] || true))
+			parse_ship_accept_response(response)
     end
     
     protected
@@ -216,6 +219,15 @@ module Omniship
 			end
       xml_request.to_s
     end
+
+		def build_ship_accept(digest)
+		  xml_request = XmlNode.new('ShipmentAcceptRequest') do |root_node|
+			  root_node << XmlNode.new('Request') do |request|
+				  request << XmlNode.new('RequestAction', 'ShipAccept')
+				end
+				root_node << XmlNode.new('ShipmentDigest', digest)
+		  end
+		def
 
     def build_rate_request(origin, destination, packages, options={})
       packages = Array(packages)
@@ -434,15 +446,21 @@ module Omniship
       xml = REXML::Document.new(response)
 			root = xml.root
       success = response_success?(xml)
-      message = response_message(xml)
       
       if success
         @digest = root.elements['ShipmentDigest'].text
       end
-      #RateResponse.new(success, message, Hash.from_xml(response).values.first, :rates => rate_estimates, :xml => response, :request => last_request)
-      #RateResponse.new(success, message, :xml => response, :request => last_request)
 		  return @digest 
     end
+
+		def parse_ship_accept_response(response)
+		  xml = REXML::Document.new(response)
+			success = response_success?(xml)
+
+			if success
+			end
+      return response
+		end
 
     def location_from_address_node(address)
       return nil unless address
