@@ -228,6 +228,7 @@ module Omniship
 				end
 				root_node << XmlNode.new('ShipmentDigest', digest)
 		  end
+			xml_request.to_s
 	  end	
 
     def build_rate_request(origin, destination, packages, options={})
