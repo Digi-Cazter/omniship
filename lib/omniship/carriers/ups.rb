@@ -123,7 +123,7 @@ module Omniship
 	    parse_ship_confirm_response(origin, destination, packages, response, options)
     end
 
-    def accept_shipment(digest)
+    def accept_shipment(digest, options={})
 		  ship_accept_request = build_ship_accept(digest)
 			response = commit(:shipaccept, save_request(ship_accept_request), (options[:test] || true))
 			parse_ship_accept_response(response, options)
