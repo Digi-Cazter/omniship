@@ -126,7 +126,7 @@ module Omniship
     def accept_shipment(digest)
 		  ship_accept_request = build_ship_accept(digest)
 			response = commit(:shipaccept, save_request(ship_accept_request), (options[:test] || true))
-			parse_ship_accept_response(response)
+			parse_ship_accept_response(response, options)
     end
     
     protected
@@ -453,7 +453,7 @@ module Omniship
 		  return @digest 
     end
 
-		def parse_ship_accept_response(response)
+		def parse_ship_accept_response(response, options={})
 		  xml = REXML::Document.new(response)
 			success = response_success?(xml)
 
