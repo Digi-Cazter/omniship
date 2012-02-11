@@ -431,7 +431,7 @@ module Omniship
           end
           if shipment_events.last.name.downcase == 'delivered'
             shipment_events[-1] = ShipmentEvent.new(shipment_events.last.name, shipment_events.last.time, destination)
-          end
+          fend
         end
         
       end
@@ -461,10 +461,11 @@ module Omniship
 			success = response_success?(xml)
 
 			if success
-			  shipment = Array.new 
-        shipment[:tracking_number] = root.elements['ShipmentResults/PackageResults/TrackingNumber'].to_s
-        shipment[:label] = root.elements['ShipmentResults/PackageResults/LabelImage/HTMLImage'].get_text
+			  @shipment = [] 
+        shipment << :tracking_number => root.elements['ShipmentResults/PackageResults/TrackingNumber'].to_s,
+                    :label => root.elements['ShipmentResults/PackageResults/LabelImage/HTMLImage'].get_text
 			end
+			return @shipment
 		end
 
     def location_from_address_node(address)
