@@ -4,7 +4,6 @@ module Omniship #:nodoc:
     
     cattr_accessor :default_options
     attr_reader :options,
-		            :
 		            :value, 
 								:currency
 
