@@ -462,6 +462,7 @@ module Omniship
 			if success
 			  @shipment = {} 
         @shipment[:tracking_number] = root.elements['ShipmentResults/PackageResults/TrackingNumber'].get_text
+        @shipment[:label_html] = root.elements['ShipmentResults/PackageResults/LabelImage/HTMLImage'].get_text
         @shipment[:label] = root.elements['ShipmentResults/PackageResults/LabelImage/HTMLImage'].get_text
 			end
 			return @shipment
