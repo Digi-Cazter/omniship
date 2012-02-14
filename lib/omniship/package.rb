@@ -3,7 +3,10 @@ module Omniship #:nodoc:
     include Quantified
     
     cattr_accessor :default_options
-    attr_reader :options, :value, :currency
+    attr_reader :options,
+		            :
+		            :value, 
+								:currency
 
     # Package.new(100, [10, 20, 30], :units => :metric)
     # Package.new(Mass.new(100, :grams), [10, 20, 30].map {|m| Length.new(m, :centimetres)})
@@ -82,7 +85,7 @@ module Omniship #:nodoc:
       when :volumetric, :dimensional
         @volumetric_weight ||= begin
           m = Mass.new((centimetres(:box_volume) / 6.0), :grams)
-          @unit_system == :imperial ? m.in_ounces : m
+          @unit_system == :imperial ? m.in_pounds : m
         end
       when :billable
         [ weight, weight(:type => :volumetric) ].max
