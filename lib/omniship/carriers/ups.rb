@@ -431,10 +431,9 @@ module Omniship
           end
           if shipment_events.last.name.downcase == 'delivered'
             shipment_events[-1] = ShipmentEvent.new(shipment_events.last.name, shipment_events.last.time, destination)
-          fend
+          end
         end
-        
-      end
+		  end
       TrackingResponse.new(success, message, Hash.from_xml(response).values.first,
         :xml => response,
         :request => last_request,
