@@ -461,9 +461,9 @@ module Omniship
 			success = response_success?(xml)
 
 			if success
-			  @shipment = [] 
-        @shipment << :tracking_number => root.elements['ShipmentResults/PackageResults/TrackingNumber'].to_s
-        @shipment << :label => root.elements['ShipmentResults/PackageResults/LabelImage/HTMLImage'].get_text
+			  @shipment = {} 
+        @shipment[:tracking_number] = root.elements['ShipmentResults/PackageResults/TrackingNumber'].to_s
+        @shipment[:label] = root.elements['ShipmentResults/PackageResults/LabelImage/HTMLImage'].get_text
 			end
 			return @shipment
 		end
