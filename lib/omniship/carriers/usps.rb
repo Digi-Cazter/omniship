@@ -141,8 +141,8 @@ module Omniship
     def find_rates(origin, destination, packages, options = {})
       options = @options.merge(options)
       
-      origin = Location.from(origin)
-      destination = Location.from(destination)
+      origin = Address.from(origin)
+      destination = Address.from(destination)
       packages = Array(packages)
       
       #raise ArgumentError.new("USPS packages must originate in the U.S.") unless ['US',nil].include?(origin.country_code(:alpha2))

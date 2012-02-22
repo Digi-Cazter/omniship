@@ -138,7 +138,7 @@ module Omniship
         [:zip, :city, :address1, :address2, :address3, :phone, :fax, :address_type].each do |att|
           atts[att] = location.send(att)
         end
-        Location.new(atts)
+        Address.new(atts)
       else
         location
       end
@@ -470,7 +470,7 @@ module Omniship
 
     def location_from_address_node(address)
       return nil unless address
-      Location.new(
+      Address.new(
               :country =>     node_text_or_nil(address.elements['CountryCode']),
               :postal_code => node_text_or_nil(address.elements['PostalCode']),
               :province =>    node_text_or_nil(address.elements['StateProvinceCode']),
