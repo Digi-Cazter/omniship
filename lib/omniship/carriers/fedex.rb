@@ -270,7 +270,7 @@ module Omniship
         tracking_number = tracking_details.get_text('TrackingNumber').to_s
         
         destination_node = tracking_details.elements['DestinationAddress']
-        destination = Location.new(
+        destination = Address.new(
               :country =>     destination_node.get_text('CountryCode').to_s,
               :province =>    destination_node.get_text('StateOrProvinceCode').to_s,
               :city =>        destination_node.get_text('City').to_s
@@ -285,7 +285,7 @@ module Omniship
           country  = address.get_text('CountryCode').to_s
           next if country.blank?
           
-          location = Location.new(:city => city, :state => state, :postal_code => zip_code, :country => country)
+          location = Address.new(:city => city, :state => state, :postal_code => zip_code, :country => country)
           description = event.get_text('EventDescription').to_s
           
           # for now, just assume UTC, even though it probably isn't
