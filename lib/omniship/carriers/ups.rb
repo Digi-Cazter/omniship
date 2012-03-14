@@ -13,7 +13,8 @@ module Omniship
       :rates       => 'ups.app/xml/Rate',
       :track       => 'ups.app/xml/Track',
       :shipconfirm => 'ups.app/xml/ShipConfirm',
-      :shipaccept  => 'ups.app/xml/ShipAccept'
+      :shipaccept  => 'ups.app/xml/ShipAccept',
+			:shipvoid    => 'ups.app/xml/Void'
     }
     
     PICKUP_CODES = HashWithIndifferentAccess.new({
@@ -133,8 +134,8 @@ module Omniship
 		def void_shipment(tracking_number, options={})
 		  options = @options.merge(options)
 		  access_request = build_access_request
-		  ship_void_request = build_void_request
-		  response = commit(:shipvoid, save_request(access_request + ship_void_request))
+		  ship_void_request = build_void_request(tracking_number)
+		  response = commit(:shipvoid, save_request(access_request + ship_void_request), (options[:test] || true))
 			parse_ship_void_response(response, options)
 		end
     
@@ -193,7 +194,7 @@ module Omniship
             
             shipment << XmlNode.new("Package") do |package_node|
               package_node << XmlNode.new("PackagingType") do |packaging_type|
-                packaging_type << XmlNode.new("Code", :package_type)
+                packaging_type << XmlNode.new("Code", package.options[:package_type])
               end
               
               package_node << XmlNode.new("Dimensions") do |dimensions|
@@ -239,12 +240,14 @@ module Omniship
 			xml_request.to_s
 	  end	
 
-		def build_ship_void(tracking_number)
+		def build_void_request(tracking_number)
 		  xml_request = XmlNode.new('VoidShipmentRequest') do |root_node|
 			  root_node << XmlNode.new('Request') do |request|
-				  request << XmlNode.new('RequestAction', '1')
+				  request << XmlNode.new('RequestAction', 'Void')
 				end
-				root_node << XmlNode.new('ShipmentIdentificationNumber', tracking_number)
+				root_node << XmlNode.new('ExpandedVoidShipment') do |void|
+				  void << XmlNode.new('ShipmentIdentificationNumber', tracking_number)
+				end
 			end
 		  xml_request.to_s
 		end
@@ -489,12 +492,14 @@ module Omniship
 		def parse_ship_void_response(response, options={})
 		  xml = REXML::Document.new(response)
 			root = xml.root
-			success = response_success?(xml)
-
-			if success
+			success = root.elements['Response/ResponseStatusCode']
+			if success == 1
+			  @void = "Shipment successfully voided!"
+			else
+			  @void = "Voiding shipment failed!"
 			end
-
-			return nil
+     
+			return @void
 		end
 
     def location_from_address_node(address)
