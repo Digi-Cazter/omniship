@@ -129,6 +129,14 @@ module Omniship
 	    response = commit(:shipaccept, save_request(access_request + ship_accept_request), (options[:test] || true))
 			parse_ship_accept_response(response, options)
     end
+
+		def void_shipment(tracking_number, option={})
+		  options = @options.merge(options)
+		  access_request = build_access_request
+		  ship_void_request = build_void_request
+		  response = commit(:shipvoid, save_request(access_request + ship_void_request)
+			parse_ship_void_response(response, options)
+		end
     
     protected
     
@@ -185,7 +193,7 @@ module Omniship
             
             shipment << XmlNode.new("Package") do |package_node|
               package_node << XmlNode.new("PackagingType") do |packaging_type|
-                packaging_type << XmlNode.new("Code", options[:package_type])
+                packaging_type << XmlNode.new("Code", :package_type)
               end
               
               package_node << XmlNode.new("Dimensions") do |dimensions|
@@ -230,6 +238,16 @@ module Omniship
 		  end
 			xml_request.to_s
 	  end	
+
+		def build_ship_void(tracking_number)
+		  xml_request = XmlNode.new('VoidShipmentRequest') do |root_node|
+			  root_node << XmlNode.new('Request') do |request|
+				  request << XmlNode.new('RequestAction', '1')
+				end
+				root_node << XmlNode.new('ShipmentIdentificationNumber', tracking_number)
+			end
+		  xml_request.to_s
+		end
 
     def build_rate_request(origin, destination, packages, options={})
       packages = Array(packages)
@@ -335,7 +353,7 @@ module Omniship
 				location_node << XmlNode.new('CompanyName', location.company_name) unless location.company_name.blank?
         location_node << XmlNode.new('PhoneNumber', location.phone.gsub(/[^\d]/,'')) unless location.phone.blank?
         location_node << XmlNode.new('FaxNumber', location.fax.gsub(/[^\d]/,'')) unless location.fax.blank?
-        
+       
         if name == 'Shipper' and (origin_account = @options[:origin_account] || options[:origin_account])
           location_node << XmlNode.new('ShipperNumber', origin_account)
         elsif name == 'ShipTo' and (destination_account = @options[:destination_account] || options[:destination_account])
@@ -466,6 +484,17 @@ module Omniship
         @shipment[:label] = root.elements['ShipmentResults/PackageResults/LabelImage/GraphicImage'].get_text
 			end
 			return @shipment
+		end
+
+		def parse_ship_void_response(response, options={})
+		  xml = REXML::Document.new(response)
+			root = xml.root
+			success = response_success?(xml)
+
+			if success
+			end
+
+			return nil
 		end
 
     def location_from_address_node(address)
