@@ -2,7 +2,7 @@ module Omniship #:nodoc:
   class Package
     include Quantified
     
-    cattr_accessor :default_options
+    attr_accessor :default_options
     attr_reader :options,
 		            :value, 
 								:currency
