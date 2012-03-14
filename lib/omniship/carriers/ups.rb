@@ -130,11 +130,11 @@ module Omniship
 			parse_ship_accept_response(response, options)
     end
 
-		def void_shipment(tracking_number, option={})
+		def void_shipment(tracking_number, options={})
 		  options = @options.merge(options)
 		  access_request = build_access_request
 		  ship_void_request = build_void_request
-		  response = commit(:shipvoid, save_request(access_request + ship_void_request)
+		  response = commit(:shipvoid, save_request(access_request + ship_void_request))
 			parse_ship_void_response(response, options)
 		end
     
