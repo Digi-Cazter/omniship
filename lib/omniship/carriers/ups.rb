@@ -468,7 +468,9 @@ module Omniship
       xml = REXML::Document.new(response)
 			root = xml.root
       success = response_success?(xml)
-      
+     
+      debugger
+
       if success
         @digest = root.elements['ShipmentDigest'].get_text
       end
