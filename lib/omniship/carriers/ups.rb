@@ -479,7 +479,8 @@ module Omniship
       xml = REXML::Document.new(response)
       root = xml.root
       success = response_success?(xml)
-
+      
+			debugger
       if success
         @shipment = {} 
         @shipment[:tracking_number] = root.elements['ShipmentResults/PackageResults/TrackingNumber'].get_text
