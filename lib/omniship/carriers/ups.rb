@@ -217,12 +217,12 @@ module Omniship
               end
             end
           end
-	  shipment << XmlNode.new('LabelSpecifications') do |labelspec|
+	  shipment << XmlNode.new('LabelSpecification') do |labelspec|
 	    labelspec << XmlNode.new('LabelPrintMethod') do |method|
-	      method << XmlNode.new('GIF')
+	      method << XmlNode.new('code', 'GIF')
 	    end
-            labelspec << XmlNode.new('LabelImageFormat') do |format|
-	      format << XmlNode.new('Code', 'GIF')
+      labelspec << XmlNode.new('LabelImageFormat') do |format|
+	      format << XmlNode.new('Code', 'PNG')
 	    end
 	  end
         end
@@ -469,8 +469,6 @@ module Omniship
 			root = xml.root
       success = response_success?(xml)
      
-      debugger
-
       if success
         @digest = root.elements['ShipmentDigest'].get_text
       end
