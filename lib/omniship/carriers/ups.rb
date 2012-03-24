@@ -14,7 +14,7 @@ module Omniship
       :track       => 'ups.app/xml/Track',
       :shipconfirm => 'ups.app/xml/ShipConfirm',
       :shipaccept  => 'ups.app/xml/ShipAccept',
-			:shipvoid    => 'ups.app/xml/Void'
+      :shipvoid    => 'ups.app/xml/Void'
     }
     
     PICKUP_CODES = HashWithIndifferentAccess.new({
@@ -116,28 +116,28 @@ module Omniship
     # Creating shipping functionality for UPS
     def create_shipment(origin, destination, packages, options={})
       origin, destination = upsified_location(origin), upsified_location(destination)
-     	options = @options.merge(options)
-    	packages = Array(packages)
-     	access_request = build_access_request
-	    ship_confirm_request = build_ship_confirm(origin, destination, packages, options)
-	    response = commit(:shipconfirm, save_request(access_request + ship_confirm_request), (options[:test] || true))
-	    parse_ship_confirm_response(origin, destination, packages, response, options)
+      options = @options.merge(options)
+      packages = Array(packages)
+      access_request = build_access_request
+      ship_confirm_request = build_ship_confirm(origin, destination, packages, options)
+      response = commit(:shipconfirm, save_request(access_request + ship_confirm_request), (options[:test] || true))
+      parse_ship_confirm_response(origin, destination, packages, response, options)
     end
 
     def accept_shipment(digest, options={})
-     	access_request = build_access_request
-		  ship_accept_request = build_ship_accept(digest)
-	    response = commit(:shipaccept, save_request(access_request + ship_accept_request), (options[:test] || true))
-			parse_ship_accept_response(response, options)
+      access_request = build_access_request
+      ship_accept_request = build_ship_accept(digest)
+      response = commit(:shipaccept, save_request(access_request + ship_accept_request), (options[:test] || true))
+      parse_ship_accept_response(response, options)
     end
 
-		def void_shipment(tracking_number, options={})
-		  options = @options.merge(options)
-		  access_request = build_access_request
-		  ship_void_request = build_void_request(tracking_number)
-		  response = commit(:shipvoid, save_request(access_request + ship_void_request), (options[:test] || true))
-			parse_ship_void_response(response, options)
-		end
+    def void_shipment(tracking_number, options={})
+      options = @options.merge(options)
+      access_request = build_access_request
+      ship_void_request = build_void_request(tracking_number)
+      response = commit(:shipvoid, save_request(access_request + ship_void_request), (options[:test] || true))
+      parse_ship_void_response(response, options)
+    end
     
     protected
     
@@ -176,19 +176,19 @@ module Omniship
           if options[:shipper] and options[:shipper] != origin
             shipment << build_location_node('ShipFrom', origin, options)
           end
-					shipment << XmlNode.new('PaymentInformation') do |paymentinformation|
-					  paymentinformation << XmlNode.new('Prepaid') do |prepaid|
-						  prepaid << XmlNode.new('BillShipper') do |billshipper|
-							  billshipper << XmlNode.new('AccountNumber', options[:origin_account])
+      	  shipment << XmlNode.new('PaymentInformation') do |paymentinformation|
+	    paymentinformation << XmlNode.new('Prepaid') do |prepaid|
+	      prepaid << XmlNode.new('BillShipper') do |billshipper|
+	        billshipper << XmlNode.new('AccountNumber', options[:origin_account])
               end
-					  end
-					end
-					shipment << XmlNode.new('Service') do |service|
-					  service << XmlNode.new('Code', options[:service])
-					end
-					shipment << XmlNode.new('ShipmentServiceOptions') do |shipmentserviceoptions|
-					  shipmentserviceoptions << XmlNode.new('SaturdayDelivery') if options[:saturday] == true
-					end
+	    end
+          end
+	  shipment << XmlNode.new('Service') do |service|
+	    service << XmlNode.new('Code', options[:service])
+	  end
+	  shipment << XmlNode.new('ShipmentServiceOptions') do |shipmentserviceoptions|
+	    shipmentserviceoptions << XmlNode.new('SaturdayDelivery') if options[:saturday] == true
+	  end
           packages.each do |package|
             imperial = ['US','LR','MM'].include?(origin.country_code(:alpha2))
             
@@ -217,40 +217,40 @@ module Omniship
               end
             end
           end
-					shipment << XmlNode.new('LabelSpecifications') do |labelspec|
-					  labelspec << XmlNode.new('LabelPrintMethod') do |method|
-						  method << XmlNode.new('GIF')
-						end
+	  shipment << XmlNode.new('LabelSpecifications') do |labelspec|
+	    labelspec << XmlNode.new('LabelPrintMethod') do |method|
+	      method << XmlNode.new('GIF')
+	    end
             labelspec << XmlNode.new('LabelImageFormat') do |format|
-						  format << XmlNode.new('Code', 'GIF')
-						end
-					end
-				end
-			end
+	      format << XmlNode.new('Code', 'GIF')
+	    end
+	  end
+        end
+      end
       xml_request.to_s
     end
 
-		def build_ship_accept(digest)
-		  xml_request = XmlNode.new('ShipmentAcceptRequest') do |root_node|
-			  root_node << XmlNode.new('Request') do |request|
-				  request << XmlNode.new('RequestAction', 'ShipAccept')
-				end
-				root_node << XmlNode.new('ShipmentDigest', digest)
-		  end
-			xml_request.to_s
-	  end	
+    def build_ship_accept(digest)
+      xml_request = XmlNode.new('ShipmentAcceptRequest') do |root_node|
+        root_node << XmlNode.new('Request') do |request|
+          request << XmlNode.new('RequestAction', 'ShipAccept')
+	end
+	root_node << XmlNode.new('ShipmentDigest', digest)
+      end
+      xml_request.to_s
+     end	
 
-		def build_void_request(tracking_number)
-		  xml_request = XmlNode.new('VoidShipmentRequest') do |root_node|
-			  root_node << XmlNode.new('Request') do |request|
-				  request << XmlNode.new('RequestAction', 'Void')
-				end
-				root_node << XmlNode.new('ExpandedVoidShipment') do |void|
-				  void << XmlNode.new('ShipmentIdentificationNumber', tracking_number)
-				end
-			end
-		  xml_request.to_s
-		end
+     def build_void_request(tracking_number)
+       xml_request = XmlNode.new('VoidShipmentRequest') do |root_node|
+         root_node << XmlNode.new('Request') do |request|
+           request << XmlNode.new('RequestAction', 'Void')
+	 end
+         root_node << XmlNode.new('ExpandedVoidShipment') do |void|
+	   void << XmlNode.new('ShipmentIdentificationNumber', tracking_number)
+	 end
+       end
+       xml_request.to_s
+     end
 
     def build_rate_request(origin, destination, packages, options={})
       packages = Array(packages)
@@ -351,9 +351,9 @@ module Omniship
     
     def build_location_node(name,location,options={})
       location_node = XmlNode.new(name) do |location_node|
-			  location_node << XmlNode.new('Name', location.name) unless location.name.blank?
-				location_node << XmlNode.new('AttentionName', location.attention_name) unless location.attention_name.blank?
-				location_node << XmlNode.new('CompanyName', location.company_name) unless location.company_name.blank?
+        location_node << XmlNode.new('Name', location.name) unless location.name.blank?
+	location_node << XmlNode.new('AttentionName', location.attention_name) unless location.attention_name.blank?
+	location_node << XmlNode.new('CompanyName', location.company_name) unless location.company_name.blank?
         location_node << XmlNode.new('PhoneNumber', location.phone.gsub(/[^\d]/,'')) unless location.phone.blank?
         location_node << XmlNode.new('FaxNumber', location.fax.gsub(/[^\d]/,'')) unless location.fax.blank?
        
@@ -477,32 +477,32 @@ module Omniship
 		  return @digest 
     end
 
-		def parse_ship_accept_response(response, options={})
-		  xml = REXML::Document.new(response)
-			root = xml.root
-			success = response_success?(xml)
+    def parse_ship_accept_response(response, options={})
+      xml = REXML::Document.new(response)
+      root = xml.root
+      success = response_success?(xml)
 
-			if success
-			  @shipment = {} 
+      if success
+        @shipment = {} 
         @shipment[:tracking_number] = root.elements['ShipmentResults/PackageResults/TrackingNumber'].get_text
         @shipment[:label_html] = root.elements['ShipmentResults/PackageResults/LabelImage/HTMLImage'].get_text
         @shipment[:label] = root.elements['ShipmentResults/PackageResults/LabelImage/GraphicImage'].get_text
-			end
-			return @shipment
-		end
+      end
+      return @shipment
+    end
 
-		def parse_ship_void_response(response, options={})
-		  xml = REXML::Document.new(response)
-			root = xml.root
-			success = root.elements['Response/ResponseStatusCode']
-			if success == 1
-			  @void = "Shipment successfully voided!"
-			else
-			  @void = "Voiding shipment failed!"
-			end
+    def parse_ship_void_response(response, options={})
+      xml = REXML::Document.new(response)
+      root = xml.root
+      success = root.elements['Response/ResponseStatusCode']
+      if success == 1
+        @void = "Shipment successfully voided!"
+      else
+        @void = "Voiding shipment failed!"
+      end
      
-			return @void
-		end
+      return @void
+    end
 
     def location_from_address_node(address)
       return nil unless address
