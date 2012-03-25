@@ -483,9 +483,25 @@ module Omniship
 			debugger
       if success
         @shipment = {} 
-        @shipment[:tracking_number] = root.elements['ShipmentResults/PackageResults/TrackingNumber'].get_text
-        @shipment[:label_html] = root.elements['ShipmentResults/PackageResults/LabelImage/HTMLImage'].get_text
-        @shipment[:label] = root.elements['ShipmentResults/PackageResults/LabelImage/GraphicImage'].get_text
+				tracking_number = []
+				label           = []
+
+			  xml.root.elements.each('ShipmentResults/PackageResults/TrackingNumber') do |track|
+				  tracking_number << track.text
+				end
+				tracking_number.each_with_index do |track|
+				  @shipment[:tracking_number] << track
+				end
+
+        xml.root.elements.each('ShipmentResults/PackageResults/LabelImage/GraphicImage') do |image|
+				  label << image
+				end
+        label.each_with_index do |image|
+				  @shipment[:label] << image
+				end
+
+				@shipment[:shipment_id] = root.elements['ShipmentResults/ShipmentIdentificationNumber'].get_text
+        #@shipment[:label_html] = root.elements['ShipmentResults/PackageResults/LabelImage/HTMLImage'].get_text
       end
       return @shipment
     end
