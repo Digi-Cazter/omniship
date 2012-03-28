@@ -469,6 +469,7 @@ module Omniship
 			root = xml.root
       success = response_success?(xml)
      
+		  debugger
       if success
         @digest = root.elements['ShipmentDigest'].get_text
       end
