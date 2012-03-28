@@ -485,20 +485,24 @@ module Omniship
         @shipment = {} 
 				tracking_number = []
 				label           = []
+				track_value     = []
+				label_value     = []
 
 			  xml.root.elements.each('ShipmentResults/PackageResults/TrackingNumber') do |track|
 				  tracking_number << track.text
 				end
 				tracking_number.each_with_index do |track|
-				  @shipment[:tracking_number] << track
+				  track_value << track
 				end
+				@shipment[:tracking_number] = value
 
         xml.root.elements.each('ShipmentResults/PackageResults/LabelImage/GraphicImage') do |image|
 				  label << image
 				end
         label.each_with_index do |image|
-				  @shipment[:label] << image
+				  label_value << image	
 				end
+				@shipment[:label] = label_value 
 
 				@shipment[:shipment_id] = root.elements['ShipmentResults/ShipmentIdentificationNumber'].get_text
         #@shipment[:label_html] = root.elements['ShipmentResults/PackageResults/LabelImage/HTMLImage'].get_text
