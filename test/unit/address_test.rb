@@ -91,7 +91,7 @@ class LocationTest < Test::Unit::TestCase
 
   def test_default_to_xml
     location_xml = @locations[:ottawa].to_xml
-    assert_equal @locations[:ottawa].to_hash, Hash.from_xml(location_xml)["location"].symbolize_keys
+    assert_equal @locations[:ottawa].to_hash, Hash.from_xml(location_xml)["address"].symbolize_keys
   end
 
   def test_custom_root_to_xml
