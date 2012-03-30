@@ -154,17 +154,28 @@ module Omniship
     end
     
     def build_access_request
-      xml_request = XmlNode.new('AccessRequest') do |access_request|
-        access_request << XmlNode.new('AccessLicenseNumber', @options[:key])
-        access_request << XmlNode.new('UserId', @options[:login])
-        access_request << XmlNode.new('Password', @options[:password])
-      end
-      xml_request.to_s
+		  builder = Nokogiri::XML::Builder.new do |xml|
+			  xml.AccessRequest {
+				  xml.AccessLicenseNumber @options[:key]
+					xml.UserId @options[:login]
+					xml.Password @options[:password]
+				}
+			end
+			builder.to_xml
     end
 
     # Build the ship_confirm XML request      
     def build_ship_confirm(origin, destination, packages, options={})
       packages = Array(packages)
+		  builder = Nokogiri::XML::Builder.new do |xml|
+			  xml.ShipmentConfirmRequest {
+				  xml.Request {
+					  xml.RequestAction 'ShipConfirm'
+						xml.RequestOption 'validate'
+					}
+					xml.Shipment {
+					  xml.#TODO
+
       xml_request = XmlNode.new('ShipmentConfirmRequest') do |root_node|
     	  root_node << XmlNode.new('Request') do |request|
           request << XmlNode.new('RequestAction', 'ShipConfirm')

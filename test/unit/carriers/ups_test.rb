@@ -6,9 +6,9 @@ class UPSTest < Test::Unit::TestCase
     @packages  = TestFixtures.packages
     @locations = TestFixtures.locations
     @carrier   = UPS.new(
-                   :key => 'key',
-                   :login => 'login',
-                   :password => 'password'
+                   :key => '8C9060EA60F0C8C0',
+                   :login => 'donavan.white',
+                   :password => 'Whit5981'
                  )
     @tracking_response = xml_fixture('ups/shipment_from_tiger_direct')
   end
