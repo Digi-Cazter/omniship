@@ -21,6 +21,19 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #++
 
+ROOT   = File.expand_path(File.join(File.dirname(__FILE__), ".."))
+BOOT   = File.join(ROOT, "config", "boot")
+CONFIG = File.join(ROOT, "config", "omniship.yml")
+KEYS   = %w{ username password key }.map { |v| v }
+
+def Omniship.setup
+  require BOOT unless defined? Rails.env
+	@@config = YAML.load_file(CONFIG)
+  raise "Invalid Omniship configuration file: #{CONFIG}" unless @@config.is_a?(Hash)
+	if (@@config.keys & KEYS).sort == KEYS.sort and !@@config.has_key?(Rails.env)
+	  @@config[Rails.env] = {
+		  
+
 $:.unshift File.dirname(__FILE__)
 
 begin
