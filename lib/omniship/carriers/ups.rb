@@ -174,72 +174,61 @@ module Omniship
 						xml.RequestOption 'validate'
 					}
 					xml.Shipment {
-					  xml.#TODO
-
-      xml_request = XmlNode.new('ShipmentConfirmRequest') do |root_node|
-    	  root_node << XmlNode.new('Request') do |request|
-          request << XmlNode.new('RequestAction', 'ShipConfirm')
-          request << XmlNode.new('RequestOption', 'validate')
-				end
-        root_node << XmlNode.new('Shipment') do |shipment|
-          shipment << build_location_node('Shipper', (options[:shipper] || origin), options)
-          shipment << build_location_node('ShipTo', destination, options)
-          if options[:shipper] and options[:shipper] != origin
-            shipment << build_location_node('ShipFrom', origin, options)
-          end
-      	  shipment << XmlNode.new('PaymentInformation') do |paymentinformation|
-	    paymentinformation << XmlNode.new('Prepaid') do |prepaid|
-	      prepaid << XmlNode.new('BillShipper') do |billshipper|
-	        billshipper << XmlNode.new('AccountNumber', options[:origin_account])
-              end
-	    end
-          end
-	  shipment << XmlNode.new('Service') do |service|
-	    service << XmlNode.new('Code', options[:service])
-	  end
-	  shipment << XmlNode.new('ShipmentServiceOptions') do |shipmentserviceoptions|
-	    shipmentserviceoptions << XmlNode.new('SaturdayDelivery') if options[:saturday] == true
-	  end
-          packages.each do |package|
-            imperial = ['US','LR','MM'].include?(origin.country_code(:alpha2))
-            
-            shipment << XmlNode.new("Package") do |package_node|
-              package_node << XmlNode.new("PackagingType") do |packaging_type|
-                packaging_type << XmlNode.new("Code", package.options[:package_type])
-              end
-              
-              package_node << XmlNode.new("Dimensions") do |dimensions|
-                dimensions << XmlNode.new("UnitOfMeasurement") do |units|
-                  units << XmlNode.new("Code", imperial ? 'IN' : 'CM')
-                end
-                [:length,:width,:height].each do |axis|
-                  value = ((imperial ? package.inches(axis) : package.cm(axis)).to_f*1000).round/1000.0 # 3 decimals
-                  dimensions << XmlNode.new(axis.to_s.capitalize, [value,0.1].max)
-                end
-              end
-            
-              package_node << XmlNode.new("PackageWeight") do |package_weight|
-                package_weight << XmlNode.new("UnitOfMeasurement") do |units|
-                  units << XmlNode.new("Code", imperial ? 'LBS' : 'KGS')
-                end
-                
-                value = ((imperial ? package.lbs : package.kgs).to_f*1000).round/1000.0 # 3 decimals
-                package_weight << XmlNode.new("Weight", [value,0.1].max)
-              end
-            end
-          end
-	  shipment << XmlNode.new('LabelSpecification') do |labelspec|
-	    labelspec << XmlNode.new('LabelPrintMethod') do |method|
-	      method << XmlNode.new('code', 'GIF')
-	    end
-      labelspec << XmlNode.new('LabelImageFormat') do |format|
-	      format << XmlNode.new('Code', 'PNG')
-	    end
-	  end
-        end
-      end
-      xml_request.to_s
-    end
+					  build_location_node(['Shipper'], (options[:shipper] || origin), options, xml)
+						build_location_node(['ShipTo'], destination, options, xml)
+						if options[:shipper] && options[:shipper] != origin
+						  build_location_node(['ShipFrom'], origin, options, xml)
+						end
+						xml.PaymentInformation {
+						  xml.Prepaid {
+							  xml.BillShipper {
+								  xml.AccountNumber options[:origin_account]
+								}
+							}
+						}
+            xml.Service {
+						  xml.Code options[:service]
+						}
+						xml.ShipmentServiceOptions {
+						  xml.SaturdayDelivery if options[:saturday] == true
+					  }
+						packages.each do |package|
+						  imperial = ['US','LR','MM'].include?(origin.country_code(:alpha2))
+							xml.Package {
+							  xml.PackagingType {
+								  xml.Code package.options[:package_type]
+								}
+								xml.Dimensions {
+								  xml.UnitOfMeasurement {
+									  xml.Code imperial ? 'IN' : 'CM'
+									}
+							    [:length,:width,:height].each do |axis|
+									  value = ((imperial ? package.inches(axis) : package.cm(axis)).to_f*1000).round/1000.0 # 3 decimals
+										xml.send axis, [value,0.1].max
+									end
+								}
+                xml.PackageWeight {
+								  xml.UnitOfMeasurement {
+									  xml.Code imperial ? 'LBS' : 'KGS'
+						      }
+									value = ((imperial ? package.lbs : package.kgs).to_f*1000).round/1000.0 # decimals
+									xml.Weight [value,0.1].max
+								}
+              }
+					  end
+            xml.LabelSpecification {
+						  xml.LabelPrintMethod {
+							  xml.Code 'GIF'
+							}
+							xml.LabelImageFormat {
+							  xml.Code 'PNG'
+							}
+						}
+					}
+				}
+			end
+			builder.to_xml
+		end
 
     def build_ship_accept(digest)
       xml_request = XmlNode.new('ShipmentAcceptRequest') do |root_node|
@@ -350,45 +339,47 @@ module Omniship
     end
     
     def build_tracking_request(tracking_number, options={})
-      xml_request = XmlNode.new('TrackRequest') do |root_node|
-        root_node << XmlNode.new('Request') do |request|
-          request << XmlNode.new('RequestAction', 'Track')
-          request << XmlNode.new('RequestOption', '1')
-        end
-        root_node << XmlNode.new('TrackingNumber', tracking_number.to_s)
-      end
-      xml_request.to_s
+		  bulder = Nokogiri::XML::Builder.new do |xml|
+			  xml.TrackRequest {
+				  xml.Request {
+					  xml.RequestAction 'Track'
+						xml.RequestOption '1'
+					}
+					xml.TrackingNumber tracking_number.to_s
+				}
+			end
+			builder.to_xml
     end
     
-    def build_location_node(name,location,options={})
-      location_node = XmlNode.new(name) do |location_node|
-        location_node << XmlNode.new('Name', location.name) unless location.name.blank?
-	location_node << XmlNode.new('AttentionName', location.attention_name) unless location.attention_name.blank?
-	location_node << XmlNode.new('CompanyName', location.company_name) unless location.company_name.blank?
-        location_node << XmlNode.new('PhoneNumber', location.phone.gsub(/[^\d]/,'')) unless location.phone.blank?
-        location_node << XmlNode.new('FaxNumber', location.fax.gsub(/[^\d]/,'')) unless location.fax.blank?
-       
-        if name == 'Shipper' and (origin_account = @options[:origin_account] || options[:origin_account])
-          location_node << XmlNode.new('ShipperNumber', origin_account)
-        elsif name == 'ShipTo' and (destination_account = @options[:destination_account] || options[:destination_account])
-          location_node << XmlNode.new('ShipperAssignedIdentificationNumber', destination_account)
-        end
-        
-        location_node << XmlNode.new('Address') do |address|
-          address << XmlNode.new("AddressLine1", location.address1) unless location.address1.blank?
-          address << XmlNode.new("AddressLine2", location.address2) unless location.address2.blank?
-          address << XmlNode.new("AddressLine3", location.address3) unless location.address3.blank?
-          address << XmlNode.new("City", location.city) unless location.city.blank?
-          address << XmlNode.new("StateProvinceCode", location.province) unless location.province.blank?
-            # StateProvinceCode required for negotiated rates but not otherwise, for some reason
-          address << XmlNode.new("PostalCode", location.postal_code) unless location.postal_code.blank?
-          address << XmlNode.new("CountryCode", location.country_code(:alpha2)) unless location.country_code(:alpha2).blank?
-          address << XmlNode.new("ResidentialAddressIndicator", true) unless location.commercial? # the default should be that UPS returns residential rates for destinations that it doesn't know about
-          # not implemented: Shipment/(Shipper|ShipTo|ShipFrom)/Address/ResidentialAddressIndicator element
-        end
+    def build_location_node(name,location,options={},xml)
+      for name in name 
+        xml.send(name) {
+          xml.Name location.name unless location.name.blank?
+          xml.AttentionName location.attention_name unless location.attention_name.blank?
+          xml.CompanyName location.company_name unless location.company_name.blank?
+          xml.PhoneNumber location.phone.gsub(/[^\d]/,'') unless location.phone.blank?
+          xml.FaxNumber location.fax.gsub(/[^\d]/,'') unless location.fax.blank?
+
+          if name =='Shipper' and (origin_account = @options[:origin_account] || options[:origin_account])
+            xml.ShipperNumber origin_account
+          elsif name == 'ShipTo' and (destination_account = @options[:destination_account] || options[:destination_account])
+            xml.ShipperAssignedIdentificationNumber destination_account
+          end
+
+          xml.Address {
+            xml.AddressLine1 location.address1 unless location.address1.blank?
+            xml.AddressLine2 location.address2 unless location.address2.blank?
+            xml.AddressLine3 location.address3 unless location.address3.blank?
+            xml.City location.city unless location.city.blank?
+            xml.StateProvinceCode location.province unless location.province.blank?
+            xml.PostalCode location.postal_code unless location.postal_code.blank?
+            xml.CountryCode location.country_code unless location.country_code.blank?
+            xml.ResidentialAddressIndicator true unless location.commercial?
+          }
+        }
       end
     end
-    
+
     def parse_rate_response(origin, destination, packages, response, options={})
       rates = []
       
