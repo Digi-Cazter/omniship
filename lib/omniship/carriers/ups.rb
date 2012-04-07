@@ -205,7 +205,7 @@ module Omniship
 									}
 							    [:length,:width,:height].each do |axis|
 									  value = ((imperial ? package.inches(axis) : package.cm(axis)).to_f*1000).round/1000.0 # 3 decimals
-										xml.send axis.gsub(/^[a-z]|\s+[-z]/) { |a| a.upcase }, [value,0.1].max
+										xml.send axis.to_s.gsub(/^[a-z]|\s+[-z]/) { |a| a.upcase }, [value,0.1].max
 									end
 								}
                 xml.PackageWeight {
