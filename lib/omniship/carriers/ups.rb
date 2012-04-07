@@ -467,15 +467,15 @@ module Omniship
     end
     
     def parse_ship_confirm_response(origin, destination, packages, response, options={})
-      xml = REXML::Document.new(response)
-			root = xml.root
-      success = response_success?(xml)
+      #xml = REXML::Document.new(response)
+			#root = xml.root
+      #success = response_success?(xml)
      
-		  debugger
-      if success
-        @digest = root.elements['ShipmentDigest'].get_text
-      end
-		  return @digest 
+		  #debugger
+      #if success
+      #  @digest = root.elements['ShipmentDigest'].get_text
+      #end
+		  return response 
     end
 
     def parse_ship_accept_response(response, options={})
