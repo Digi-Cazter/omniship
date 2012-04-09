@@ -41,31 +41,30 @@ def Omniship.setup
   @@config.deep_freeze
 end
 
-  $:.unshift File.dirname(__FILE__)
+$:.unshift File.dirname(__FILE__)
 
-  begin
-    require 'active_support/all'
-  rescue LoadError => e
-    require 'rubygems'
-    gem "activesupport", ">= 2.3.5"
-    require "active_support/all"
-  end
-
-  autoload :XmlNode, 'vendor/xml_node/lib/xml_node'
-  autoload :Quantified, 'vendor/quantified/lib/quantified'
-
-  require 'net/https'
-  require 'active_utils'
-
-  require 'omniship/base'
-  require 'omniship/contact'
-  require 'omniship/response'
-  require 'omniship/rate_response'
-  require 'omniship/tracking_response'
-  require 'omniship/package'
-  require 'omniship/address'
-  require 'omniship/rate_estimate'
-  require 'omniship/carrier'
-  require 'omniship/carriers'
-  require 'omniship/shipment_event'
+begin
+  require 'active_support/all'
+rescue LoadError => e
+  require 'rubygems'
+  gem "activesupport", ">= 2.3.5"
+  require "active_support/all"
 end
+
+autoload :XmlNode, 'vendor/xml_node/lib/xml_node'
+autoload :Quantified, 'vendor/quantified/lib/quantified'
+
+require 'net/https'
+require 'active_utils'
+
+require 'omniship/base'
+require 'omniship/contact'
+require 'omniship/response'
+require 'omniship/rate_response'
+require 'omniship/tracking_response'
+require 'omniship/package'
+require 'omniship/address'
+require 'omniship/rate_estimate'
+require 'omniship/carrier'
+require 'omniship/carriers'
+require 'omniship/shipment_event'
