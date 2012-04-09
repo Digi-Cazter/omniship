@@ -245,7 +245,7 @@ module Omniship
     def build_void_request(tracking_number)
 		  builder = Nokogiri::XML::Builder.new do |xml|
 			  xml.VoidShipmentRequest { 
-				  xml.Request
+				  xml.Request {
 					  xml.RequestAction 'Void'
 					}
 				  xml.ExpandedVoidShipment {
