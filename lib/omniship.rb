@@ -38,6 +38,7 @@ def Omniship.setup
       "key"      => @@config["key"]
     }
   end
+	debugger
   @@config.freeze
 end
 
