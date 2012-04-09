@@ -22,6 +22,7 @@
 #++
 
 ### TODO Working on creating code for using an initializer for configuration ###
+debugger
 @root   = Rails.root 
 @boot   = File.join(@root, "config", "boot").freeze
 @config = File.join(@root, "config", "fedex.yml").freeze
