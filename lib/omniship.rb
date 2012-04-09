@@ -39,7 +39,7 @@ def Omniship.setup
     }
   end
 	debugger
-  @@config.freeze
+  @@config[Rails.env].freeze
 end
 
 $:.unshift File.dirname(__FILE__)
