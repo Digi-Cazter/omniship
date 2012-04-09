@@ -23,12 +23,12 @@
 
 ### TODO Working on creating code for using an initializer for configuration ###
 module Omniship
-  def Fedex.setup
-   ROOT   = Rails.root 
-   BOOT   = File.join(ROOT, "config", "boot").freeze
-   CONFIG = File.join(ROOT, "config", "fedex.yml").freeze
-   KEYS   = %w{ username password key }.map { |v| v.freeze }.freeze
+  ROOT   = Rails.root 
+  BOOT   = File.join(ROOT, "config", "boot").freeze
+  CONFIG = File.join(ROOT, "config", "fedex.yml").freeze
+  KEYS   = %w{ username password key }.map { |v| v.freeze }.freeze
 	 
+  def Omniship.setup
 	 require BOOT unless defined? Rails.env
 		@@config = YAML.load_file(CONFIG)
 		raise "Invalid fedex configuration file: #{CONFIG}" unless @@config.is_a?(Hash)
