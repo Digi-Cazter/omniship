@@ -37,7 +37,6 @@ def Omniship.config(carrier)
 			"key"      => @@config["key"]
 		}
 	end
-	logging = (@@config[Rails.env]["log"] || @@config["log"] || "false").to_s.intern
 end
 
 $:.unshift File.dirname(__FILE__)
