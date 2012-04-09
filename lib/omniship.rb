@@ -1,3 +1,5 @@
+require 'yaml'
+require 'rubygems'
 #--
 # Copyright (c) 2009 Jaded Pixel
 #
