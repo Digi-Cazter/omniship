@@ -32,13 +32,13 @@ def Omniship.setup(carrier)
   @@config = YAML.load_file(@config)
   raise "Invalid fedex configuration file: #{@config}" unless @@config.is_a?(Hash)
   if (@@config.keys & @keys).sort == @keys.sort and !@@config.has_key?(Rails.env)
-    @@config[carrier][Rails.env] = {
-      "username" => @@config["username"],
-      "password" => @@config["password"],
-      "key"      => @@config["key"]
+    @@config[Rails.env] = {
+      "ups"   => @@config["ups"],
+      "fedex" => @@config["fedex"],
+      "usps"  => @@config["usps"]
     }
   end
-  @@config[carrier][Rails.env].freeze
+  @@config[Rails.env].freeze
 end
 
 $:.unshift File.dirname(__FILE__)

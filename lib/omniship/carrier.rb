@@ -15,7 +15,7 @@ module Omniship
       @options = options
       @last_request = nil
       @test_mode = @options[:test]
-			@ups_config = Omniship.setup('ups')
+			@config = Omniship.setup
     end
 
     # Override to return required keys in options hash for initialize method.
