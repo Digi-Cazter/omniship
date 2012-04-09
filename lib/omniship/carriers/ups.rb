@@ -473,6 +473,8 @@ module Omniship
       xml = Nokogiri::XML(response)
       success = response_success?(xml)
       
+      debugger
+			
       if success
         @shipment = {} 
 				tracking_number = []
