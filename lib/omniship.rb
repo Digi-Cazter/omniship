@@ -22,7 +22,7 @@
 #++
 
 ### TODO Working on creating code for using an initializer for configuration ###
-boot   = File.join(Rails.root, "config", "boot")
+boot   = File.join(Rails.root, "config", "boot.rb")
 config = File.join(Rails.root, "config", "omniship.yml")
 keys   = %w{ username password key }.map { |v| v }
 
