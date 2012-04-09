@@ -101,7 +101,7 @@ module Omniship
       packages = Array(packages)
       access_request = build_access_request
       rate_request = build_rate_request(origin, destination, packages, options)
-      response = commit(:rates, save_request(access_request + rate_request), (options[:test] || false))
+      response = commit(:rates, save_request(access_request.gsub("\n","") + rate_request.gsub("\n","")), (options[:test] || false))
       parse_rate_response(origin, destination, packages, response, options)
     end
     
@@ -109,7 +109,7 @@ module Omniship
       options = @options.update(options)
       access_request = build_access_request
       tracking_request = build_tracking_request(tracking_number, options)
-      response = commit(:track, save_request(access_request + tracking_request), (options[:test] || false))
+      response = commit(:track, save_request(access_request.gsub("\n","") + tracking_request.gsub("\n","")), (options[:test] || false))
       parse_tracking_response(response, options)
     end
 
@@ -120,7 +120,6 @@ module Omniship
       packages = Array(packages)
       access_request = build_access_request
       ship_confirm_request = build_ship_confirm(origin, destination, packages, options)
-			debugger
       response = commit(:shipconfirm, save_request(access_request.gsub("\n","") + ship_confirm_request.gsub("\n","")), (options[:test] || true))
       parse_ship_confirm_response(origin, destination, packages, response, options)
     end
@@ -128,7 +127,7 @@ module Omniship
     def accept_shipment(digest, options={})
       access_request = build_access_request
       ship_accept_request = build_ship_accept(digest)
-      response = commit(:shipaccept, save_request(access_request + ship_accept_request), (options[:test] || true))
+      response = commit(:shipaccept, save_request(access_request.gsub("\n","") + ship_accept_request.gsub("\n","")), (options[:test] || true))
       parse_ship_accept_response(response, options)
     end
 
@@ -136,7 +135,7 @@ module Omniship
       options = @options.merge(options)
       access_request = build_access_request
       ship_void_request = build_void_request(tracking_number)
-      response = commit(:shipvoid, save_request(access_request + ship_void_request), (options[:test] || true))
+      response = commit(:shipvoid, save_request(access_request.gsub("\n","") + ship_void_request.gsub("\n","")), (options[:test] || true))
       parse_ship_void_response(response, options)
     end
     
@@ -232,26 +231,30 @@ module Omniship
 		end
 
     def build_ship_accept(digest)
-      xml_request = XmlNode.new('ShipmentAcceptRequest') do |root_node|
-        root_node << XmlNode.new('Request') do |request|
-          request << XmlNode.new('RequestAction', 'ShipAccept')
-	end
-	root_node << XmlNode.new('ShipmentDigest', digest)
-      end
-      xml_request.to_s
-     end	
+		  builder = Nokogiri::XML::Builder.new do |xml|
+			  xml.ShipmentAcceptRequest {
+				  xml.Request {
+					  xml.RequestAction 'ShipAccept'
+					}
+					xml.ShipmentDigest digest
+				}
+			end
+			builder.to_xml
+		end
 
-     def build_void_request(tracking_number)
-       xml_request = XmlNode.new('VoidShipmentRequest') do |root_node|
-         root_node << XmlNode.new('Request') do |request|
-           request << XmlNode.new('RequestAction', 'Void')
-	 end
-         root_node << XmlNode.new('ExpandedVoidShipment') do |void|
-	   void << XmlNode.new('ShipmentIdentificationNumber', tracking_number)
-	 end
-       end
-       xml_request.to_s
-     end
+    def build_void_request(tracking_number)
+		  builder = Nokogiri::XML::Builder.new do |xml|
+			  xml.VoidShipmentRequest { 
+				  xml.Request
+					  xml.RequestAction 'Void'
+					}
+				  xml.ExpandedVoidShipment {
+					  xml.ShipmentIdentificationNumber tracking_number
+					}
+				}
+			end
+			builder.to_xml
+		end
 
     def build_rate_request(origin, destination, packages, options={})
       packages = Array(packages)
@@ -468,50 +471,46 @@ module Omniship
     end
     
     def parse_ship_confirm_response(origin, destination, packages, response, options={})
-      #xml = REXML::Document.new(response)
-			#root = xml.root
-      #success = response_success?(xml)
+      xml = Nokogiri::XML(response)
+      success = response_success?(xml)
      
-		  #debugger
-      #if success
-      #  @digest = root.elements['ShipmentDigest'].get_text
-      #end
-		  return response 
+      if success
+        @digest = xml.xpath('//*/ShipmentDigest').text 
+      end
+		  return @digest
     end
 
     def parse_ship_accept_response(response, options={})
-      xml = REXML::Document.new(response)
-      root = xml.root
+      xml = Nokogiri::XML(response)
       success = response_success?(xml)
       
-			debugger
-      if success
-        @shipment = {} 
-				tracking_number = []
-				label           = []
-				track_value     = []
-				label_value     = []
+      #if success
+      #  @shipment = {} 
+			#	tracking_number = []
+			#	label           = []
+			#	track_value     = []
+			#	label_value     = []
 
-			  xml.root.elements.each('ShipmentResults/PackageResults/TrackingNumber') do |track|
-				  tracking_number << track.text
-				end
-				tracking_number.each_with_index do |track|
-				  track_value << track
-				end
-				@shipment[:tracking_number] = value
+			#  xml.root.elements.each('ShipmentResults/PackageResults/TrackingNumber') do |track|
+			#	  tracking_number << track.text
+			#	end
+			#	tracking_number.each_with_index do |track|
+			#	  track_value << track
+			#	end
+			#	@shipment[:tracking_number] = value
 
-        xml.root.elements.each('ShipmentResults/PackageResults/LabelImage/GraphicImage') do |image|
-				  label << image
-				end
-        label.each_with_index do |image|
-				  label_value << image	
-				end
-				@shipment[:label] = label_value 
+      #  xml.root.elements.each('ShipmentResults/PackageResults/LabelImage/GraphicImage') do |image|
+			#	  label << image
+			#	end
+      #  label.each_with_index do |image|
+			#	  label_value << image	
+			#	end
+			#	@shipment[:label] = label_value 
 
-				@shipment[:shipment_id] = root.elements['ShipmentResults/ShipmentIdentificationNumber'].get_text
-        #@shipment[:label_html] = root.elements['ShipmentResults/PackageResults/LabelImage/HTMLImage'].get_text
-      end
-      return @shipment
+			#	@shipment[:shipment_id] = root.elements['ShipmentResults/ShipmentIdentificationNumber'].get_text
+      #  @shipment[:label_html] = root.elements['ShipmentResults/PackageResults/LabelImage/HTMLImage'].get_text
+      # end
+      return response 
     end
 
     def parse_ship_void_response(response, options={})
@@ -541,11 +540,11 @@ module Omniship
     end
     
     def response_success?(xml)
-      xml.get_text('/*/Response/ResponseStatusCode').to_s == '1'
+      xml.xpath('/*/Response/ResponseStatusCode').text == '1'
     end
     
     def response_message(xml)
-      xml.get_text('/*/Response/Error/ErrorDescription | /*/Response/ResponseStatusDescription').to_s
+      xml.xpath('/*/Response/Error/ErrorDescription | /*/Response/ResponseStatusDescription').text
     end
     
     def commit(action, request, test = false)
