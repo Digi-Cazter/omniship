@@ -16,6 +16,7 @@ module Omniship
       @last_request = nil
       @test_mode = @options[:test]
 			@ups_config = Omniship.config('ups')
+			debugger
 			@fedex_config = Omniship.config('fedex')
 			@usps_config = Omniship.config('usps')
     end
