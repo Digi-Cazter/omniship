@@ -38,7 +38,6 @@ def Omniship.setup
       "usps"  => @@config["usps"]
     }
   end
-	debugger
   @@config[Rails.env].freeze
 end
 

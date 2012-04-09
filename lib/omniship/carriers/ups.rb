@@ -115,7 +115,6 @@ module Omniship
 
     # Creating shipping functionality for UPS
     def create_shipment(origin, destination, packages, options={})
-		  debugger
       origin, destination = upsified_location(origin), upsified_location(destination)
       options = @options.merge(options)
       packages = Array(packages)
@@ -474,8 +473,6 @@ module Omniship
       xml = Nokogiri::XML(response)
       success = response_success?(xml)
       
-      debugger
-			
       if success
         @shipment = {} 
 				tracking_number = []
