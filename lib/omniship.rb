@@ -38,7 +38,7 @@ def Omniship.setup(carrier)
       "key"      => @@config["key"]
     }
   end
-  @@config[Rails.env].freeze
+  @@config[carrier][Rails.env].freeze
 end
 
 $:.unshift File.dirname(__FILE__)
