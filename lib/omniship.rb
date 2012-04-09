@@ -24,19 +24,16 @@
 ### TODO Working on creating code for using an initializer for configuration ###
 def Omniship.config(carrier)
   root   = Rails.root 
-  boot   = File.join(root, "config", "boot.rb")
   config = File.join(root, "config", "omniship.yml")
   keys   = %w{ username password key }.map { |v| v }
-  require boot unless defined? Rails.env
 	@@config = YAML.load_file(config)
   raise "Invalid Omniship configuration file: #{config}" unless @@config.is_a?(Hash)
-	if (@@config.keys & keys).sort == keys.sort and !@@config.has_key?(Rails.env)
-	  @@config[carrier][Rails.env] = {
-		  "username" => @@config[carrier][Rails.env]["username"],
-			"password" => @@config[carrier][Rails.env]["password"],
-			"key"      => @@config[carrier][Rails.env]["key"]
-		}
-	end
+	@@config[carrier][Rails.env] = {
+	  "username" => @@config[carrier]["username"],
+		"password" => @@config[carrier]["password"],
+		"key"      => @@config[carrier]["key"]
+	}
+	debugger
 end
 
 $:.unshift File.dirname(__FILE__)
