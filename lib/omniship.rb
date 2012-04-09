@@ -38,7 +38,6 @@ def Omniship.setup
       "key"      => @@config["key"]
     }
   end
-	debugger
   @@config[Rails.env].freeze
 end
 
