@@ -15,10 +15,7 @@ module Omniship
       @options = options
       @last_request = nil
       @test_mode = @options[:test]
-			@ups_config = Omniship.config('ups')
-			debugger
-			@fedex_config = Omniship.config('fedex')
-			@usps_config = Omniship.config('usps')
+			@config = Omniship.setup
     end
 
     # Override to return required keys in options hash for initialize method.

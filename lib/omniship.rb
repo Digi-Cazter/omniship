@@ -22,44 +22,51 @@
 #++
 
 ### TODO Working on creating code for using an initializer for configuration ###
-def Omniship.config(carrier)
-  root   = Rails.root 
-  config = File.join(root, "config", "omniship.yml")
-  keys   = %w{ username password key }.map { |v| v }
-	@@config = YAML.load_file(config)
-  raise "Invalid Omniship configuration file: #{config}" unless @@config.is_a?(Hash)
-	@@config[carrier][Rails.env] = {
-	  "username" => @@config[carrier]["username"],
-		"password" => @@config[carrier]["password"],
-		"key"      => @@config[carrier]["key"]
-	}
-	debugger
+module Omniship
+  def Fedex.setup
+   ROOT   = Rails.root 
+   BOOT   = File.join(ROOT, "config", "boot").freeze
+   CONFIG = File.join(ROOT, "config", "fedex.yml").freeze
+   KEYS   = %w{ username password key }.map { |v| v.freeze }.freeze
+	 
+	 require BOOT unless defined? Rails.env
+		@@config = YAML.load_file(CONFIG)
+		raise "Invalid fedex configuration file: #{CONFIG}" unless @@config.is_a?(Hash)
+		if (@@config.keys & KEYS).sort == KEYS.sort and !@@config.has_key?(Rails.env)
+		  @@config[Rails.env] = {
+			  "username" => @@config["username"],
+			  "password" => @@config["password"],
+			  "key"      => @@config["key"]
+      }
+		end
+    @@config.deep_freeze
+  end
+
+  $:.unshift File.dirname(__FILE__)
+
+  begin
+    require 'active_support/all'
+  rescue LoadError => e
+    require 'rubygems'
+    gem "activesupport", ">= 2.3.5"
+    require "active_support/all"
+  end
+
+  autoload :XmlNode, 'vendor/xml_node/lib/xml_node'
+  autoload :Quantified, 'vendor/quantified/lib/quantified'
+
+  require 'net/https'
+  require 'active_utils'
+
+  require 'omniship/base'
+  require 'omniship/contact'
+  require 'omniship/response'
+  require 'omniship/rate_response'
+  require 'omniship/tracking_response'
+  require 'omniship/package'
+  require 'omniship/address'
+  require 'omniship/rate_estimate'
+  require 'omniship/carrier'
+  require 'omniship/carriers'
+  require 'omniship/shipment_event'
 end
-
-$:.unshift File.dirname(__FILE__)
-
-begin
-  require 'active_support/all'
-rescue LoadError => e
-  require 'rubygems'
-  gem "activesupport", ">= 2.3.5"
-  require "active_support/all"
-end
-
-autoload :XmlNode, 'vendor/xml_node/lib/xml_node'
-autoload :Quantified, 'vendor/quantified/lib/quantified'
-
-require 'net/https'
-require 'active_utils'
-
-require 'omniship/base'
-require 'omniship/contact'
-require 'omniship/response'
-require 'omniship/rate_response'
-require 'omniship/tracking_response'
-require 'omniship/package'
-require 'omniship/address'
-require 'omniship/rate_estimate'
-require 'omniship/carrier'
-require 'omniship/carriers'
-require 'omniship/shipment_event'
