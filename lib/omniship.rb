@@ -1,5 +1,3 @@
-require 'yaml'
-require 'rubygems'
 #--
 # Copyright (c) 2009 Jaded Pixel
 #
@@ -24,26 +22,24 @@ require 'rubygems'
 #++
 
 ### TODO Working on creating code for using an initializer for configuration ###
-module Omniship
-  ROOT   = Rails.root 
-  debugger
-  BOOT   = File.join(ROOT, "config", "boot").freeze
-  CONFIG = File.join(ROOT, "config", "fedex.yml").freeze
-  KEYS   = %w{ username password key }.map { |v| v.freeze }.freeze
+@root   = Rails.root 
+@boot   = File.join(@root, "config", "boot").freeze
+@config = File.join(@root, "config", "fedex.yml").freeze
+@keys   = %w{ username password key }.map { |v| v.freeze }.freeze
 	 
-  def Omniship.setup
-	 require BOOT unless defined? Rails.env
-		@@config = YAML.load_file(CONFIG)
-		raise "Invalid fedex configuration file: #{CONFIG}" unless @@config.is_a?(Hash)
-		if (@@config.keys & KEYS).sort == KEYS.sort and !@@config.has_key?(Rails.env)
-		  @@config[Rails.env] = {
-			  "username" => @@config["username"],
-			  "password" => @@config["password"],
-			  "key"      => @@config["key"]
-      }
-		end
-    @@config.deep_freeze
+def Omniship.setup
+  require boot unless defined? Rails.env
+  @@config = YAML.load_file(@config)
+  raise "Invalid fedex configuration file: #{@config}" unless @@config.is_a?(Hash)
+  if (@@config.keys & @keys).sort == @keys.sort and !@@config.has_key?(Rails.env)
+    @@config[Rails.env] = {
+      "username" => @@config["username"],
+      "password" => @@config["password"],
+      "key"      => @@config["key"]
+    }
   end
+  @@config.deep_freeze
+end
 
   $:.unshift File.dirname(__FILE__)
 
