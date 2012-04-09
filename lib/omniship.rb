@@ -38,7 +38,7 @@ def Omniship.setup
       "key"      => @@config["key"]
     }
   end
-  @@config.deep_freeze
+  @@config.freeze
 end
 
 $:.unshift File.dirname(__FILE__)
