@@ -29,6 +29,7 @@ def Omniship.config(carrier)
   keys   = %w{ username password key }.map { |v| v }
   require boot unless defined? Rails.env
 	@@config = YAML.load_file(config)
+	debugger
   raise "Invalid Omniship configuration file: #{config}" unless @@config.is_a?(Hash)
 	if (@@config.keys & keys).sort == keys.sort and !@@config.has_key?(Rails.env)
 	  @@config[carrier][Rails.env] = {
