@@ -157,9 +157,9 @@ module Omniship
     def build_access_request
 		  builder = Nokogiri::XML::Builder.new do |xml|
 			  xml.AccessRequest {
-				  xml.AccessLicenseNumber @ups_config['key']
-					xml.UserId @ups_config['username']
-					xml.Password @ups_config['password']
+				  xml.AccessLicenseNumber @config['ups']['key']
+					xml.UserId @config['ups']['username']
+					xml.Password @config['ups']['password']
 				}
 			end
 			builder.to_xml
