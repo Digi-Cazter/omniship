@@ -23,7 +23,7 @@
 
 ### TODO Working on creating code for using an initializer for configuration ###
 	 
-def Omniship.setup(carrier)
+def Omniship.setup
   @root   = Rails.root 
   @boot   = File.join(@root, "config", "boot.rb").freeze
   @config = File.join(@root, "config", "omniship.yml").freeze
