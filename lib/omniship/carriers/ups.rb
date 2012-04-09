@@ -258,33 +258,30 @@ module Omniship
 
     def build_rate_request(origin, destination, packages, options={})
       packages = Array(packages)
-      xml_request = XmlNode.new('RatingServiceSelectionRequest') do |root_node|
-        root_node << XmlNode.new('Request') do |request|
-          request << XmlNode.new('RequestAction', 'Rate')
-          request << XmlNode.new('RequestOption', 'Shop')
+			builder = Nokogiri::XML::Builder.new do |xml|
+			  xml.RatingServiceSelectionRequest {
+				  xml.Request {
+					  xml.RequestAction 'Rate'
+						xml.RequestOption 'Shop'
+					}
           # not implemented: 'Rate' RequestOption to specify a single service query
           # request << XmlNode.new('RequestOption', ((options[:service].nil? or options[:service] == :all) ? 'Shop' : 'Rate'))
-        end
-        
         pickup_type = options[:pickup_type] || :daily_pickup
-        
-        root_node << XmlNode.new('PickupType') do |pickup_type_node|
-          pickup_type_node << XmlNode.new('Code', PICKUP_CODES[pickup_type])
+        xml.PickupType {
+				  xml.Code PICKUP_CODES[pickup_type]
           # not implemented: PickupType/PickupDetails element
-        end
+        }
         cc = options[:customer_classification] || DEFAULT_CUSTOMER_CLASSIFICATIONS[pickup_type]
-        root_node << XmlNode.new('CustomerClassification') do |cc_node|
-          cc_node << XmlNode.new('Code', CUSTOMER_CLASSIFICATIONS[cc])
-        end
-        
-        root_node << XmlNode.new('Shipment') do |shipment|
-          # not implemented: Shipment/Description element
-          shipment << build_location_node('Shipper', (options[:shipper] || origin), options)
-          shipment << build_location_node('ShipTo', destination, options)
-          if options[:shipper] and options[:shipper] != origin
-            shipment << build_location_node('ShipFrom', origin, options)
-          end
-          
+        xml.CustomerClassification {
+				  xml.Code CUSTOMER_CLASSIFICATIONS[cc]
+				}
+        xml.Shipment {
+				  build_location_node(['Shipper'], (options[:shipper] || origin), options, xml)
+					build_location_node(['ShipTo'], destination, options, xml)
+					if options[:shipper] && options[:shipper] != origin
+					  build_location_node(['ShipFrom'], origin, options, xml)
+					end
+
           # not implemented:  * Shipment/ShipmentWeight element
           #                   * Shipment/ReferenceNumber element                    
           #                   * Shipment/Service element                            
@@ -296,50 +293,38 @@ module Omniship
           
           packages.each do |package|
             imperial = ['US','LR','MM'].include?(origin.country_code(:alpha2))
-            
-            shipment << XmlNode.new("Package") do |package_node|
-              
-              # not implemented:  * Shipment/Package/PackagingType element
-              #                   * Shipment/Package/Description element
-              
-              package_node << XmlNode.new("PackagingType") do |packaging_type|
-                packaging_type << XmlNode.new("Code", '02')
-              end
-              
-              package_node << XmlNode.new("Dimensions") do |dimensions|
-                dimensions << XmlNode.new("UnitOfMeasurement") do |units|
-                  units << XmlNode.new("Code", imperial ? 'IN' : 'CM')
-                end
-                [:length,:width,:height].each do |axis|
+            xml.Package {
+						  xml.PackagingType {
+							  xml.Code '02'
+							}
+							xml.Dimensions {
+							  xml.UnitOfMeasurement {
+								  xml.Code imperial ? 'IN' : 'CM'
+								}
+								[:length,:width,:height].each do |axis|
                   value = ((imperial ? package.inches(axis) : package.cm(axis)).to_f*1000).round/1000.0 # 3 decimals
-                  dimensions << XmlNode.new(axis.to_s.capitalize, [value,0.1].max)
-                end
-              end
-            
-              package_node << XmlNode.new("PackageWeight") do |package_weight|
-                package_weight << XmlNode.new("UnitOfMeasurement") do |units|
-                  units << XmlNode.new("Code", imperial ? 'LBS' : 'KGS')
-                end
-                
+									xml.send axis.to_s.gsub(/^[a-z]|\s+[-z]/) { |a| a.upcase }, [value,0.1].max
+								end
+							}
+              xml.PackageWeight {
+							  xml.UnitOfMeasurement {
+								  xml.Code imperial ? 'LBS' : 'KGS'
+								}
                 value = ((imperial ? package.lbs : package.kgs).to_f*1000).round/1000.0 # 3 decimals
-                package_weight << XmlNode.new("Weight", [value,0.1].max)
-              end
-            
+                xml.Weight [value,0.1].max
+							}
               # not implemented:  * Shipment/Package/LargePackageIndicator element
               #                   * Shipment/Package/ReferenceNumber element
               #                   * Shipment/Package/PackageServiceOptions element
               #                   * Shipment/Package/AdditionalHandling element  
-            end
-            
+            } 
           end
-          
           # not implemented:  * Shipment/ShipmentServiceOptions element
           #                   * Shipment/RateInformation element
-          
-        end
-        
-      end
-      xml_request.to_s
+        } 
+			}
+			end
+      builder.to_xml
     end
     
     def build_tracking_request(tracking_number, options={})
@@ -385,34 +370,37 @@ module Omniship
     end
 
     def parse_rate_response(origin, destination, packages, response, options={})
+		  #TODO
       rates = []
       
-      xml = REXML::Document.new(response)
+      xml = Nokogiri::XML(response)
       success = response_success?(xml)
       message = response_message(xml)
       
       if success
         rate_estimates = []
         
-        xml.elements.each('/*/RatedShipment') do |rated_shipment|
-          service_code = rated_shipment.get_text('Service/Code').to_s
-          days_to_delivery = rated_shipment.get_text('GuaranteedDaysToDelivery').to_s.to_i
-          delivery_date  = days_to_delivery >= 1 ? days_to_delivery.days.from_now.strftime("%Y-%m-%d") : nil
+        #xml.elements.each('/*/RatedShipment') do |rated_shipment|
+        #  service_code = rated_shipment.get_text('Service/Code').to_s
+        #  days_to_delivery = rated_shipment.get_text('GuaranteedDaysToDelivery').to_s.to_i
+        #  delivery_date  = days_to_delivery >= 1 ? days_to_delivery.days.from_now.strftime("%Y-%m-%d") : nil
 
-          rate_estimates << RateEstimate.new(origin, destination, @@name,
-                              service_name_for(origin, service_code),
-                              :total_price => rated_shipment.get_text('TotalCharges/MonetaryValue').to_s.to_f,
-                              :currency => rated_shipment.get_text('TotalCharges/CurrencyCode').to_s,
-                              :service_code => service_code,
-                              :packages => packages,
-                              :delivery_range => [delivery_date])
-        end
+        #  rate_estimates << RateEstimate.new(origin, destination, @@name,
+        #                      service_name_for(origin, service_code),
+        #                      :total_price => rated_shipment.get_text('TotalCharges/MonetaryValue').to_s.to_f,
+        #                      :currency => rated_shipment.get_text('TotalCharges/CurrencyCode').to_s,
+        #                      :service_code => service_code,
+        #                      :packages => packages,
+        #                      :delivery_range => [delivery_date])
+        #end
       end
-      RateResponse.new(success, message, Hash.from_xml(response).values.first, :rates => rate_estimates, :xml => response, :request => last_request)
+      #RateResponse.new(success, message, Hash.from_xml(response).values.first, :rates => rate_estimates, :xml => response, :request => last_request)
+			return 'Feature Not Available'
     end
     
     def parse_tracking_response(response, options={})
-      xml = REXML::Document.new(response)
+		  #TODO
+      xml = Nokogiri::XML(response)
       success = response_success?(xml)
       message = response_message(xml)
       
@@ -420,54 +408,55 @@ module Omniship
         tracking_number, origin, destination = nil
         shipment_events = []
         
-        first_shipment = xml.elements['/*/Shipment']
-        first_package = first_shipment.elements['Package']
-        tracking_number = first_shipment.get_text('ShipmentIdentificationNumber | Package/TrackingNumber').to_s
+        #first_shipment = xml.gelements['/*/Shipment']
+        #first_package = first_shipment.elements['Package']
+        #tracking_number = first_shipment.get_text('ShipmentIdentificationNumber | Package/TrackingNumber').to_s
         
-        origin, destination = %w{Shipper ShipTo}.map do |location|
-          location_from_address_node(first_shipment.elements["#{location}/Address"])
-        end
+        #origin, destination = %w{Shipper ShipTo}.map do |location|
+        #  location_from_address_node(first_shipment.elements["#{location}/Address"])
+        #end
         
-        activities = first_package.get_elements('Activity')
-        unless activities.empty?
-          shipment_events = activities.map do |activity|
-            description = activity.get_text('Status/StatusType/Description').to_s
-            zoneless_time = if (time = activity.get_text('Time')) &&
-                               (date = activity.get_text('Date'))
-              time, date = time.to_s, date.to_s
-              hour, minute, second = time.scan(/\d{2}/)
-              year, month, day = date[0..3], date[4..5], date[6..7]
-              Time.utc(year, month, day, hour, minute, second)
-            end
-            location = location_from_address_node(activity.elements['ActivityLocation/Address'])
-            ShipmentEvent.new(description, zoneless_time, location)
-          end
-          
-          shipment_events = shipment_events.sort_by(&:time)
-          
-          if origin
-            first_event = shipment_events[0]
-            same_country = origin.country_code(:alpha2) == first_event.location.country_code(:alpha2)
-            same_or_blank_city = first_event.location.city.blank? or first_event.location.city == origin.city
-            origin_event = ShipmentEvent.new(first_event.name, first_event.time, origin)
-            if same_country and same_or_blank_city
-              shipment_events[0] = origin_event
-            else
-              shipment_events.unshift(origin_event)
-            end
-          end
-          if shipment_events.last.name.downcase == 'delivered'
-            shipment_events[-1] = ShipmentEvent.new(shipment_events.last.name, shipment_events.last.time, destination)
-          end
-        end
+        #activities = first_package.get_elements('Activity')
+        #unless activities.empty?
+        #  shipment_events = activities.map do |activity|
+        #    description = activity.get_text('Status/StatusType/Description').to_s
+        #    zoneless_time = if (time = activity.get_text('Time')) &&
+        #                       (date = activity.get_text('Date'))
+        #      time, date = time.to_s, date.to_s
+        #      hour, minute, second = time.scan(/\d{2}/)
+        #      year, month, day = date[0..3], date[4..5], date[6..7]
+        #      Time.utc(year, month, day, hour, minute, second)
+        #    end
+        #    location = location_from_address_node(activity.elements['ActivityLocation/Address'])
+        #    ShipmentEvent.new(description, zoneless_time, location)
+        #  end
+        #  
+        #  shipment_events = shipment_events.sort_by(&:time)
+        #  
+        #  if origin
+        #    first_event = shipment_events[0]
+        #    same_country = origin.country_code(:alpha2) == first_event.location.country_code(:alpha2)
+        #    same_or_blank_city = first_event.location.city.blank? or first_event.location.city == origin.city
+        #    origin_event = ShipmentEvent.new(first_event.name, first_event.time, origin)
+        #    if same_country and same_or_blank_city
+        #      shipment_events[0] = origin_event
+        #    else
+        #      shipment_events.unshift(origin_event)
+        #    end
+        #  end
+        #  if shipment_events.last.name.downcase == 'delivered'
+        #    shipment_events[-1] = ShipmentEvent.new(shipment_events.last.name, shipment_events.last.time, destination)
+        #  end
+        #end
 		  end
-      TrackingResponse.new(success, message, Hash.from_xml(response).values.first,
-        :xml => response,
-        :request => last_request,
-        :shipment_events => shipment_events,
-        :origin => origin,
-        :destination => destination,
-        :tracking_number => tracking_number)
+      #TrackingResponse.new(success, message, Hash.from_xml(response).values.first,
+      #  :xml => response,
+      #  :request => last_request,
+      #  :shipment_events => shipment_events,
+      #  :origin => origin,
+      #  :destination => destination,
+      #  :tracking_number => tracking_number)
+			return 'Feature Not Available'
     end
     
     def parse_ship_confirm_response(origin, destination, packages, response, options={})
@@ -484,40 +473,31 @@ module Omniship
       xml = Nokogiri::XML(response)
       success = response_success?(xml)
       
-      #if success
-      #  @shipment = {} 
-			#	tracking_number = []
-			#	label           = []
-			#	track_value     = []
-			#	label_value     = []
+      if success
+        @shipment = {} 
+				tracking_number = []
+				label           = []
 
-			#  xml.root.elements.each('ShipmentResults/PackageResults/TrackingNumber') do |track|
-			#	  tracking_number << track.text
-			#	end
-			#	tracking_number.each_with_index do |track|
-			#	  track_value << track
-			#	end
-			#	@shipment[:tracking_number] = value
+        @shipment[:charges]     = xml.xpath('/*/ShipmentResults/*/TotalCharges/MonetaryValue').text
+				@shipment[:shipment_id] = xml.xpath('/*/ShipmentResults/ShipmentIdentificationNumber').text
+			  
+				xml.xpath('/*/ShipmentResults/*/TrackingNumber').each do |track|
+			    tracking_number << track.text
+				end
+				@shipment[:tracking_number] = tracking_number 
 
-      #  xml.root.elements.each('ShipmentResults/PackageResults/LabelImage/GraphicImage') do |image|
-			#	  label << image
-			#	end
-      #  label.each_with_index do |image|
-			#	  label_value << image	
-			#	end
-			#	@shipment[:label] = label_value 
-
-			#	@shipment[:shipment_id] = root.elements['ShipmentResults/ShipmentIdentificationNumber'].get_text
-      #  @shipment[:label_html] = root.elements['ShipmentResults/PackageResults/LabelImage/HTMLImage'].get_text
-      # end
-      return response 
+        xml.xpath('/*/ShipmentResults/*/LabelImage/GraphicImage') do |image|
+				  label << image
+				end
+				@shipment[:label] = label 
+      end
+      return @shipment
     end
 
     def parse_ship_void_response(response, options={})
-      xml = REXML::Document.new(response)
-      root = xml.root
-      success = root.elements['Response/ResponseStatusCode']
-      if success == 1
+      xml = Nokogiri::XML(response)
+      success = response_success?(xml)
+      if success
         @void = "Shipment successfully voided!"
       else
         @void = "Voiding shipment failed!"
@@ -529,13 +509,13 @@ module Omniship
     def location_from_address_node(address)
       return nil unless address
       Address.new(
-              :country =>     node_text_or_nil(address.elements['CountryCode']),
+              :country     => node_text_or_nil(address.elements['CountryCode']),
               :postal_code => node_text_or_nil(address.elements['PostalCode']),
-              :province =>    node_text_or_nil(address.elements['StateProvinceCode']),
-              :city =>        node_text_or_nil(address.elements['City']),
-              :address1 =>    node_text_or_nil(address.elements['AddressLine1']),
-              :address2 =>    node_text_or_nil(address.elements['AddressLine2']),
-              :address3 =>    node_text_or_nil(address.elements['AddressLine3'])
+              :province    => node_text_or_nil(address.elements['StateProvinceCode']),
+              :city        => node_text_or_nil(address.elements['City']),
+              :address1    => node_text_or_nil(address.elements['AddressLine1']),
+              :address2    => node_text_or_nil(address.elements['AddressLine2']),
+              :address3    => node_text_or_nil(address.elements['AddressLine3'])
             )
     end
     
