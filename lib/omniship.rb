@@ -23,7 +23,7 @@
 
 ### TODO Working on creating code for using an initializer for configuration ###
 	 
-def Omniship.setup
+def Omniship.setup(carrier)
   @root   = Rails.root 
   @boot   = File.join(@root, "config", "boot.rb").freeze
   @config = File.join(@root, "config", "omniship.yml").freeze
@@ -32,7 +32,7 @@ def Omniship.setup
   @@config = YAML.load_file(@config)
   raise "Invalid fedex configuration file: #{@config}" unless @@config.is_a?(Hash)
   if (@@config.keys & @keys).sort == @keys.sort and !@@config.has_key?(Rails.env)
-    @@config[Rails.env] = {
+    @@config[carrier][Rails.env] = {
       "username" => @@config["username"],
       "password" => @@config["password"],
       "key"      => @@config["key"]
