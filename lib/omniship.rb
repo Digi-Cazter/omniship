@@ -23,6 +23,7 @@
 
 ### TODO Working on creating code for using an initializer for configuration ###
 @root   = Rails.root 
+puts @root
 @boot   = File.join(@root, "config", "boot.rb").freeze
 @config = File.join(@root, "config", "omniship.yml").freeze
 @keys   = %w{ username password key }.map { |v| v.freeze }.freeze
