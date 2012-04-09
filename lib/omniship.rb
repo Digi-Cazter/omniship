@@ -22,18 +22,23 @@
 #++
 
 ### TODO Working on creating code for using an initializer for configuration ###
-#ROOT   = File.expand_path(File.join(File.dirname(__FILE__), ".."))
-#BOOT   = File.join(ROOT, "config", "boot")
-#CONFIG = File.join(ROOT, "config", "omniship.yml")
-#KEYS   = %w{ username password key }.map { |v| v }
+boot   = File.join(Rails.root, "config", "boot")
+config = File.join(Rails.root, "config", "omniship.yml")
+keys   = %w{ username password key }.map { |v| v }
 
-#def Omniship.setup
-#  require BOOT unless defined? Rails.env
-#	@@config = YAML.load_file(CONFIG)
-#  raise "Invalid Omniship configuration file: #{CONFIG}" unless @@config.is_a?(Hash)
-#	if (@@config.keys & KEYS).sort == KEYS.sort and !@@config.has_key?(Rails.env)
-#	  @@config[Rails.env] = {
-		  
+def Omniship.config(carrier)
+  require boot unless defined? Rails.env
+	@@config = YAML.load_file(config)
+  raise "Invalid Omniship configuration file: #{config}" unless @@config.is_a?(Hash)
+	if (@@config.keys & keys).sort == keys.sort and !@@config.has_key?(Rails.env)
+	  @@config[carrier][Rails.env] = {
+		  "username" => @@config["username"],
+			"password" => @@config["password"],
+			"key"      => @@config["key"]
+		}
+	end
+	logging = (@@config[Rails.env]["log"] || @@config["log"] || "false").to_s.intern
+end
 
 $:.unshift File.dirname(__FILE__)
 
