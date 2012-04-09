@@ -23,7 +23,7 @@
 
 ### TODO Working on creating code for using an initializer for configuration ###
 def Omniship.config(carrier)
-  root   = File.expand_path(File.join(File.dirname(__FILE__), ".."))
+  root   = Rails.root 
   boot   = File.join(root, "config", "boot.rb")
   config = File.join(root, "config", "omniship.yml")
   keys   = %w{ username password key }.map { |v| v }
@@ -67,7 +67,3 @@ require 'omniship/rate_estimate'
 require 'omniship/carrier'
 require 'omniship/carriers'
 require 'omniship/shipment_event'
-
-Omniship.config('ups')
-Omniship.config('fedex')
-Omniship.config('usps')
