@@ -488,7 +488,7 @@ module Omniship
 				end
 				@shipment[:tracking_number] = tracking_number 
 
-        xml.xpath('/*/ShipmentResults/*/LabelImage/GraphicImage') do |image|
+        xml.xpath('/*/ShipmentResults/*/LabelImage/GraphicImage').each do |image|
 				  label << image
 				end
 				@shipment[:label] = label 
