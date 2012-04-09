@@ -16,7 +16,6 @@ module Omniship
       @last_request = nil
       @test_mode = @options[:test]
 			@config = Omniship.setup
-			debugger
     end
 
     # Override to return required keys in options hash for initialize method.
