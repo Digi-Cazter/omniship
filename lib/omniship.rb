@@ -22,10 +22,9 @@
 #++
 
 ### TODO Working on creating code for using an initializer for configuration ###
-debugger
 @root   = Rails.root 
-@boot   = File.join(@root, "config", "boot").freeze
-@config = File.join(@root, "config", "fedex.yml").freeze
+@boot   = File.join(@root, "config", "boot.rb").freeze
+@config = File.join(@root, "config", "omniship.yml").freeze
 @keys   = %w{ username password key }.map { |v| v.freeze }.freeze
 	 
 def Omniship.setup
