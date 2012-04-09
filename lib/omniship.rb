@@ -22,12 +22,12 @@
 #++
 
 ### TODO Working on creating code for using an initializer for configuration ###
-boot   = File.join(Rails.root, "config", "boot.rb")
+#boot   = File.join(Rails.root, "config", "boot.rb")
 config = File.join(Rails.root, "config", "omniship.yml")
 keys   = %w{ username password key }.map { |v| v }
 
 def Omniship.config(carrier)
-  require boot unless defined? Rails.env
+  #require boot unless defined? Rails.env
 	@@config = YAML.load_file(config)
   raise "Invalid Omniship configuration file: #{config}" unless @@config.is_a?(Hash)
 	if (@@config.keys & keys).sort == keys.sort and !@@config.has_key?(Rails.env)
@@ -67,3 +67,7 @@ require 'omniship/rate_estimate'
 require 'omniship/carrier'
 require 'omniship/carriers'
 require 'omniship/shipment_event'
+
+Omniship.config('ups')
+Omniship.config('fedex')
+Omniship.config('usps')
