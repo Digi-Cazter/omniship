@@ -24,6 +24,7 @@
 ### TODO Working on creating code for using an initializer for configuration ###
 module Omniship
   ROOT   = Rails.root 
+  debugger
   BOOT   = File.join(ROOT, "config", "boot").freeze
   CONFIG = File.join(ROOT, "config", "fedex.yml").freeze
   KEYS   = %w{ username password key }.map { |v| v.freeze }.freeze
