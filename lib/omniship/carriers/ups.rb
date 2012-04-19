@@ -472,9 +472,9 @@ module Omniship
     def parse_ship_accept_response(response, options={})
       xml = Nokogiri::XML(response)
       success = response_success?(xml)
+      @shipment = {} 
       
       if success
-        @shipment = {} 
 				tracking_number = []
 				label           = []
 
@@ -489,7 +489,10 @@ module Omniship
         xml.xpath('/*/ShipmentResults/*/LabelImage/GraphicImage').each do |image|
 				  label << image.text
 				end
-				@shipment[:label] = label 
+				@shipment[:label]   = label 
+				@shipment[:success] = true
+			else
+			  @shipment[:success] = false
       end
       return @shipment
     end
