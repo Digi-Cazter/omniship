@@ -154,133 +154,133 @@ module Omniship
     end
     
     def build_access_request
-		  builder = Nokogiri::XML::Builder.new do |xml|
-			  xml.AccessRequest {
-				  xml.AccessLicenseNumber @config['ups']['key']
-					xml.UserId @config['ups']['username']
-					xml.Password @config['ups']['password']
-				}
-			end
-			builder.to_xml
+      builder = Nokogiri::XML::Builder.new do |xml|
+        xml.AccessRequest {
+          xml.AccessLicenseNumber @config['ups']['key']
+          xml.UserId @config['ups']['username']
+          xml.Password @config['ups']['password']
+        }
+      end
+      builder.to_xml
     end
 
     # Build the ship_confirm XML request      
     def build_ship_confirm(origin, destination, packages, options={})
       packages = Array(packages)
-		  builder = Nokogiri::XML::Builder.new do |xml|
-			  xml.ShipmentConfirmRequest {
-				  xml.Request {
-					  xml.RequestAction 'ShipConfirm'
-						xml.RequestOption 'validate'
-					}
-					xml.Shipment {
-					  build_location_node(['Shipper'], (options[:shipper] || origin), options, xml)
-						build_location_node(['ShipTo'], destination, options, xml)
-						if options[:shipper] && options[:shipper] != origin
-						  build_location_node(['ShipFrom'], origin, options, xml)
-						end
-						xml.PaymentInformation {
-						  xml.Prepaid {
-							  xml.BillShipper {
-								  xml.AccountNumber options[:origin_account]
-								}
-							}
-						}
-            xml.Service {
-						  xml.Code options[:service]
-						}
-						xml.ShipmentServiceOptions {
-						  xml.SaturdayDelivery if options[:saturday] == true
-					  }
-						packages.each do |package|
-						  imperial = ['US','LR','MM'].include?(origin.country_code(:alpha2))
-							xml.Package {
-							  xml.PackagingType {
-								  xml.Code package.options[:package_type]
-								}
-								xml.Dimensions {
-								  xml.UnitOfMeasurement {
-									  xml.Code imperial ? 'IN' : 'CM'
-									}
-							    [:length,:width,:height].each do |axis|
-									  value = ((imperial ? package.inches(axis) : package.cm(axis)).to_f*1000).round/1000.0 # 3 decimals
-										xml.send axis.to_s.gsub(/^[a-z]|\s+[-z]/) { |a| a.upcase }, [value,0.1].max
-									end
-								}
-                xml.PackageWeight {
-								  xml.UnitOfMeasurement {
-									  xml.Code imperial ? 'LBS' : 'KGS'
-						      }
-									value = ((imperial ? package.lbs : package.kgs).to_f*1000).round/1000.0 # decimals
-									xml.Weight [value,0.1].max
-								}
+      builder = Nokogiri::XML::Builder.new do |xml|
+        xml.ShipmentConfirmRequest {
+          xml.Request {
+            xml.RequestAction 'ShipConfirm'
+            xml.RequestOption 'validate'
+          }
+          xml.Shipment {
+            build_location_node(['Shipper'], (options[:shipper] || origin), options, xml)
+            build_location_node(['ShipTo'], destination, options, xml)
+            if options[:shipper] && options[:shipper] != origin
+              build_location_node(['ShipFrom'], origin, options, xml)
+            end
+            xml.PaymentInformation {
+              xml.Prepaid {
+                xml.BillShipper {
+                  xml.AccountNumber options[:origin_account]
+                }
               }
-					  end
+            }
+            xml.Service {
+              xml.Code options[:service]
+            }
+            xml.ShipmentServiceOptions {
+              xml.SaturdayDelivery if options[:saturday] == true
+            }
+            packages.each do |package|
+              imperial = ['US','LR','MM'].include?(origin.country_code(:alpha2))
+              xml.Package {
+                xml.PackagingType {
+                  xml.Code package.options[:package_type]
+                }
+                xml.Dimensions {
+                  xml.UnitOfMeasurement {
+                    xml.Code imperial ? 'IN' : 'CM'
+                  }
+                  [:length,:width,:height].each do |axis|
+                    value = ((imperial ? package.inches(axis) : package.cm(axis)).to_f*1000).round/1000.0 # 3 decimals
+                    xml.send axis.to_s.gsub(/^[a-z]|\s+[-z]/) { |a| a.upcase }, [value,0.1].max
+                  end
+                }
+                xml.PackageWeight {
+                  xml.UnitOfMeasurement {
+                    xml.Code imperial ? 'LBS' : 'KGS'
+                  }
+                  value = ((imperial ? package.lbs : package.kgs).to_f*1000).round/1000.0 # decimals
+                  xml.Weight [value,0.1].max
+                }
+              }
+            end
             xml.LabelSpecification {
-						  xml.LabelPrintMethod {
-							  xml.Code 'GIF'
-							}
-							xml.LabelImageFormat {
-							  xml.Code 'PNG'
-							}
-						}
-					}
-				}
-			end
-			builder.to_xml
-		end
+              xml.LabelPrintMethod {
+                xml.Code 'GIF'
+              }
+              xml.LabelImageFormat {
+                xml.Code 'PNG'
+              }
+            }
+          }
+        }
+      end
+      builder.to_xml
+    end
 
     def build_ship_accept(digest)
-		  builder = Nokogiri::XML::Builder.new do |xml|
-			  xml.ShipmentAcceptRequest {
-				  xml.Request {
-					  xml.RequestAction 'ShipAccept'
-					}
-					xml.ShipmentDigest digest
-				}
-			end
-			builder.to_xml
-		end
+      builder = Nokogiri::XML::Builder.new do |xml|
+        xml.ShipmentAcceptRequest {
+          xml.Request {
+            xml.RequestAction 'ShipAccept'
+          }
+          xml.ShipmentDigest digest
+        }
+      end
+      builder.to_xml
+    end
 
     def build_void_request(tracking_number)
-		  builder = Nokogiri::XML::Builder.new do |xml|
-			  xml.VoidShipmentRequest { 
-				  xml.Request {
-					  xml.RequestAction 'Void'
-					}
-				  xml.ExpandedVoidShipment {
-					  xml.ShipmentIdentificationNumber tracking_number
-					}
-				}
-			end
-			builder.to_xml
-		end
+      builder = Nokogiri::XML::Builder.new do |xml|
+        xml.VoidShipmentRequest { 
+          xml.Request {
+            xml.RequestAction 'Void'
+          }
+          xml.ExpandedVoidShipment {
+            xml.ShipmentIdentificationNumber tracking_number
+          }
+        }
+      end
+      builder.to_xml
+    end
 
     def build_rate_request(origin, destination, packages, options={})
       packages = Array(packages)
-			builder = Nokogiri::XML::Builder.new do |xml|
-			  xml.RatingServiceSelectionRequest {
-				  xml.Request {
-					  xml.RequestAction 'Rate'
-						xml.RequestOption 'Shop'
-					}
+      builder = Nokogiri::XML::Builder.new do |xml|
+        xml.RatingServiceSelectionRequest {
+          xml.Request {
+            xml.RequestAction 'Rate'
+            xml.RequestOption 'Shop'
+          }
           # not implemented: 'Rate' RequestOption to specify a single service query
           # request << XmlNode.new('RequestOption', ((options[:service].nil? or options[:service] == :all) ? 'Shop' : 'Rate'))
         pickup_type = options[:pickup_type] || :daily_pickup
         xml.PickupType {
-				  xml.Code PICKUP_CODES[pickup_type]
+          xml.Code PICKUP_CODES[pickup_type]
           # not implemented: PickupType/PickupDetails element
         }
         cc = options[:customer_classification] || DEFAULT_CUSTOMER_CLASSIFICATIONS[pickup_type]
         xml.CustomerClassification {
-				  xml.Code CUSTOMER_CLASSIFICATIONS[cc]
-				}
+          xml.Code CUSTOMER_CLASSIFICATIONS[cc]
+        }
         xml.Shipment {
-				  build_location_node(['Shipper'], (options[:shipper] || origin), options, xml)
-					build_location_node(['ShipTo'], destination, options, xml)
-					if options[:shipper] && options[:shipper] != origin
-					  build_location_node(['ShipFrom'], origin, options, xml)
-					end
+          build_location_node(['Shipper'], (options[:shipper] || origin), options, xml)
+          build_location_node(['ShipTo'], destination, options, xml)
+          if options[:shipper] && options[:shipper] != origin
+            build_location_node(['ShipFrom'], origin, options, xml)
+          end
 
           # not implemented:  * Shipment/ShipmentWeight element
           #                   * Shipment/ReferenceNumber element                    
@@ -294,25 +294,25 @@ module Omniship
           packages.each do |package|
             imperial = ['US','LR','MM'].include?(origin.country_code(:alpha2))
             xml.Package {
-						  xml.PackagingType {
-							  xml.Code '02'
-							}
-							xml.Dimensions {
-							  xml.UnitOfMeasurement {
-								  xml.Code imperial ? 'IN' : 'CM'
-								}
-								[:length,:width,:height].each do |axis|
+              xml.PackagingType {
+                xml.Code '02'
+              }
+              xml.Dimensions {
+                xml.UnitOfMeasurement {
+                  xml.Code imperial ? 'IN' : 'CM'
+                }
+                [:length,:width,:height].each do |axis|
                   value = ((imperial ? package.inches(axis) : package.cm(axis)).to_f*1000).round/1000.0 # 3 decimals
-									xml.send axis.to_s.gsub(/^[a-z]|\s+[-z]/) { |a| a.upcase }, [value,0.1].max
-								end
-							}
+                  xml.send axis.to_s.gsub(/^[a-z]|\s+[-z]/) { |a| a.upcase }, [value,0.1].max
+                end
+              }
               xml.PackageWeight {
-							  xml.UnitOfMeasurement {
-								  xml.Code imperial ? 'LBS' : 'KGS'
-								}
+                xml.UnitOfMeasurement {
+                  xml.Code imperial ? 'LBS' : 'KGS'
+                }
                 value = ((imperial ? package.lbs : package.kgs).to_f*1000).round/1000.0 # 3 decimals
                 xml.Weight [value,0.1].max
-							}
+              }
               # not implemented:  * Shipment/Package/LargePackageIndicator element
               #                   * Shipment/Package/ReferenceNumber element
               #                   * Shipment/Package/PackageServiceOptions element
@@ -322,22 +322,22 @@ module Omniship
           # not implemented:  * Shipment/ShipmentServiceOptions element
           #                   * Shipment/RateInformation element
         } 
-			}
-			end
+      }
+      end
       builder.to_xml
     end
     
     def build_tracking_request(tracking_number, options={})
-		  bulder = Nokogiri::XML::Builder.new do |xml|
-			  xml.TrackRequest {
-				  xml.Request {
-					  xml.RequestAction 'Track'
-						xml.RequestOption '1'
-					}
-					xml.TrackingNumber tracking_number.to_s
-				}
-			end
-			builder.to_xml
+      bulder = Nokogiri::XML::Builder.new do |xml|
+        xml.TrackRequest {
+          xml.Request {
+            xml.RequestAction 'Track'
+            xml.RequestOption '1'
+          }
+          xml.TrackingNumber tracking_number.to_s
+        }
+      end
+      builder.to_xml
     end
     
     def build_location_node(name,location,options={},xml)
@@ -370,7 +370,7 @@ module Omniship
     end
 
     def parse_rate_response(origin, destination, packages, response, options={})
-		  #TODO
+      #TODO
       rates = []
       
       xml = Nokogiri::XML(response)
@@ -395,11 +395,11 @@ module Omniship
         #end
       end
       #RateResponse.new(success, message, Hash.from_xml(response).values.first, :rates => rate_estimates, :xml => response, :request => last_request)
-			return 'Feature Not Available'
+      return 'Feature Not Available'
     end
     
     def parse_tracking_response(response, options={})
-		  #TODO
+      #TODO
       xml = Nokogiri::XML(response)
       success = response_success?(xml)
       message = response_message(xml)
@@ -448,7 +448,7 @@ module Omniship
         #    shipment_events[-1] = ShipmentEvent.new(shipment_events.last.name, shipment_events.last.time, destination)
         #  end
         #end
-		  end
+      end
       #TrackingResponse.new(success, message, Hash.from_xml(response).values.first,
       #  :xml => response,
       #  :request => last_request,
@@ -456,7 +456,7 @@ module Omniship
       #  :origin => origin,
       #  :destination => destination,
       #  :tracking_number => tracking_number)
-			return 'Feature Not Available'
+      return 'Feature Not Available'
     end
     
     def parse_ship_confirm_response(origin, destination, packages, response, options={})
@@ -466,7 +466,7 @@ module Omniship
       if success
         @digest = xml.xpath('//*/ShipmentDigest').text 
       end
-		  return @digest
+      return @digest
     end
 
     def parse_ship_accept_response(response, options={})
@@ -475,26 +475,27 @@ module Omniship
       @shipment = {} 
       
       if success
-				tracking_number = []
-				label           = []
+        tracking_number = []
+        label           = []
 
         @shipment[:charges]     = xml.xpath('/*/ShipmentResults/*/TotalCharges/MonetaryValue').text
-				@shipment[:shipment_id] = xml.xpath('/*/ShipmentResults/ShipmentIdentificationNumber').text
-			  
-				xml.xpath('/*/ShipmentResults/*/TrackingNumber').each do |track|
-			    tracking_number << track.text
-				end
-				@shipment[:tracking_number] = tracking_number 
+        @shipment[:shipment_id] = xml.xpath('/*/ShipmentResults/ShipmentIdentificationNumber').text
+        
+        xml.xpath('/*/ShipmentResults/*/TrackingNumber').each do |track|
+          tracking_number << track.text
+        end
+        @shipment[:tracking_number] = tracking_number 
 
         xml.xpath('/*/ShipmentResults/*/LabelImage/GraphicImage').each do |image|
-				  label << image.text
-				end
-				@shipment[:label]   = label 
-				@shipment[:success] = true
-			else
-			  @shipment[:success] = false
+          label << image.text
+        end
+        @shipment[:label]   = label 
+        @shipment[:success] = true
+      else
+        @shipment[:success] = false
       end
-      return @shipment
+      #return @shipment
+      return xml
     end
 
     def parse_ship_void_response(response, options={})

@@ -56,6 +56,7 @@ autoload :Quantified, 'vendor/quantified/lib/quantified'
 
 require 'net/https'
 require 'active_utils'
+require 'nokogiri'
 
 require 'omniship/base'
 require 'omniship/contact'
