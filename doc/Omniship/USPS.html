@@ -1,0 +1,797 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Omniship::USPS
+  
+    &mdash; Documentation by YARD 0.8.2.1
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" media="screen" charset="utf-8" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" media="screen" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../';
+  framesUrl = "../frames.html#!" + escape(window.location.href);
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../_index.html">Index (U)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Omniship.html" title="Omniship (module)">Omniship</a></span></span>
+     &raquo; 
+    <span class="title">USPS</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Omniship::USPS
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName"><span class='object_link'><a href="Carrier.html" title="Omniship::Carrier (class)">Carrier</a></span></span>
+      
+        <ul class="fullTree">
+          <li><span class='object_link'><a href="../Object.html" title="Object (class)">Object</a></span></li>
+          
+            <li class="next"><span class='object_link'><a href="Carrier.html" title="Omniship::Carrier (class)">Carrier</a></span></li>
+          
+            <li class="next">Omniship::USPS</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/omniship/carriers/usps.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>After getting an API login from USPS (looks like '123YOURNAME456'), run the
+following test:</p>
+
+<p>usps = USPS.new(:login =&gt; '123YOURNAME456', :test =&gt; true)
+usps.valid_credentials?</p>
+
+<p>This will send a test request to the USPS test servers, which they ask you
+to do before they put your API key in production mode.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="LIVE_DOMAIN-constant" class="">LIVE_DOMAIN =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>production.shippingapis.com</span><span class='tstring_end'>'</span></span></pre></dd>
+      
+        <dt id="LIVE_RESOURCE-constant" class="">LIVE_RESOURCE =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>ShippingAPI.dll</span><span class='tstring_end'>'</span></span></pre></dd>
+      
+        <dt id="TEST_DOMAINS-constant" class="">TEST_DOMAINS =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>indexed by security; e.g. <a href="http://:rates">TEST_DOMAINS[USE_SSL</a>]</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span> <span class='comment'>#indexed by security; e.g. TEST_DOMAINS[USE_SSL[:rates]]
+</span>  <span class='kw'>true</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>secure.shippingapis.com</span><span class='tstring_end'>'</span></span><span class='comma'>,</span>
+  <span class='kw'>false</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>testing.shippingapis.com</span><span class='tstring_end'>'</span></span>
+<span class='rbrace'>}</span></pre></dd>
+      
+        <dt id="TEST_RESOURCE-constant" class="">TEST_RESOURCE =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>ShippingAPITest.dll</span><span class='tstring_end'>'</span></span></pre></dd>
+      
+        <dt id="API_CODES-constant" class="">API_CODES =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='symbol'>:us_rates</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>RateV4</span><span class='tstring_end'>'</span></span><span class='comma'>,</span>
+  <span class='symbol'>:world_rates</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>IntlRateV2</span><span class='tstring_end'>'</span></span><span class='comma'>,</span>
+  <span class='symbol'>:test</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>CarrierPickupAvailability</span><span class='tstring_end'>'</span></span>
+<span class='rbrace'>}</span></pre></dd>
+      
+        <dt id="USE_SSL-constant" class="">USE_SSL =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='symbol'>:us_rates</span> <span class='op'>=&gt;</span> <span class='kw'>false</span><span class='comma'>,</span>
+  <span class='symbol'>:world_rates</span> <span class='op'>=&gt;</span> <span class='kw'>false</span><span class='comma'>,</span>
+  <span class='symbol'>:test</span> <span class='op'>=&gt;</span> <span class='kw'>true</span>
+<span class='rbrace'>}</span></pre></dd>
+      
+        <dt id="CONTAINERS-constant" class="">CONTAINERS =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='symbol'>:envelope</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>Flat Rate Envelope</span><span class='tstring_end'>'</span></span><span class='comma'>,</span>
+  <span class='symbol'>:box</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>Flat Rate Box</span><span class='tstring_end'>'</span></span>
+<span class='rbrace'>}</span></pre></dd>
+      
+        <dt id="MAIL_TYPES-constant" class="">MAIL_TYPES =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='symbol'>:package</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>Package</span><span class='tstring_end'>'</span></span><span class='comma'>,</span>
+  <span class='symbol'>:postcard</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>Postcards or aerogrammes</span><span class='tstring_end'>'</span></span><span class='comma'>,</span>
+  <span class='symbol'>:matter_for_the_blind</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>Matter for the blind</span><span class='tstring_end'>'</span></span><span class='comma'>,</span>
+  <span class='symbol'>:envelope</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>Envelope</span><span class='tstring_end'>'</span></span>
+<span class='rbrace'>}</span></pre></dd>
+      
+        <dt id="PACKAGE_PROPERTIES-constant" class="">PACKAGE_PROPERTIES =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>ZipOrigination</span><span class='tstring_end'>'</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:origin_zip</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>ZipDestination</span><span class='tstring_end'>'</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:destination_zip</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>Pounds</span><span class='tstring_end'>'</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:pounds</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>Ounces</span><span class='tstring_end'>'</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:ounces</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>Container</span><span class='tstring_end'>'</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:container</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>Size</span><span class='tstring_end'>'</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:size</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>Machinable</span><span class='tstring_end'>'</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:machinable</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>Zone</span><span class='tstring_end'>'</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:zone</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>Postage</span><span class='tstring_end'>'</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:postage</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>Restrictions</span><span class='tstring_end'>'</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:restrictions</span>
+<span class='rbrace'>}</span></pre></dd>
+      
+        <dt id="POSTAGE_PROPERTIES-constant" class="">POSTAGE_PROPERTIES =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>MailService</span><span class='tstring_end'>'</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:service</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>Rate</span><span class='tstring_end'>'</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:rate</span>
+<span class='rbrace'>}</span></pre></dd>
+      
+        <dt id="US_SERVICES-constant" class="">US_SERVICES =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='symbol'>:first_class</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>FIRST CLASS</span><span class='tstring_end'>'</span></span><span class='comma'>,</span>
+  <span class='symbol'>:priority</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>PRIORITY</span><span class='tstring_end'>'</span></span><span class='comma'>,</span>
+  <span class='symbol'>:express</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>EXPRESS</span><span class='tstring_end'>'</span></span><span class='comma'>,</span>
+  <span class='symbol'>:bpm</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>BPM</span><span class='tstring_end'>'</span></span><span class='comma'>,</span>
+  <span class='symbol'>:parcel</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>PARCEL</span><span class='tstring_end'>'</span></span><span class='comma'>,</span>
+  <span class='symbol'>:media</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>MEDIA</span><span class='tstring_end'>'</span></span><span class='comma'>,</span>
+  <span class='symbol'>:library</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>LIBRARY</span><span class='tstring_end'>'</span></span><span class='comma'>,</span>
+  <span class='symbol'>:all</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>ALL</span><span class='tstring_end'>'</span></span>
+<span class='rbrace'>}</span></pre></dd>
+      
+        <dt id="COUNTRY_NAME_CONVERSIONS-constant" class="">COUNTRY_NAME_CONVERSIONS =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>TODO: get rates for "U.S. possessions and Trust Territories" like Guam,
+etc. via domestic rates API: <a
+href="http://www.usps.com/ncsc/lookups/abbr_state.txt">www.usps.com/ncsc/lookups/abbr_state.txt</a>
+TODO: figure out how USPS likes to say "Ivory Coast"</p>
+
+<p>Country names: <a
+href="http://pe.usps.gov/text/Imm/immctry.htm">pe.usps.gov/text/Imm/immctry.htm</a></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>BA</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Bosnia-Herzegovina</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CD</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Congo, Democratic Republic of the</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CG</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Congo (Brazzaville),Republic of the</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CI</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Côte d'Ivoire (Ivory Coast)</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CK</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Cook Islands (New Zealand)</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>FK</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Falkland Islands</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>GB</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Great Britain and Northern Ireland</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>GE</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Georgia, Republic of</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>IR</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Iran</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KN</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Saint Kitts (St. Christopher and Nevis)</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KP</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>North Korea (Korea, Democratic People's Republic of)</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KR</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>South Korea (Korea, Republic of)</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LA</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Laos</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LY</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Libya</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>MC</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Monaco (France)</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>MD</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Moldova</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>MK</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Macedonia, Republic of</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>MM</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Burma</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PN</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Pitcairn Island</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>RU</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Russia</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SK</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Slovak Republic</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>TK</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Tokelau (Union) Group (Western Samoa)</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>TW</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Taiwan</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>TZ</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Tanzania</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>VA</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Vatican City</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>VG</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>British Virgin Islands</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>VN</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Vietnam</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>WF</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Wallis and Futuna Islands</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>WS</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Western Samoa</span><span class='tstring_end'>&quot;</span></span>
+<span class='rbrace'>}</span></pre></dd>
+      
+        <dt id="name-classvariable" class="">@@name =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>USPS</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="Carrier.html" title="Omniship::Carrier (class)">Carrier</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Carrier.html#last_request-instance_method" title="Omniship::Carrier#last_request (method)">#last_request</a></span>, <span class='object_link'><a href="Carrier.html#test_mode-instance_method" title="Omniship::Carrier#test_mode (method)">#test_mode</a></span></p>
+
+
+  
+    <h2>
+      Class Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#package_machinable%3F-class_method" title="package_machinable? (class method)">+ (Boolean) <strong>package_machinable?</strong>(package, options = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>from info at <a
+href="http://www.usps.com/businessmail101/mailcharacteristics/parcels.htm">www.usps.com/businessmail101/mailcharacteristics/parcels.htm</a>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#size_code_for-class_method" title="size_code_for (class method)">+ (Object) <strong>size_code_for</strong>(package) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#find_rates-instance_method" title="#find_rates (instance method)">- (Object) <strong>find_rates</strong>(origin, destination, packages, options = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#maximum_weight-instance_method" title="#maximum_weight (instance method)">- (Object) <strong>maximum_weight</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#requirements-instance_method" title="#requirements (instance method)">- (Object) <strong>requirements</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#valid_credentials%3F-instance_method" title="#valid_credentials? (instance method)">- (Boolean) <strong>valid_credentials?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="Carrier.html" title="Omniship::Carrier (class)">Carrier</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Carrier.html#initialize-instance_method" title="Omniship::Carrier#initialize (method)">#initialize</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  <div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <p class="notice">This class inherits a constructor from <span class='object_link'><a href="Carrier.html#initialize-instance_method" title="Omniship::Carrier#initialize (method)">Omniship::Carrier</a></span></p>
+  
+</div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="package_machinable?-class_method">
+  
+    + (<tt>Boolean</tt>) <strong>package_machinable?</strong>(package, options = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>from info at <a
+href="http://www.usps.com/businessmail101/mailcharacteristics/parcels.htm">www.usps.com/businessmail101/mailcharacteristics/parcels.htm</a></p>
+
+<p><a href="http://:books">package.options</a> -- 25 lb. limit instead of 35
+for books or other printed matter.</p>
+
+<pre class="code ruby"><code>Defaults to false.</code></pre>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/omniship/carriers/usps.rb', line 125</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_package_machinable?'>package_machinable?</span><span class='lparen'>(</span><span class='id identifier rubyid_package'>package</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_at_least_minimum'>at_least_minimum</span> <span class='op'>=</span>  <span class='id identifier rubyid_package'>package</span><span class='period'>.</span><span class='id identifier rubyid_inches'>inches</span><span class='lparen'>(</span><span class='symbol'>:length</span><span class='rparen'>)</span> <span class='op'>&gt;=</span> <span class='float'>6.0</span> <span class='op'>&amp;&amp;</span>
+                      <span class='id identifier rubyid_package'>package</span><span class='period'>.</span><span class='id identifier rubyid_inches'>inches</span><span class='lparen'>(</span><span class='symbol'>:width</span><span class='rparen'>)</span> <span class='op'>&gt;=</span> <span class='float'>3.0</span> <span class='op'>&amp;&amp;</span>
+                      <span class='id identifier rubyid_package'>package</span><span class='period'>.</span><span class='id identifier rubyid_inches'>inches</span><span class='lparen'>(</span><span class='symbol'>:height</span><span class='rparen'>)</span> <span class='op'>&gt;=</span> <span class='float'>0.25</span> <span class='op'>&amp;&amp;</span>
+                      <span class='id identifier rubyid_package'>package</span><span class='period'>.</span><span class='id identifier rubyid_ounces'>ounces</span> <span class='op'>&gt;=</span> <span class='float'>6.0</span>
+  <span class='id identifier rubyid_at_most_maximum'>at_most_maximum</span>  <span class='op'>=</span>  <span class='id identifier rubyid_package'>package</span><span class='period'>.</span><span class='id identifier rubyid_inches'>inches</span><span class='lparen'>(</span><span class='symbol'>:length</span><span class='rparen'>)</span> <span class='op'>&lt;=</span> <span class='float'>34.0</span> <span class='op'>&amp;&amp;</span>
+                      <span class='id identifier rubyid_package'>package</span><span class='period'>.</span><span class='id identifier rubyid_inches'>inches</span><span class='lparen'>(</span><span class='symbol'>:width</span><span class='rparen'>)</span> <span class='op'>&lt;=</span> <span class='float'>17.0</span> <span class='op'>&amp;&amp;</span>
+                      <span class='id identifier rubyid_package'>package</span><span class='period'>.</span><span class='id identifier rubyid_inches'>inches</span><span class='lparen'>(</span><span class='symbol'>:height</span><span class='rparen'>)</span> <span class='op'>&lt;=</span> <span class='float'>17.0</span> <span class='op'>&amp;&amp;</span>
+                      <span class='id identifier rubyid_package'>package</span><span class='period'>.</span><span class='id identifier rubyid_pounds'>pounds</span> <span class='op'>&lt;=</span> <span class='lparen'>(</span><span class='id identifier rubyid_package'>package</span><span class='period'>.</span><span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:books</span><span class='rbracket'>]</span> <span class='op'>?</span> <span class='float'>25.0</span> <span class='op'>:</span> <span class='float'>35.0</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_at_least_minimum'>at_least_minimum</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_at_most_maximum'>at_most_maximum</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="size_code_for-class_method">
+  
+    + (<tt><span class='object_link'><a href="../Object.html" title="Object (class)">Object</a></span></tt>) <strong>size_code_for</strong>(package) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+113
+114
+115
+116
+117
+118
+119</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/omniship/carriers/usps.rb', line 113</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_size_code_for'>size_code_for</span><span class='lparen'>(</span><span class='id identifier rubyid_package'>package</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_package'>package</span><span class='period'>.</span><span class='id identifier rubyid_inches'>inches</span><span class='lparen'>(</span><span class='symbol'>:max</span><span class='rparen'>)</span> <span class='op'>&lt;=</span> <span class='int'>12</span>
+    <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>REGULAR</span><span class='tstring_end'>'</span></span>
+  <span class='kw'>else</span>
+    <span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>LARGE</span><span class='tstring_end'>'</span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="find_rates-instance_method">
+  
+    - (<tt><span class='object_link'><a href="../Object.html" title="Object (class)">Object</a></span></tt>) <strong>find_rates</strong>(origin, destination, packages, options = {}) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/omniship/carriers/usps.rb', line 141</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_find_rates'>find_rates</span><span class='lparen'>(</span><span class='id identifier rubyid_origin'>origin</span><span class='comma'>,</span> <span class='id identifier rubyid_destination'>destination</span><span class='comma'>,</span> <span class='id identifier rubyid_packages'>packages</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='ivar'>@options</span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
+  
+  <span class='id identifier rubyid_origin'>origin</span> <span class='op'>=</span> <span class='const'>Address</span><span class='period'>.</span><span class='id identifier rubyid_from'>from</span><span class='lparen'>(</span><span class='id identifier rubyid_origin'>origin</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_destination'>destination</span> <span class='op'>=</span> <span class='const'>Address</span><span class='period'>.</span><span class='id identifier rubyid_from'>from</span><span class='lparen'>(</span><span class='id identifier rubyid_destination'>destination</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_packages'>packages</span> <span class='op'>=</span> <span class='const'>Array</span><span class='lparen'>(</span><span class='id identifier rubyid_packages'>packages</span><span class='rparen'>)</span>
+  
+  <span class='comment'>#raise ArgumentError.new(&quot;USPS packages must originate in the U.S.&quot;) unless ['US',nil].include?(origin.country_code(:alpha2))
+</span>  
+  
+  <span class='comment'># domestic or international?
+</span>  
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='kw'>if</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>'</span><span class='tstring_content'>US</span><span class='tstring_end'>'</span></span><span class='comma'>,</span><span class='kw'>nil</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_destination'>destination</span><span class='period'>.</span><span class='id identifier rubyid_country_code'>country_code</span><span class='lparen'>(</span><span class='symbol'>:alpha2</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_us_rates'>us_rates</span><span class='lparen'>(</span><span class='id identifier rubyid_origin'>origin</span><span class='comma'>,</span> <span class='id identifier rubyid_destination'>destination</span><span class='comma'>,</span> <span class='id identifier rubyid_packages'>packages</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_world_rates'>world_rates</span><span class='lparen'>(</span><span class='id identifier rubyid_origin'>origin</span><span class='comma'>,</span> <span class='id identifier rubyid_destination'>destination</span><span class='comma'>,</span> <span class='id identifier rubyid_packages'>packages</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="maximum_weight-instance_method">
+  
+    - (<tt><span class='object_link'><a href="../Object.html" title="Object (class)">Object</a></span></tt>) <strong>maximum_weight</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+165
+166
+167</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/omniship/carriers/usps.rb', line 165</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_maximum_weight'>maximum_weight</span>
+  <span class='const'>Mass</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='int'>70</span><span class='comma'>,</span> <span class='symbol'>:pounds</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="requirements-instance_method">
+  
+    - (<tt><span class='object_link'><a href="../Object.html" title="Object (class)">Object</a></span></tt>) <strong>requirements</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+137
+138
+139</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/omniship/carriers/usps.rb', line 137</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_requirements'>requirements</span>
+  <span class='lbracket'>[</span><span class='symbol'>:login</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="valid_credentials?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>valid_credentials?</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+160
+161
+162
+163</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/omniship/carriers/usps.rb', line 160</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_valid_credentials?'>valid_credentials?</span>
+  <span class='comment'># Cannot test with find_rates because USPS doesn't allow that in test mode
+</span>  <span class='id identifier rubyid_test_mode?'>test_mode?</span> <span class='op'>?</span> <span class='id identifier rubyid_canned_address_verification_works?'>canned_address_verification_works?</span> <span class='op'>:</span> <span class='kw'>super</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Tue Sep 25 10:29:06 2012 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.2.1 (ruby-1.9.3).
+</div>
+
+  </body>
+</html>

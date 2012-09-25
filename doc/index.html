@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>
+  File: README
+  
+    &mdash; Documentation by YARD 0.8.2.1
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" media="screen" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '';
+  framesUrl = "frames.html#!" + escape(window.location.href);
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="_index.html">Index</a> &raquo; 
+    <span class="title">File: README</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><div id='filecontents'><p><a href="https://codeclimate.com/github/Digi-Cazter/omniship"><img src="https://codeclimate.com/badge.png" alt="Code
+Climate"></a></p>
+
+<h1>Omniship</h1>
+
+<p>This gem is under active development, I&#39;m only in the Alpha stage right now, so keep checking back for updates.</p>
+
+<p>This library has been created to make web requests to common shipping carriers using XML.  I created this to be easy to use with a nice Ruby API.  This code was originally forked from the <em>Shopify/active_shipping</em> code, I began to strip it down cause I wan&#39;t a cleaner API along with the ability to actually create shipment labels with it.  After changing enough code, I created this gem as its own project since it&#39;s different enough.</p>
+
+<h2>Supported Shipping Carriers</h2>
+
+<ul>
+<li><a href="http://www.ups.com">UPS</a></li>
+<li><a href="http://www.usps.com">USPS</a> COMING SOON!</li>
+<li><a href="http://www.fedex.com">FedEx</a> COMING SOON!</li>
+</ul>
+
+<h2>Tests</h2>
+
+<p>Currently this is on my TODO list. Check back for updates</p>
+
+<h2>Contributing</h2>
+
+<p>Before anyone starts contributing, I want to get a good stable version going and tests to follow, after I get that going then for the features you add, you should have both unit tests and remote tests. It&#39;s probably best to start with the remote tests, and then log those requests and responses and use them as the mocks for the unit tests.</p>
+
+<p>To log requests and responses, just set the <code>logger</code> on your carrier class to some kind of <code>Logger</code> object:</p>
+
+<pre class="code ruby"><code><span class='const'>USPS</span><span class='period'>.</span><span class='id identifier rubyid_logger'>logger</span> <span class='op'>=</span> <span class='const'>Logger</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='gvar'>$stdout</span><span class='rparen'>)</span>
+</code></pre>
+
+<p>(This logging functionality is provided by the <a href="https://github.com/Shopify/active_utils/blob/master/lib/active_utils/common/posts_data.rb"><code>PostsData</code> module</a> in the <code>active_utils</code> dependency.)</p>
+
+<p>After you&#39;ve pushed your well-tested changes to your github fork, make a pull request and we&#39;ll take it from there!</p>
+
+<h2>Legal Mumbo Jumbo</h2>
+
+<p>Unless otherwise noted in specific files, all code in the Omniship project is under the copyright and license described in the included MIT-LICENSE file.</p>
+</div></div>
+
+    <div id="footer">
+  Generated on Tue Sep 25 10:29:05 2012 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.2.1 (ruby-1.9.3).
+</div>
+
+  </body>
+</html>
