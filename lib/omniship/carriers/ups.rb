@@ -92,7 +92,7 @@ module Omniship
     US_TERRITORIES_TREATED_AS_COUNTRIES = ["AS", "FM", "GU", "MH", "MP", "PW", "PR", "VI"]
     
     def requirements
-      # [:key, :login, :password]
+      [:key, :login, :password]
     end
     
     def find_rates(origin, destination, packages, options={})
@@ -156,9 +156,9 @@ module Omniship
     def build_access_request
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.AccessRequest {
-          xml.AccessLicenseNumber @config['ups']['key']
-          xml.UserId @config['ups']['username']
-          xml.Password @config['ups']['password']
+          xml.AccessLicenseNumber @config['ups']['key'] unless @options[:key]
+          xml.UserId @config['ups']['username'] unless @options[:login]
+          xml.Password @config['ups']['password'] unless @options[:password]
         }
       end
       builder.to_xml

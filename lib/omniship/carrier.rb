@@ -11,7 +11,7 @@ module Omniship
     
     # Credentials should be in options hash under keys :login, :password and/or :key.
     def initialize(options = {})
-      #requirements.each {|key| requires!(options, key)}
+      requirements.each {|key| requires!(options, key)}
       @options = options
       @last_request = nil
       @test_mode = @options[:test]
