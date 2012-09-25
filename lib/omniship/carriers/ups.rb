@@ -466,7 +466,8 @@ module Omniship
       if success
         @digest = xml.xpath('//*/ShipmentDigest').text 
       end
-      return @digest
+      return xml
+      #return @digest
     end
 
     def parse_ship_accept_response(response, options={})
