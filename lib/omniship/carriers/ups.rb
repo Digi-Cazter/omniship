@@ -481,29 +481,32 @@ module Omniship
     def parse_ship_accept_response(response, options={})
       xml = Nokogiri::XML(response)
       success = response_success?(xml)
-      @shipment = {} 
+      @response_text = {} 
       
       if success
         tracking_number = []
         label           = []
 
-        @shipment[:charges]     = xml.xpath('/*/ShipmentResults/*/TotalCharges/MonetaryValue').text
-        @shipment[:shipment_id] = xml.xpath('/*/ShipmentResults/ShipmentIdentificationNumber').text
+        @response_text[:charges]     = xml.xpath('/*/ShipmentResults/*/TotalCharges/MonetaryValue').text
+        @response_text[:shipment_id] = xml.xpath('/*/ShipmentResults/ShipmentIdentificationNumber').text
         
         xml.xpath('/*/ShipmentResults/*/TrackingNumber').each do |track|
           tracking_number << track.text
         end
-        @shipment[:tracking_number] = tracking_number 
+        @response_text[:tracking_number] = tracking_number 
 
         xml.xpath('/*/ShipmentResults/*/LabelImage/GraphicImage').each do |image|
           label << image.text
         end
-        @shipment[:label]   = label 
-        @shipment[:success] = true
+        @response_text[:label]   = label 
+        @response_text[:success] = true
       else
-        @shipment[:success] = false
+        @response_text[:status] = xml.xpath('/*/Response/ResponseStatusDescription').text
+        @response_text[:error_severity] = xml.xpath('/*/Response/Error/ErrorSeverity').text
+        @response_text[:error_code] = xml.xpath('/*/Response/Error/ErrorCode').text
+        @response_text[:error_description] = xml.xpath('/*/Response/Error/ErrorDescription').text
       end
-      return @shipment
+      return @response_text
     end
 
     def parse_ship_void_response(response, options={})
