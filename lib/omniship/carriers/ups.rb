@@ -380,11 +380,11 @@ module Omniship
       xml = Nokogiri::XML(response)
       success = response_success?(xml)
       message = response_message(xml)
-      return xml
+
       if success
         rate_estimates = []
         
-        xml.elements.each('/*/RatedShipment') do |rated_shipment|
+        xml.xpath('/*/RatedShipment').each do |rated_shipment|
           service_code = rated_shipment.get_text('Service/Code').to_s
           days_to_delivery = rated_shipment.get_text('GuaranteedDaysToDelivery').to_s.to_i
           delivery_date  = days_to_delivery >= 1 ? days_to_delivery.days.from_now.strftime("%Y-%m-%d") : nil
