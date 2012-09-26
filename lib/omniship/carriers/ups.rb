@@ -470,10 +470,10 @@ module Omniship
         @response_text = xml.xpath('//*/ShipmentDigest').text 
       else
         @response_text = []
-        #@response_text[:status] = xml.xpath('/*/Response/ResponseStatusDescription').text
-        @response_text[:error_severity] = xml.xpath('/*/Response/Error/ErrorSeverity').text
-        @response_text[:error_code] = xml.xpath('/*/Response/Error/ErrorCode').text
-        @response_text[:error_description] = xml.xpath('/*/Response/Error/ErrorDescription').text
+        @response_text[:status] = xml.xpath('/*/Response/ResponseStatusDescription').text.to_s
+        @response_text[:error_severity] = xml.xpath('/*/Response/Error/ErrorSeverity').text.to_s
+        @response_text[:error_code] = xml.xpath('/*/Response/Error/ErrorCode').text.to_s
+        @response_text[:error_description] = xml.xpath('/*/Response/Error/ErrorDescription').text.to_s
       end
     end
 
