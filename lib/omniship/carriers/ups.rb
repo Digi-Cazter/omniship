@@ -380,7 +380,7 @@ module Omniship
       xml = Nokogiri::XML(response)
       success = response_success?(xml)
       message = response_message(xml)
-      
+      return xml
       if success
         rate_estimates = []
         
