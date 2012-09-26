@@ -475,6 +475,7 @@ module Omniship
         @response_text[:error_code] = xml.xpath('/*/Response/Error/ErrorCode').text
         @response_text[:error_description] = xml.xpath('/*/Response/Error/ErrorDescription').text
       end
+      return @response_text
     end
 
     def parse_ship_accept_response(response, options={})
