@@ -22,7 +22,7 @@ module Omniship #:nodoc:
       
       @unit_system = imperial ? :imperial : :metric
       
-      @weight = attribute_from_metric_or_imperial(grams_or_ounces, Mass, :grams, :pounds)
+      @weight = attribute_from_metric_or_imperial(grams_or_ounces, Mass, :grams, :ounces)
       
       if @dimensions.blank?
         @dimensions = [Length.new(0, (imperial ? :inches : :centimetres))] * 3
