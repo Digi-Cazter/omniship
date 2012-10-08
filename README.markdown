@@ -77,7 +77,7 @@ Before anyone starts contributing, I want to get a good stable version going and
 
 To log requests and responses, just set the `logger` on your carrier class to some kind of `Logger` object:
 
-    USPS.logger = Logger.new($stdout)
+    Omniship::USPS.logger = Logger.new($stdout)
 
 (This logging functionality is provided by the [`PostsData` module](https://github.com/Shopify/active_utils/blob/master/lib/active_utils/common/posts_data.rb) in the `active_utils` dependency.)
 
