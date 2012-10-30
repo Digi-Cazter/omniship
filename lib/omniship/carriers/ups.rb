@@ -98,18 +98,20 @@ module Omniship
     def find_rates(origin, destination, packages, options={})
       origin, destination = upsified_location(origin), upsified_location(destination)
       options = @options.merge(options)
+      options[:test] = options[:test].present? ? options[:test] : false
       packages = Array(packages)
       access_request = build_access_request
       rate_request = build_rate_request(origin, destination, packages, options)
-      response = commit(:rates, save_request(access_request.gsub("\n","") + rate_request.gsub("\n","")), (options[:test] || false))
+      response = commit(:rates, save_request(access_request.gsub("\n","") + rate_request.gsub("\n","")), options[:test])
       parse_rate_response(origin, destination, packages, response, options)
     end
     
     def find_tracking_info(tracking_number, options={})
       options = @options.update(options)
+      options[:test] = options[:test].present? ? options[:test] : false
       access_request = build_access_request
       tracking_request = build_tracking_request(tracking_number, options)
-      response = commit(:track, save_request(access_request.gsub("\n","") + tracking_request.gsub("\n","")), (options[:test] || false))
+      response = commit(:track, save_request(access_request.gsub("\n","") + tracking_request.gsub("\n","")), options[:test])
       parse_tracking_response(response, options)
     end
 
@@ -117,25 +119,28 @@ module Omniship
     def create_shipment(origin, destination, packages, options={})
       origin, destination = upsified_location(origin), upsified_location(destination)
       options = @options.merge(options)
+      options[:test] = options[:test].present? ? options[:test] : true
       packages = Array(packages)
       access_request = build_access_request
       ship_confirm_request = build_ship_confirm(origin, destination, packages, options)
-      response = commit(:shipconfirm, save_request(access_request.gsub("\n","") + ship_confirm_request.gsub("\n","")), (options[:test] || true))
+      response = commit(:shipconfirm, save_request(access_request.gsub("\n","") + ship_confirm_request.gsub("\n","")), options[:test])
       parse_ship_confirm_response(origin, destination, packages, response, options)
     end
 
     def accept_shipment(digest, options={})
+      options[:test] = options[:test].present? ? options[:test] : true
       access_request = build_access_request
       ship_accept_request = build_ship_accept(digest)
-      response = commit(:shipaccept, save_request(access_request.gsub("\n","") + ship_accept_request.gsub("\n","")), (options[:test] || true))
+      response = commit(:shipaccept, save_request(access_request.gsub("\n","") + ship_accept_request.gsub("\n","")), options[:test])
       parse_ship_accept_response(response, options)
     end
 
     def void_shipment(tracking_number, options={})
       options = @options.merge(options)
+      options[:test] = options[:test].present? ? options[:test] : true
       access_request = build_access_request
       ship_void_request = build_void_request(tracking_number)
-      response = commit(:shipvoid, save_request(access_request.gsub("\n","") + ship_void_request.gsub("\n","")), (options[:test] || true))
+      response = commit(:shipvoid, save_request(access_request.gsub("\n","") + ship_void_request.gsub("\n","")), options[:test])
       parse_ship_void_response(response, options)
     end
     
