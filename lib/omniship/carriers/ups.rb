@@ -120,14 +120,14 @@ module Omniship
       packages = Array(packages)
       access_request = build_access_request
       ship_confirm_request = build_ship_confirm(origin, destination, packages, options)
-      response = commit(:shipconfirm, save_request(access_request.gsub("\n","") + ship_confirm_request.gsub("\n","")), (options[:test] || true))
+      response = commit(:shipconfirm, save_request(access_request.gsub("\n","") + ship_confirm_request.gsub("\n","")), (options[:test] || false))
       parse_ship_confirm_response(origin, destination, packages, response, options)
     end
 
     def accept_shipment(digest, options={})
       access_request = build_access_request
       ship_accept_request = build_ship_accept(digest)
-      response = commit(:shipaccept, save_request(access_request.gsub("\n","") + ship_accept_request.gsub("\n","")), (options[:test] || true))
+      response = commit(:shipaccept, save_request(access_request.gsub("\n","") + ship_accept_request.gsub("\n","")), (options[:test] || false))
       parse_ship_accept_response(response, options)
     end
 
@@ -135,7 +135,7 @@ module Omniship
       options = @options.merge(options)
       access_request = build_access_request
       ship_void_request = build_void_request(tracking_number)
-      response = commit(:shipvoid, save_request(access_request.gsub("\n","") + ship_void_request.gsub("\n","")), (options[:test] || true))
+      response = commit(:shipvoid, save_request(access_request.gsub("\n","") + ship_void_request.gsub("\n","")), (options[:test] || false))
       parse_ship_void_response(response, options)
     end
     
