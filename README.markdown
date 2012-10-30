@@ -14,6 +14,9 @@ This library has been created to make web requests to common shipping carriers u
 * [FedEx](http://www.fedex.com) COMING SOON!
 
 ## Simple example snippets
+### UPS Code Example ###
+To run in test mode during development, pass :test => true as an option
+into create_shipment and accept_shipment.
 
 	  def create_shipment
 	    # If you have created the omniship.yml config file
