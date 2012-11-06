@@ -201,7 +201,32 @@ module Omniship
             }
             xml.ShipmentServiceOptions {
               xml.SaturdayDelivery if options[:saturday] == true
+              if options[:delivery_confirmation_type].present?
+                xml.DeliveryConfirmation {
+                  dc_type = case options[:delivery_confirmation_type]
+                              when :signature_required
+                                "2"
+                              when :adult_signature_required
+                                "3"
+                              else
+                                "1"
+                            end
+                  xml.DCISType dc_type
+                }
+              end
             }
+            if options[:return_service_code].present?
+              xml.ReturnService {
+                #Return Service types:
+                #‘2’ = UPS Print and Mail (PNM)
+                #‘3’ = UPS Return Service 1- Attempt (RS1)
+                #‘5’ = UPS Return Service 3-Attempt (RS3)
+                #‘8’ = UPS Electronic Return Label (ERL)
+                #‘9’ = UPS Print Return Label (PRL)
+                xml.Code options[:return_service_code].to_s
+                xml.Description options[:return_service_description] if options[:return_service_description].present?
+              }
+            end
             packages.each do |package|
               imperial = ['US','LR','MM'].include?(origin.country_code(:alpha2))
               xml.Package {
@@ -224,6 +249,7 @@ module Omniship
                   value = ((imperial ? package.lbs : package.kgs).to_f*1000).round/1000.0 # decimals
                   xml.Weight [value,0.1].max
                 }
+                xml.Description package.options[:package_description] if package.options[:package_description].present?
               }
             end
             xml.LabelSpecification {
