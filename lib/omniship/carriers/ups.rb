@@ -151,7 +151,7 @@ module Omniship
     def upsified_location(location)
       if location.country_code == 'US' && US_TERRITORIES_TREATED_AS_COUNTRIES.include?(location.state)
         atts = {:country => location.state}
-        [:zip, :city, :address1, :address2, :address3, :phone, :fax, :address_type].each do |att|
+        [:zip, :city, :address1, :address2, :address3, :phone, :fax, :address_type, :attention_name].each do |att|
           atts[att] = location.send(att)
         end
         Address.new(atts)
@@ -376,7 +376,7 @@ module Omniship
     end
 
     def build_tracking_request(tracking_number, options={})
-      bulder = Nokogiri::XML::Builder.new do |xml|
+      builder = Nokogiri::XML::Builder.new do |xml|
         xml.TrackRequest {
           xml.Request {
             xml.RequestAction 'Track'
