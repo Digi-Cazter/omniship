@@ -137,7 +137,7 @@ module Omniship
       parse_ship_accept_response(response, options)
     end
 
-    def void_shipment(tracking_number, options={})
+    def void_shipment(ups_shipment_id,tracking_number, options={})
       options = @options.merge(options)
       options[:test] = options[:test].nil? ? true : options[:test]
       access_request = build_access_request
