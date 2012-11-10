@@ -284,14 +284,15 @@ module Omniship
       builder.to_xml
     end
 
-    def build_void_request(tracking_number)
+    def build_void_request(ups_shipment_id,tracking_number)
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.VoidShipmentRequest {
           xml.Request {
             xml.RequestAction 'Void'
           }
-          xml.ExpandedVoidShipment {
-            xml.ShipmentIdentificationNumber tracking_number
+          xml.VoidShipment {
+            xml.ShipmentIdentificationNumber ups_shipment_id
+            xml.TrackingNumber tracking_number
           }
         }
       end
