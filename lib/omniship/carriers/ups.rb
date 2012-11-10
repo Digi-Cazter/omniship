@@ -290,7 +290,7 @@ module Omniship
           xml.Request {
             xml.RequestAction 'Void'
           }
-          xml.VoidShipment {
+          xml.ExpandedVoidShipment {
             xml.ShipmentIdentificationNumber ups_shipment_id
             xml.TrackingNumber tracking_number
           }
