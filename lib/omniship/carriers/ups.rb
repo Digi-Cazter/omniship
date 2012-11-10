@@ -141,7 +141,7 @@ module Omniship
       options = @options.merge(options)
       options[:test] = options[:test].nil? ? true : options[:test]
       access_request = build_access_request
-      ship_void_request = build_void_request(tracking_number)
+      ship_void_request = build_void_request(ups_shipment_id,tracking_number)
       response = commit(:shipvoid, save_request(access_request.gsub("\n", "") + ship_void_request.gsub("\n", "")), options[:test])
       parse_ship_void_response(response, options)
     end
