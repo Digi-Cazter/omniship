@@ -555,7 +555,7 @@ module Omniship
 
     def parse_ship_void_response(response, options={})
       xml = Nokogiri::XML(response)
-      puts "Void response: " + xml.to_json
+      puts "Void response: " + xml.to_s
       success = response_success?(xml)
       if success
         @void = "Shipment successfully voided!"
