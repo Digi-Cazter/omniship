@@ -119,6 +119,7 @@ module Omniship
 
     # Creating shipping functionality for UPS
     def create_shipment(origin, destination, packages, options={})
+      @options = @options.merge(options)
       origin, destination = upsified_location(origin), upsified_location(destination)
       options = @options.merge(options)
       options[:test] = options[:test].nil? ? true : options[:test]
@@ -138,6 +139,7 @@ module Omniship
     end
 
     def void_shipment(ups_shipment_id,tracking_number, options={})
+      @options = @options.merge(options)
       options = @options.merge(options)
       options[:test] = options[:test].nil? ? true : options[:test]
       access_request = build_access_request
