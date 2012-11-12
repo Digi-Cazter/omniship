@@ -3,7 +3,7 @@ $:.unshift(File.dirname(__FILE__) + '/../lib')
 
 require 'rubygems'
 require 'bundler'
-require 'rails'
+#require 'rails'
 require 'rails/all'
 Bundler.setup
 
