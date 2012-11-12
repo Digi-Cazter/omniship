@@ -3,10 +3,14 @@ $:.unshift(File.dirname(__FILE__) + '/../lib')
 
 require 'rubygems'
 require 'bundler'
-#require 'rails'
+begin
+  Bundler.setup(:default, :development)
+rescue Bundler::BundlerError => e
+  $stderr.puts e.message
+  $stderr.puts "Run `bundle install` to install missing gems"
+  exit e.status_code
+end
 require 'rails/all'
-Bundler.setup
-
 require 'test/unit'
 require 'minitest/spec'
 require 'omniship'
