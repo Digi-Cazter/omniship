@@ -3,6 +3,8 @@ $:.unshift(File.dirname(__FILE__) + '/../lib')
 
 require 'rubygems'
 require 'bundler'
+require 'rails'
+require 'rails/all'
 Bundler.setup
 
 require 'test/unit'
@@ -81,7 +83,8 @@ module Omniship
       :small_half_pound => Package.new(8, [1,1,1], :units => :imperial),
       :big_half_pound => Package.new((16 * 50), [24,24,36], :units => :imperial),
       :chocolate_stuff => Package.new(80, [2,6,12], :units => :imperial),
-      :shipping_container => Package.new(2200000, [2440, 2600, 6058], :description => '20 ft Standard Container', :units => :metric)
+      :shipping_container => Package.new(2200000, [2440, 2600, 6058], :description => '20 ft Standard Container', :units => :metric),
+      :box => Package.new(14, [19,10,8], {:units => :imperial, :package_type => "02"})
     }
       
     @@locations = {
@@ -103,6 +106,24 @@ module Omniship
                                     :zip => '90210',
                                     :phone => '1-310-285-1013',
                                     :fax => '1-310-275-8159'),
+      :sender_address => Address.new(
+                                    :name => "Fernando Colman",
+                                    :country => 'US',
+                                    :state => 'CA',
+                                    :city => 'Beverly Hills',
+                                    :address1 => '455 N. Rexford Dr.',
+                                    :address2 => '3rd Floor',
+                                    :zip => '90210',
+                                    :phone => '1-310-285-1013',
+                                    :fax => '1-310-275-8159'),                         
+      :cakestyle_address => Address.new( 
+                                    :company_name => "CakeStyle",                                   
+                                    :country => 'US',
+                                    :city => 'Chicago',
+                                    :state => 'IL',
+                                    :address1 => '213 North Racine',
+                                    :zip => '60607',
+                                    :address_type => 'commercial'),   
       :real_home_as_commercial => Address.new(
                                     :country => 'US',
                                     :city => 'Tampa',
@@ -150,13 +171,13 @@ module Omniship
                                     :address1 => '123 fake st.',
                                     :zip => '33615',
                                     :address_type => 'residential'),
-      :real_home_as_residential => Address.new(
+      :real_home_as_residential => Address.new(                                    
                                     :country => 'US',
                                     :city => 'Tampa',
                                     :state => 'FL',
                                     :address1 => '7926 Woodvale Circle',
                                     :zip => '33615',
-                                    :address_type => 'residential'),
+                                    :address_type => 'residential'),                                     
       :london => Address.new(
                                     :country => 'GB',
                                     :city => 'London',
