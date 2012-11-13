@@ -14,7 +14,8 @@ module Omniship
         :track => 'ups.app/xml/Track',
         :shipconfirm => 'ups.app/xml/ShipConfirm',
         :shipaccept => 'ups.app/xml/ShipAccept',
-        :shipvoid => 'ups.app/xml/Void'
+        :shipvoid => 'ups.app/xml/Void',
+        :valid_address => 'ups.app/xml/XAV'
     }
 
     PICKUP_CODES = HashWithIndifferentAccess.new({
@@ -147,6 +148,16 @@ module Omniship
       response = commit(:shipvoid, save_request(access_request.gsub("\n", "") + ship_void_request.gsub("\n", "")), options[:test])
       parse_ship_void_response(response, options)
     end
+    
+    def validate_address(address,city,state,zip_code,country_code, options={})
+      @options = @options.merge(options)
+      access_request = build_access_request
+      validate_address_request = build_valid_address_request(address,city,state,zip_code,country_code)
+      options[:test] = options[:test].nil? ? true : options[:test]
+      response = commit(:valid_address, save_request(access_request.gsub("\n", "") + validate_address_request.gsub("\n", "")), options[:test])
+      parse_response = parse_ship_valid_address(response)
+      parse_response
+    end
 
     protected
 
@@ -161,6 +172,7 @@ module Omniship
         location
       end
     end
+        
 
     def build_access_request
       builder = Nokogiri::XML::Builder.new do |xml|
@@ -297,6 +309,26 @@ module Omniship
             xml.TrackingNumber tracking_number
           }
         }
+      end
+      builder.to_xml
+    end
+    
+    def build_valid_address_request(address,city,state,zip_code,country_code)
+      builder = Nokogiri::XML::Builder.new do |xml|
+          xml.AddressValidationRequest {
+            xml.Request{
+              xml.RequestAction 'XAV'
+              xml.RequestOption 3
+            }
+            
+            xml.AddressKeyFormat{
+              xml.AddressLine address
+              xml.PoliticalDivision2 city
+              xml.PoliticalDivision1 state
+              xml.PostcodePrimaryLow zip_code
+              xml.CountryCode country_code
+            }
+          }
       end
       builder.to_xml
     end
@@ -566,6 +598,27 @@ module Omniship
       end
 
       return @void
+    end
+    
+    def parse_ship_valid_address(response, options={})
+      xml = Nokogiri::XML(response)
+      success = response_success?(xml)
+      suggested_addresses = Array.new
+      if success
+        addresses = xml.xpath('/*/AddressKeyFormat').each do |address_data|
+          address_hash = Hash.new
+          address_hash[:address] = address_data.xpath('AddressLine').text
+          address_hash[:city] = address_data.xpath('PoliticalDivision2').text
+          address_hash[:state] = address_data.xpath('PoliticalDivision1').text
+          address_hash[:zip_code] = address_data.xpath('PostcodePrimaryLow').text
+          address_hash[:country_code] = address_data.xpath('CountryCode').text
+          suggested_addresses << address_hash
+        end
+      else
+        return "Address validation failed!"
+      end
+
+      return suggested_addresses
     end
 
     def location_from_address_node(address)
