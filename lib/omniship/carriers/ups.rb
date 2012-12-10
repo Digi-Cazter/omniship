@@ -333,7 +333,7 @@ module Omniship
     end
     
     def build_tracking_request(tracking_number, options={})
-      bulder = Nokogiri::XML::Builder.new do |xml|
+      builder = Nokogiri::XML::Builder.new do |xml|
         xml.TrackRequest {
           xml.Request {
             xml.RequestAction 'Track'
