@@ -19,7 +19,7 @@ module Omniship #:nodoc:
       else
         @package_rates = Array(options[:packages]).map {|p| {:package => p}}
       end
-      @total_price = Package.cents_from(options[:total_price])
+      @total_price = options[:total_price]
       @currency = options[:currency]
       @delivery_range = options[:delivery_range] ? options[:delivery_range].map { |date| date_for(date) }.compact : []
       @delivery_date = @delivery_range.last

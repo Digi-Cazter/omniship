@@ -10,27 +10,28 @@ module Omniship
     LIVE_URL = 'https://onlinetools.ups.com'
     
     RESOURCES = {
-      :rates       => 'ups.app/xml/Rate',
-      :track       => 'ups.app/xml/Track',
-      :shipconfirm => 'ups.app/xml/ShipConfirm',
-      :shipaccept  => 'ups.app/xml/ShipAccept',
-      :shipvoid    => 'ups.app/xml/Void'
+      :rates         => 'ups.app/xml/Rate',
+      :track         => 'ups.app/xml/Track',
+      :shipconfirm   => 'ups.app/xml/ShipConfirm',
+      :shipaccept    => 'ups.app/xml/ShipAccept',
+      :shipvoid      => 'ups.app/xml/Void',
+      :valid_address => 'ups.app/xml/XAV'
     }
     
     PICKUP_CODES = HashWithIndifferentAccess.new({
-      :daily_pickup => "01",
-      :customer_counter => "03", 
-      :one_time_pickup => "06",
-      :on_call_air => "07",
+      :daily_pickup           => "01",
+      :customer_counter       => "03", 
+      :one_time_pickup        => "06",
+      :on_call_air            => "07",
       :suggested_retail_rates => "11",
-      :letter_center => "19",
-      :air_service_center => "20"
+      :letter_center          => "19",
+      :air_service_center     => "20"
     })
     
     CUSTOMER_CLASSIFICATIONS = HashWithIndifferentAccess.new({
-      :wholesale => "01",
+      :wholesale  => "01",
       :occasional => "03", 
-      :retail => "04"
+      :retail     => "04"
     })
     
     # these are the defaults described in the UPS API docs,
@@ -97,46 +98,61 @@ module Omniship
     
     def find_rates(origin, destination, packages, options={})
       origin, destination = upsified_location(origin), upsified_location(destination)
-      options = @options.merge(options)
-      packages = Array(packages)
-      access_request = build_access_request
-      rate_request = build_rate_request(origin, destination, packages, options)
-      response = commit(:rates, save_request(access_request.gsub("\n","") + rate_request.gsub("\n","")), (options[:test] || false))
+      options             = @options.merge(options)
+      options[:test]      = options[:test].nil? ? false: options[:test]
+      packages            = Array(packages)
+      access_request      = build_access_request
+      rate_request        = build_rate_request(origin, destination, packages, options)
+      response            = commit(:rates, save_request(access_request.gsub("\n","") + rate_request.gsub("\n","")), options[:test])
       parse_rate_response(origin, destination, packages, response, options)
     end
     
     def find_tracking_info(tracking_number, options={})
-      options = @options.update(options)
-      access_request = build_access_request
+      options          = @options.update(options)
+      options[:test]   = options[:test].nil? ? false: options[:test]
+      access_request   = build_access_request
       tracking_request = build_tracking_request(tracking_number, options)
-      response = commit(:track, save_request(access_request.gsub("\n","") + tracking_request.gsub("\n","")), (options[:test] || false))
+      response         = commit(:track, save_request(access_request.gsub("\n","") + tracking_request.gsub("\n","")), options[:test])
       parse_tracking_response(response, options)
     end
 
     # Creating shipping functionality for UPS
     def create_shipment(origin, destination, packages, options={})
-      origin, destination = upsified_location(origin), upsified_location(destination)
-      options = @options.merge(options)
-      packages = Array(packages)
-      access_request = build_access_request
+      origin, destination  = upsified_location(origin), upsified_location(destination)
+      options              = @options.merge(options)
+      options[:test]       = options[:test].nil? ? false: options[:test]
+      packages             = Array(packages)
+      access_request       = build_access_request
       ship_confirm_request = build_ship_confirm(origin, destination, packages, options)
-      response = commit(:shipconfirm, save_request(access_request.gsub("\n","") + ship_confirm_request.gsub("\n","")), (options[:test] || false))
+      response             = commit(:shipconfirm, save_request(access_request.gsub("\n","") + ship_confirm_request.gsub("\n","")), options[:test])
       parse_ship_confirm_response(origin, destination, packages, response, options)
     end
 
     def accept_shipment(digest, options={})
-      access_request = build_access_request
+      options[:test]      = options[:test].nil? ? false: options[:test]
+      access_request      = build_access_request
       ship_accept_request = build_ship_accept(digest)
-      response = commit(:shipaccept, save_request(access_request.gsub("\n","") + ship_accept_request.gsub("\n","")), (options[:test] || false))
+      response            = commit(:shipaccept, save_request(access_request.gsub("\n","") + ship_accept_request.gsub("\n","")), options[:test])
       parse_ship_accept_response(response, options)
     end
 
-    def void_shipment(tracking_number, options={})
-      options = @options.merge(options)
-      access_request = build_access_request
+    def void_shipment(ups_shipment_id, tracking_number, options={})
+      options           = @options.merge(options)
+      options[:test]    = options[:test].nil? ? false: options[:test]
+      access_request    = build_access_request
       ship_void_request = build_void_request(tracking_number)
-      response = commit(:shipvoid, save_request(access_request.gsub("\n","") + ship_void_request.gsub("\n","")), (options[:test] || false))
+      response          = commit(:shipvoid, save_request(access_request.gsub("\n","") + ship_void_request.gsub("\n","")), options[:test])
       parse_ship_void_response(response, options)
+    end
+
+    def validate_address(address,city,state,zip_code,country_code, options={})
+      @options = @options.merge(options)
+      access_request = build_access_request
+      validate_address_request = build_valid_address_request(address,city,state,zip_code,country_code)
+      options[:test] = options[:test].nil? ? true : options[:test]
+      response = commit(:valid_address, save_request(access_request.gsub("\n", "") + validate_address_request.gsub("\n", "")), options[:test])
+      parse_response = parse_ship_valid_address(response)
+      parse_response
     end
     
     protected
@@ -144,7 +160,7 @@ module Omniship
     def upsified_location(location)
       if location.country_code == 'US' && US_TERRITORIES_TREATED_AS_COUNTRIES.include?(location.state)
         atts = {:country => location.state}
-        [:zip, :city, :address1, :address2, :address3, :phone, :fax, :address_type].each do |att|
+        [:zip, :city, :address1, :address2, :address3, :phone, :fax, :address_type, :attention_name].each do |att|
           atts[att] = location.send(att)
         end
         Address.new(atts)
@@ -196,7 +212,20 @@ module Omniship
             }
             xml.ShipmentServiceOptions {
               xml.SaturdayDelivery if options[:saturday] == true
+              if options[:delivery_confirmation_type].present?
+                xml.DeliveryConfirmation {
+                  xml.DCISType options[:delivery_confirmation_type]
+                }
+              end
             }
+            if options[:return_service_code].present?
+              xml.ReturnService {
+                xml.Code options[:return_service_code]
+                if options[:return_service_description].present?
+                  xml.Description options[:return_service_description]
+                end
+              }
+            end
             packages.each do |package|
               imperial = ['US','LR','MM'].include?(origin.country_code(:alpha2))
               xml.Package {
@@ -218,6 +247,14 @@ module Omniship
                   }
                   value = ((imperial ? package.lbs : package.kgs).to_f*1000).round/1000.0 # decimals
                   xml.Weight [value,0.1].max
+                }
+                xml.Description package.options[:package_description] if package.options[:package_description].present?
+                xml.PackageServiceOptions {
+                  if package.options[:delivery_confirmation_type].present?
+                    xml.DeliveryConfirmation {
+                      xml.DCISType package.options[:delivery_confirmation_type]
+                    }
+                  end
                 }
               }
             end
@@ -247,16 +284,37 @@ module Omniship
       builder.to_xml
     end
 
-    def build_void_request(tracking_number)
+    def build_void_request(ups_shipment_id,tracking_number)
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.VoidShipmentRequest { 
           xml.Request {
             xml.RequestAction 'Void'
           }
           xml.ExpandedVoidShipment {
-            xml.ShipmentIdentificationNumber tracking_number
+            xml.ShipmentIdentificationNumber ups_shipment_id
+            xml.TrackingNumber tracking_number
           }
         }
+      end
+      builder.to_xml
+    end
+
+    def build_valid_address_request(address,city,state,zip_code,country_code)
+      builder = Nokogiri::XML::Builder.new do |xml|
+          xml.AddressValidationRequest {
+            xml.Request{
+              xml.RequestAction 'XAV'
+              xml.RequestOption 3
+            }
+            
+            xml.AddressKeyFormat{
+              xml.AddressLine address
+              xml.PoliticalDivision2 city
+              xml.PoliticalDivision1 state
+              xml.PostcodePrimaryLow zip_code
+              xml.CountryCode country_code
+            }
+          }
       end
       builder.to_xml
     end
@@ -272,62 +330,68 @@ module Omniship
           # not implemented: 'Rate' RequestOption to specify a single service query
           # request << XmlNode.new('RequestOption', ((options[:service].nil? or options[:service] == :all) ? 'Shop' : 'Rate'))
         pickup_type = options[:pickup_type] || :daily_pickup
-        xml.PickupType {
-          xml.Code PICKUP_CODES[pickup_type]
-          # not implemented: PickupType/PickupDetails element
-        }
-        cc = options[:customer_classification] || DEFAULT_CUSTOMER_CLASSIFICATIONS[pickup_type]
-        xml.CustomerClassification {
-          xml.Code CUSTOMER_CLASSIFICATIONS[cc]
-        }
-        xml.Shipment {
-          build_location_node(['Shipper'], (options[:shipper] || origin), options, xml)
-          build_location_node(['ShipTo'], destination, options, xml)
-          if options[:shipper] && options[:shipper] != origin
-            build_location_node(['ShipFrom'], origin, options, xml)
-          end
+          xml.PickupType {
+            xml.Code PICKUP_CODES[pickup_type]
+            # not implemented: PickupType/PickupDetails element
+          }
+          cc = options[:customer_classification] || DEFAULT_CUSTOMER_CLASSIFICATIONS[pickup_type]
+          xml.CustomerClassification {
+            xml.Code CUSTOMER_CLASSIFICATIONS[cc]
+          }
+          xml.Shipment {
+            build_location_node(['Shipper'], (options[:shipper] || origin), options, xml)
+            build_location_node(['ShipTo'], destination, options, xml)
+            if options[:shipper] && options[:shipper] != origin
+              build_location_node(['ShipFrom'], origin, options, xml)
+            end
 
-          # not implemented:  * Shipment/ShipmentWeight element
-          #                   * Shipment/ReferenceNumber element                    
-          #                   * Shipment/Service element                            
-          #                   * Shipment/PickupDate element                         
-          #                   * Shipment/ScheduledDeliveryDate element              
-          #                   * Shipment/ScheduledDeliveryTime element              
-          #                   * Shipment/AlternateDeliveryTime element              
-          #                   * Shipment/DocumentsOnly element                      
-          
-          packages.each do |package|
-            imperial = ['US','LR','MM'].include?(origin.country_code(:alpha2))
-            xml.Package {
-              xml.PackagingType {
-                xml.Code '02'
-              }
-              xml.Dimensions {
-                xml.UnitOfMeasurement {
-                  xml.Code imperial ? 'IN' : 'CM'
+            # not implemented: * Shipment/ShipmentWeight element
+            # * Shipment/ReferenceNumber element
+            # * Shipment/Service element
+            # * Shipment/PickupDate element
+            # * Shipment/ScheduledDeliveryDate element
+            # * Shipment/ScheduledDeliveryTime element
+            # * Shipment/AlternateDeliveryTime element
+            # * Shipment/DocumentsOnly element
+
+            packages.each do |package|
+              imperial = ['US', 'LR', 'MM'].include?(origin.country_code(:alpha2))
+              xml.Package {
+                xml.PackagingType {
+                  xml.Code '02'
                 }
-                [:length,:width,:height].each do |axis|
-                  value = ((imperial ? package.inches(axis) : package.cm(axis)).to_f*1000).round/1000.0 # 3 decimals
-                  xml.send axis.to_s.gsub(/^[a-z]|\s+[-z]/) { |a| a.upcase }, [value,0.1].max
-                end
-              }
-              xml.PackageWeight {
-                xml.UnitOfMeasurement {
-                  xml.Code imperial ? 'LBS' : 'KGS'
+                xml.Dimensions {
+                  xml.UnitOfMeasurement {
+                    xml.Code imperial ? 'IN' : 'CM'
+                  }
+                  [:length, :width, :height].each do |axis|
+                    value = ((imperial ? package.inches(axis) : package.cm(axis)).to_f*1000).round/1000.0 # 3 decimals
+                    xml.send axis.to_s.gsub(/^[a-z]|\s+[-z]/) { |a| a.upcase }, [value, 0.1].max
+                  end
                 }
-                value = ((imperial ? package.lbs : package.kgs).to_f*1000).round/1000.0 # 3 decimals
-                xml.Weight [value,0.1].max
+                xml.PackageWeight {
+                  xml.UnitOfMeasurement {
+                    xml.Code imperial ? 'LBS' : 'KGS'
+                  }
+                  value = ((imperial ? package.lbs : package.kgs).to_f*1000).round/1000.0 # 3 decimals
+                  xml.Weight [value, 0.1].max
+                }
+                xml.PackageServiceOptions {
+                  if package.options[:delivery_confirmation_type].present?
+                    xml.DeliveryConfirmation {
+                      xml.DCISType package.options[:delivery_confirmation_type]
+                    }
+                  end
+                }
+                # not implemented: * Shipment/Package/LargePackageIndicator element
+                # * Shipment/Package/ReferenceNumber element
+                # * Shipment/Package/AdditionalHandling element
               }
-              # not implemented:  * Shipment/Package/LargePackageIndicator element
-              #                   * Shipment/Package/ReferenceNumber element
-              #                   * Shipment/Package/PackageServiceOptions element
-              #                   * Shipment/Package/AdditionalHandling element  
-            } 
-          end
-          # not implemented:  * Shipment/ShipmentServiceOptions element
-          #                   * Shipment/RateInformation element
-        } 
-      }
+            end
+            # not implemented: * Shipment/ShipmentServiceOptions element
+            # * Shipment/RateInformation element
+          }
+        }
       end
       builder.to_xml
     end
@@ -368,16 +432,16 @@ module Omniship
             xml.StateProvinceCode location.province unless location.province.blank?
             xml.PostalCode location.postal_code unless location.postal_code.blank?
             xml.CountryCode location.country_code unless location.country_code.blank?
-            xml.ResidentialAddressIndicator true unless location.commercial?
+            xml.ResidentialAddress unless location.commercial?
           }
         }
       end
     end
 
     def parse_rate_response(origin, destination, packages, response, options={})
-      rates = []
+      rates   = []
       
-      xml = Nokogiri::XML(response)
+      xml     = Nokogiri::XML(response)
       success = response_success?(xml)
       message = response_message(xml)
 
@@ -385,16 +449,16 @@ module Omniship
         rate_estimates = []
         
         xml.xpath('/*/RatedShipment').each do |rated_shipment|
-          service_code = rated_shipment.xpath('Service/Code').text.to_s
+          service_code     = rated_shipment.xpath('Service/Code').text.to_s
           days_to_delivery = rated_shipment.xpath('GuaranteedDaysToDelivery').text.to_s.to_i
-          delivery_date  = days_to_delivery >= 1 ? days_to_delivery.days.from_now.strftime("%Y-%m-%d") : nil
+          delivery_date    = days_to_delivery >= 1 ? days_to_delivery.days.from_now.strftime("%Y-%m-%d") : nil
 
           rate_estimates << RateEstimate.new(origin, destination, @@name,
                               service_name_for(origin, service_code),
-                              :total_price => rated_shipment.xpath('TotalCharges/MonetaryValue').text.to_s.to_f,
-                              :currency => rated_shipment.xpath('TotalCharges/CurrencyCode').text.to_s,
-                              :service_code => service_code,
-                              :packages => packages,
+                              :total_price    => rated_shipment.xpath('TotalCharges/MonetaryValue').text.to_s.to_f,
+                              :currency       => rated_shipment.xpath('TotalCharges/CurrencyCode').text.to_s,
+                              :service_code   => service_code,
+                              :packages       => packages,
                               :delivery_range => [delivery_date])
         end
       end
@@ -403,13 +467,13 @@ module Omniship
     
     def parse_tracking_response(response, options={})
       #TODO
-      xml = Nokogiri::XML(response)
+      xml     = Nokogiri::XML(response)
       success = response_success?(xml)
       message = response_message(xml)
       
       if success
         tracking_number, origin, destination = nil
-        shipment_events = []
+        shipment_events                      = []
         
         #first_shipment = xml.gelements['/*/Shipment']
         #first_package = first_shipment.elements['Package']
@@ -469,10 +533,10 @@ module Omniship
       if success
         @response_text = xml.xpath('//*/ShipmentDigest').text 
       else
-        @response_text = {}
-        @response_text[:status] = xml.xpath('/*/Response/ResponseStatusDescription').text
-        @response_text[:error_severity] = xml.xpath('/*/Response/Error/ErrorSeverity').text
-        @response_text[:error_code] = xml.xpath('/*/Response/Error/ErrorCode').text
+        @response_text                     = {}
+        @response_text[:status]            = xml.xpath('/*/Response/ResponseStatusDescription').text
+        @response_text[:error_severity]    = xml.xpath('/*/Response/Error/ErrorSeverity').text
+        @response_text[:error_code]        = xml.xpath('/*/Response/Error/ErrorCode').text
         @response_text[:error_description] = xml.xpath('/*/Response/Error/ErrorDescription').text
       end
       return @response_text
@@ -501,9 +565,9 @@ module Omniship
         @response_text[:label]   = label 
         @response_text[:success] = true
       else
-        @response_text[:status] = xml.xpath('/*/Response/ResponseStatusDescription').text
-        @response_text[:error_severity] = xml.xpath('/*/Response/Error/ErrorSeverity').text
-        @response_text[:error_code] = xml.xpath('/*/Response/Error/ErrorCode').text
+        @response_text[:status]            = xml.xpath('/*/Response/ResponseStatusDescription').text
+        @response_text[:error_severity]    = xml.xpath('/*/Response/Error/ErrorSeverity').text
+        @response_text[:error_code]        = xml.xpath('/*/Response/Error/ErrorCode').text
         @response_text[:error_description] = xml.xpath('/*/Response/Error/ErrorDescription').text
       end
       return @response_text
@@ -519,6 +583,27 @@ module Omniship
       end
      
       return @void
+    end
+
+    def parse_ship_valid_address(response, options={})
+      xml = Nokogiri::XML(response)
+      success = response_success?(xml)
+      suggested_addresses = Array.new
+      if success
+        addresses = xml.xpath('/*/AddressKeyFormat').each do |address_data|
+          address_hash = Hash.new
+          address_hash[:address] = address_data.xpath('AddressLine').text
+          address_hash[:city] = address_data.xpath('PoliticalDivision2').text
+          address_hash[:state] = address_data.xpath('PoliticalDivision1').text
+          address_hash[:zip_code] = address_data.xpath('PostcodePrimaryLow').text
+          address_hash[:country_code] = address_data.xpath('CountryCode').text
+          suggested_addresses << address_hash
+        end
+      else
+        return "Address validation failed!"
+      end
+
+      return suggested_addresses
     end
 
     def location_from_address_node(address)

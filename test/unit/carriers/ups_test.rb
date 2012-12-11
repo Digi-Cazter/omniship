@@ -50,6 +50,14 @@ class UPSTest < Test::Unit::TestCase
                    "OUT FOR DELIVERY",
                    "DELIVERED" ], response.shipment_events.map(&:name)
   end
+
+  def test_validate_address
+    response = @carrier.validate_address( '455 N REXFORD DR','BEVERLY HILLS','CA','90210','US',{:test => true, :key => "***REMOVED***",:login => '***REMOVED***', :password => "***REMOVED***", :origin_account => "***REMOVED***"})
+    if response.is_a? Array
+      address_hash = {:address => '455 N REXFORD DR',:city=>"BEVERLY HILLS",:state=>"CA",:zip_code=>"90210",:country_code=>"US"}
+      assert_equal address_hash , response.first
+    end
+  end
   
   def test_add_origin_and_destination_data_to_shipment_events_where_appropriate
     @carrier.expects(:commit).returns(@tracking_response)

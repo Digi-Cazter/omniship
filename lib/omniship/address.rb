@@ -119,7 +119,7 @@ module Omniship #:nodoc:
     
     def prettyprint
       chunks = []
-      chunks << [@name, @address1,@address2,@address3].reject {|e| e.blank?}.join("\n")
+      chunks << [@name,@attention_name,@address1,@address2,@address3].reject {|e| e.blank?}.join("\n")
       chunks << [@city,@province,@postal_code].reject {|e| e.blank?}.join(', ')
       chunks << @country
       chunks.reject {|e| e.blank?}.join("\n")
