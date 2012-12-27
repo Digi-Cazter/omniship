@@ -415,9 +415,10 @@ module Omniship
         xml.TrackRequest {
           xml.Request {
             xml.RequestAction 'Track'
-            xml.RequestOption '1'
-          }
-          xml.TrackingNumber tracking_number.to_s
+            xml.RequestOption '6'
+          }          
+          xml.TrackingNumber tracking_number.to_s          
+          xml.TrackingOption '02'
         }
       end
       builder.to_xml
@@ -484,10 +485,15 @@ module Omniship
       xml = Nokogiri::XML(response)
       success = response_success?(xml)
       message = response_message(xml)
+      
+      puts "response :" + xml.to_s
 
       if success
         tracking_number, origin, destination = nil
         shipment_events = []
+        
+        shipment = xml.gelements['/*/Shipment']
+        current_status_code = shipment.get_text().to_s
 
         #first_shipment = xml.gelements['/*/Shipment']
         #first_package = first_shipment.elements['Package']
