@@ -13,7 +13,12 @@ class UPSTest < Test::Unit::TestCase
     @tracking_response = xml_fixture('ups/shipment_from_tiger_direct')
   end
   
-  
+  def test_tracking_info
+    shipment_info = @carrier.find_tracking_info("990728071",{:test => true,:key => "6CA5B8C065E6B6B0",:login => 'adamcakestyle', :password => "c@kestyle213", :origin_account => "0X505E"})
+    puts shipment_info.to_json
+    assert_equal shipment_info.class, Hash
+  end
+    
   def test_response_parsing
     mock_response = xml_fixture('ups/test_real_home_as_residential_destination_response')
     @carrier.expects(:commit).returns(mock_response)
