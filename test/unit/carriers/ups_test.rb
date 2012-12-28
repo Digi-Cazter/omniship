@@ -14,7 +14,9 @@ class UPSTest < Test::Unit::TestCase
   end
   
   def test_tracking_info
-    @carrier.find_tracking_info("990728071",{:test => true,:key => "***REMOVED***",:login => '***REMOVED***', :password => "***REMOVED***", :origin_account => "***REMOVED***"})
+    shipment_info = @carrier.find_tracking_info("990728071",{:test => true,:key => "***REMOVED***",:login => '***REMOVED***', :password => "***REMOVED***", :origin_account => "***REMOVED***"})
+    puts shipment_info.to_json
+    assert_equal shipment_info.class, Hash
   end
     
   def test_response_parsing

@@ -415,7 +415,7 @@ module Omniship
         xml.TrackRequest {
           xml.Request {
             xml.RequestAction 'Track'
-            xml.RequestOption '6'
+            xml.RequestOption '7'
           }          
           xml.TrackingNumber tracking_number.to_s          
           xml.TrackingOption '02'
@@ -480,20 +480,42 @@ module Omniship
       RateResponse.new(success, message, Hash.from_xml(response).values.first, :rates => rate_estimates, :xml => response, :request => last_request)
     end
 
-    def parse_tracking_response(response, options={})
-      #TODO
+    def parse_tracking_response(response, options={})      
       xml = Nokogiri::XML(response)
       success = response_success?(xml)
       message = response_message(xml)
       
       puts "response :" + xml.to_s
-
+            
       if success
         tracking_number, origin, destination = nil
-        shipment_events = []
+        shipment_details = Hash.new
         
-        shipment = xml.gelements['/*/Shipment']
-        current_status_code = shipment.get_text().to_s
+        tracking_number = xml.xpath('/*/Shipment/InquiryNumber/Value').text
+        current_status_code = xml.xpath('/*/Shipment/CurrentStatus/Code').text
+        delivery_date_time_code = xml.xpath('/*/Shipment/DeliveryDateTime/Type/Code').text
+        delivery_date_time_desc = xml.xpath('/*/Shipment/DeliveryDateTime/Type/Description').text
+        delivery_date_time_date = xml.xpath('/*/Shipment/DeliveryDateTime/Date').text
+        
+        delivery_date = Date.strptime(delivery_date_time_date,'%Y%m%d')
+        
+        estimated_delivery_date = xml.xpath('/*/Shipment/EstimatedDeliveryDetails/Date').text
+        
+        estimated_delivery_date = Date.strptime(estimated_delivery_date,'%Y%m%d')
+      
+        puts 'tracking_number: ' + tracking_number
+        puts 'current_status_code: ' + current_status_code
+        puts 'delivery_date_time_code: ' + delivery_date_time_code 
+        puts 'delivery_date_time_date: ' + delivery_date_time_date
+        puts 'delivery_date: ' + delivery_date.to_s  
+        puts 'estimated_delivery_date: ' + estimated_delivery_date.to_s  
+        
+        shipment_details[:tracking_number] = tracking_number
+        shipment_details[:current_status_code] = current_status_code
+        shipment_details[:delivery_date_time_code] = delivery_date_time_code
+        shipment_details[:delivery_date_time_desc] = delivery_date_time_desc        
+        shipment_details[:delivery_date] = delivery_date
+        shipment_details[:estimated_delivery_date] = estimated_delivery_date
 
         #first_shipment = xml.gelements['/*/Shipment']
         #first_package = first_shipment.elements['Package']
@@ -543,7 +565,7 @@ module Omniship
       #  :origin => origin,
       #  :destination => destination,
       #  :tracking_number => tracking_number)
-      return 'Feature Not Available'
+      return shipment_details
     end
 
     def parse_ship_confirm_response(origin, destination, packages, response, options={})
