@@ -500,6 +500,20 @@ module Omniship
         
         shipment_details[:tracking_number] = tracking_number
         shipment_details[:estimated_delivery_date] = estimated_delivery_date
+        
+        activities = []
+        xml.xpath('/*/Shipment/Package/Activity').each do |activity|
+          status_code = activity.xpath('Status/StatusCode').text          
+          status_dsc = activity.xpath('Status/StatusType/Description').text          
+          date = activity.xpath('Date').text          
+          time = activity.xpath('Time').text          
+          hour, minute, second = time.scan(/\d{2}/)
+          year, month, day = date[0..3], date[4..5], date[6..7]
+          date_time = Time.utc(year, month, day, hour, minute, second)          
+          location =  activity.xpath('ActivityLocation/Address/City').text + ' ' + activity.xpath('ActivityLocation/Address/StateProvinceCode').text + ' ' + activity.xpath('ActivityLocation/Address/CountryCode').text          
+          activities << {:status_code => status_code, :status_dsc => status_dsc, :date => date_time, :location => location}
+        end 
+        shipment_details[:activities] = activities
 
         #first_shipment = xml.gelements['/*/Shipment']
         #first_package = first_shipment.elements['Package']
