@@ -492,14 +492,16 @@ module Omniship
         shipment_details = Hash.new
         
         tracking_number = xml.xpath('/*/Shipment/Package/TrackingNumber').text        
-        estimated_delivery_date = xml.xpath('/*/Shipment/ScheduledDeliveryDate').text        
-        estimated_delivery_date = Date.strptime(estimated_delivery_date,'%Y%m%d')
+        shipment_details[:tracking_number] = tracking_number
+         
+        estimated_delivery_date = xml.xpath('/*/Shipment/ScheduledDeliveryDate').text      
+        if !estimated_delivery_date.blank?  
+          estimated_delivery_date = Date.strptime(estimated_delivery_date,'%Y%m%d')
+          shipment_details[:estimated_delivery_date] = estimated_delivery_date
+        end
       
         puts 'tracking_number: ' + tracking_number
-        puts 'estimated_delivery_date: ' + estimated_delivery_date.to_s  
-        
-        shipment_details[:tracking_number] = tracking_number
-        shipment_details[:estimated_delivery_date] = estimated_delivery_date
+        puts 'estimated_delivery_date: ' + estimated_delivery_date.to_s                        
         
         activities = []
         xml.xpath('/*/Shipment/Package/Activity').each do |activity|
