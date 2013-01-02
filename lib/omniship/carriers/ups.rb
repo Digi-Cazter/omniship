@@ -491,30 +491,14 @@ module Omniship
         tracking_number, origin, destination = nil
         shipment_details = Hash.new
         
-        tracking_number = xml.xpath('/*/Shipment/InquiryNumber/Value').text
-        current_status_code = xml.xpath('/*/Shipment/CurrentStatus/Code').text
-        delivery_date_time_code = xml.xpath('/*/Shipment/DeliveryDateTime/Type/Code').text
-        delivery_date_time_desc = xml.xpath('/*/Shipment/DeliveryDateTime/Type/Description').text
-        delivery_date_time_date = xml.xpath('/*/Shipment/DeliveryDateTime/Date').text
-        
-        delivery_date = Date.strptime(delivery_date_time_date,'%Y%m%d')
-        
-        estimated_delivery_date = xml.xpath('/*/Shipment/EstimatedDeliveryDetails/Date').text
-        
+        tracking_number = xml.xpath('/*/Shipment/Package/TrackingNumber').text        
+        estimated_delivery_date = xml.xpath('/*/Shipment/ScheduledDeliveryDate').text        
         estimated_delivery_date = Date.strptime(estimated_delivery_date,'%Y%m%d')
       
         puts 'tracking_number: ' + tracking_number
-        puts 'current_status_code: ' + current_status_code
-        puts 'delivery_date_time_code: ' + delivery_date_time_code 
-        puts 'delivery_date_time_date: ' + delivery_date_time_date
-        puts 'delivery_date: ' + delivery_date.to_s  
         puts 'estimated_delivery_date: ' + estimated_delivery_date.to_s  
         
         shipment_details[:tracking_number] = tracking_number
-        shipment_details[:current_status_code] = current_status_code
-        shipment_details[:delivery_date_time_code] = delivery_date_time_code
-        shipment_details[:delivery_date_time_desc] = delivery_date_time_desc        
-        shipment_details[:delivery_date] = delivery_date
         shipment_details[:estimated_delivery_date] = estimated_delivery_date
 
         #first_shipment = xml.gelements['/*/Shipment']
