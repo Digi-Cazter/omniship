@@ -498,6 +498,12 @@ module Omniship
         if !estimated_delivery_date.blank?  
           estimated_delivery_date = Date.strptime(estimated_delivery_date,'%Y%m%d')
           shipment_details[:estimated_delivery_date] = estimated_delivery_date
+        else
+          reschedule_delivery_date = xml.xpath('/*/Shipment/Package/RescheduledDeliveryDate').text 
+          if !reschedule_delivery_date.blank?  
+            reschedule_delivery_date = Date.strptime(reschedule_delivery_date,'%Y%m%d')
+            shipment_details[:estimated_delivery_date] = reschedule_delivery_date
+          end
         end
       
         puts 'tracking_number: ' + tracking_number
