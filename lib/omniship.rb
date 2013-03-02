@@ -23,7 +23,8 @@
 
 ### TODO Working on creating code for using an initializer for configuration ###
 
-begin	 
+require 'omniship/base'
+
 def Omniship.setup
   @root   = Rails.root 
   if @root    
@@ -45,9 +46,6 @@ def Omniship.setup
     end
   end
 end
-rescue => e
-  puts "Omniship hasn't been initialized yet: #{e.message}"
-end
 
 $:.unshift File.dirname(__FILE__)
 
@@ -66,7 +64,7 @@ require 'net/https'
 require 'active_utils'
 require 'nokogiri'
 
-require 'omniship/base'
+#require 'omniship/base'
 require 'omniship/contact'
 require 'omniship/response'
 require 'omniship/rate_response'
