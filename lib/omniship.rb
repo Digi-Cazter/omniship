@@ -22,8 +22,8 @@
 #++
 
 ### TODO Working on creating code for using an initializer for configuration ###
-	 
-if defined? Omniship
+
+begin	 
 def Omniship.setup
   @root   = Rails.root 
   if @root    
@@ -45,6 +45,8 @@ def Omniship.setup
     end
   end
 end
+rescue => e
+  puts "Omniship hasn't been initialized yet: #{e.message}"
 end
 
 $:.unshift File.dirname(__FILE__)
