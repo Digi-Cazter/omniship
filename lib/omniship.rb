@@ -23,6 +23,7 @@
 
 ### TODO Working on creating code for using an initializer for configuration ###
 	 
+if defined? Omniship
 def Omniship.setup
   @root   = Rails.root 
   if @root    
@@ -43,6 +44,7 @@ def Omniship.setup
       @@config[Rails.env].freeze
     end
   end
+end
 end
 
 $:.unshift File.dirname(__FILE__)
