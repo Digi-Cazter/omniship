@@ -1,7 +1,6 @@
-[![Code
-Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/Digi-Cazter/omniship)
+[![Gem Version](https://badge.fury.io/rb/omniship.png)](http://badge.fury.io/rb/omniship) [![CodeClimate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/Digi-Cazter/omniship) 
 
-# Sandbox - Omniship 
+# Omniship 
 
 This gem is under active development, I'm only in the Alpha stage right now, so keep checking back for updates.
 
