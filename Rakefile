@@ -9,6 +9,12 @@ namespace :test do
     t.pattern = 'test/unit/**/*_test.rb'
     t.verbose = true
   end
+  
+  Rake::TestTask.new(:units_ups) do |t|
+    t.libs << "test"
+    t.pattern = 'test/unit/**/ups_test.rb'
+    t.verbose = true
+  end
 
   Rake::TestTask.new(:remote) do |t|
     t.libs << "test"
