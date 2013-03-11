@@ -1,4 +1,4 @@
-[![Gem Version](https://badge.fury.io/rb/omniship.png)](http://badge.fury.io/rb/omniship) [![CodeClimate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/Digi-Cazter/omniship) 
+[![Gem Version](https://badge.fury.io/rb/omniship.png)](http://badge.fury.io/rb/omniship) [![Code Climate](https://codeclimate.com/github/Digi-Cazter/omniship.png)](https://codeclimate.com/github/Digi-Cazter/omniship) 
 
 # Omniship 
 
