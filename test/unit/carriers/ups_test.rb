@@ -13,51 +13,12 @@ class UPSTest < Test::Unit::TestCase
     @tracking_response = xml_fixture('ups/shipment_from_tiger_direct')
   end
   
-  def test_initialize_options_requirements
-    assert_raises(ArgumentError) { UPS.new }
-    assert_raises(ArgumentError) { UPS.new(:login => 'blah', :password => 'bloo') }
-    assert_raises(ArgumentError) { UPS.new(:login => 'blah', :key => 'kee') }
-    assert_raises(ArgumentError) { UPS.new(:password => 'bloo', :key => 'kee') }
-    assert_nothing_raised { UPS.new(:login => 'blah', :password => 'bloo', :key => 'kee') }
+  def test_tracking_info
+    shipment_info = @carrier.find_tracking_info("1Z0X505E9090010777",{:test => true,:key => "6CA5B8C065E6B6B0",:login => 'adamcakestyle', :password => "c@kestyle213", :origin_account => "0X505E"})
+    puts shipment_info.to_json
+    assert_equal shipment_info.class, Hash
   end
-  
-  def test_find_tracking_info_should_return_a_tracking_response
-    @carrier.expects(:commit).returns(@tracking_response)
-    assert_equal 'Omniship::TrackingResponse', @carrier.find_tracking_info('1Z5FX0076803466397').class.name
-  end
-  
-  def test_find_tracking_info_should_parse_response_into_correct_number_of_shipment_events
-    @carrier.expects(:commit).returns(@tracking_response)
-    response = @carrier.find_tracking_info('1Z5FX0076803466397')
-    assert_equal 8, response.shipment_events.size
-  end
-  
-  def test_find_tracking_info_should_return_shipment_events_in_ascending_chronological_order
-    @carrier.expects(:commit).returns(@tracking_response)
-    response = @carrier.find_tracking_info('1Z5FX0076803466397')
-    assert_equal response.shipment_events.map(&:time).sort, response.shipment_events.map(&:time)
-  end
-  
-  def test_find_tracking_info_should_have_correct_names_for_shipment_events
-    @carrier.expects(:commit).returns(@tracking_response)
-    response = @carrier.find_tracking_info('1Z5FX0076803466397')
-    assert_equal [ "BILLING INFORMATION RECEIVED",
-                   "IMPORT SCAN",
-                   "LOCATION SCAN",
-                   "LOCATION SCAN",
-                   "DEPARTURE SCAN",
-                   "ARRIVAL SCAN",
-                   "OUT FOR DELIVERY",
-                   "DELIVERED" ], response.shipment_events.map(&:name)
-  end
-  
-  def test_add_origin_and_destination_data_to_shipment_events_where_appropriate
-    @carrier.expects(:commit).returns(@tracking_response)
-    response = @carrier.find_tracking_info('1Z5FX0076803466397')
-    assert_equal '175 AMBASSADOR', response.shipment_events.first.location.address1
-    assert_equal 'K1N5X8', response.shipment_events.last.location.postal_code
-  end
-  
+    
   def test_response_parsing
     mock_response = xml_fixture('ups/test_real_home_as_residential_destination_response')
     @carrier.expects(:commit).returns(mock_response)
@@ -70,7 +31,7 @@ class UPSTest < Test::Unit::TestCase
                    "UPS Next Day Air Saver",
                    "UPS Next Day Air Early A.M.",
                    "UPS Next Day Air"], response.rates.map(&:service_name)
-    assert_equal [992, 2191, 3007, 5509, 9401, 6124], response.rates.map(&:price)
+    assert_equal [9.92, 21.91, 30.07, 55.09, 94.01, 61.24], response.rates.map(&:price)
     
     date_test = [nil, 3, 2, 1, 1, 1].map do |days| 
       DateTime.strptime(days.days.from_now.strftime("%Y-%m-%d"), "%Y-%m-%d") if days
@@ -79,9 +40,26 @@ class UPSTest < Test::Unit::TestCase
     assert_equal date_test, response.rates.map(&:delivery_date)
   end
   
-  def test_maximum_weight
-    assert Package.new(150, [5,5,5], :units => :imperial).mass == @carrier.maximum_weight
-    assert Package.new(150 + 0.01, [5,5,5], :units => :imperial).mass > @carrier.maximum_weight
-    assert Package.new(150 - 0.01, [5,5,5], :units => :imperial).mass < @carrier.maximum_weight
+  def test_create_shipment
+    response = @carrier.create_shipment( @locations[:sender_address],
+                                    @locations[:cakestyle_address],
+                                    @packages.values_at(:box),
+                                    {:service => '03',:test => true, :key => "6CA5B8C065E6B6B0",:login => 'adamcakestyle', :password => "c@kestyle213", :origin_account => "0X505E"})
+    puts  "response: " + response.to_json     
+    assert_equal response.class, String                   
   end
+  
+  def test_void_shipment
+    response = @carrier.void_shipment( "","1ZISDE016691676846",{:test => true, :key => "6CA5B8C065E6B6B0",:login => 'adamcakestyle', :password => "c@kestyle213", :origin_account => "0X505E"})
+    assert_equal "Shipment successfully voided!", response
+  end
+  
+  def test_validate_address
+     response = @carrier.validate_address( '455 N REXFORD DR','BEVERLY HILLS','CA','90210','US',{:test => true, :key => "6CA5B8C065E6B6B0",:login => 'adamcakestyle', :password => "c@kestyle213", :origin_account => "0X505E"})
+     if response.is_a? Array
+        address_hash = {:address => '455 N REXFORD DR',:city=>"BEVERLY HILLS",:state=>"CA",:zip_code=>"90210",:country_code=>"US"}
+        assert_equal address_hash , response.first
+     end
+  end
+  
 end
