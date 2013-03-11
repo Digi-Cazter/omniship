@@ -14,7 +14,7 @@ require 'rails/all'
 require 'test/unit'
 require 'minitest/spec'
 require 'omniship'
-require 'mocha'
+require 'mocha/setup'
 
 
 XmlNode # trigger autorequire
