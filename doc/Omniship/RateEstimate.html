@@ -6,7 +6,7 @@
 <title>
   Class: Omniship::RateEstimate
   
-    &mdash; Documentation by YARD 0.8.2.1
+    &mdash; Documentation by YARD 0.8.5.2
   
 </title>
 
@@ -555,7 +555,7 @@ Ground", etc.).</p>
   <span class='kw'>else</span>
     <span class='ivar'>@package_rates</span> <span class='op'>=</span> <span class='const'>Array</span><span class='lparen'>(</span><span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:packages</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_p'>p</span><span class='op'>|</span> <span class='lbrace'>{</span><span class='symbol'>:package</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_p'>p</span><span class='rbrace'>}</span><span class='rbrace'>}</span>
   <span class='kw'>end</span>
-  <span class='ivar'>@total_price</span> <span class='op'>=</span> <span class='const'>Package</span><span class='period'>.</span><span class='id identifier rubyid_cents_from'>cents_from</span><span class='lparen'>(</span><span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:total_price</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='ivar'>@total_price</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:total_price</span><span class='rbracket'>]</span>
   <span class='ivar'>@currency</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:currency</span><span class='rbracket'>]</span>
   <span class='ivar'>@delivery_range</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:delivery_range</span><span class='rbracket'>]</span> <span class='op'>?</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:delivery_range</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_date'>date</span><span class='op'>|</span> <span class='id identifier rubyid_date_for'>date_for</span><span class='lparen'>(</span><span class='id identifier rubyid_date'>date</span><span class='rparen'>)</span> <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_compact'>compact</span> <span class='op'>:</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
   <span class='ivar'>@delivery_date</span> <span class='op'>=</span> <span class='ivar'>@delivery_range</span><span class='period'>.</span><span class='id identifier rubyid_last'>last</span>
@@ -1134,9 +1134,9 @@ Ground", etc.)</p>
 </div>
 
     <div id="footer">
-  Generated on Tue Sep 25 10:29:06 2012 by
+  Generated on Mon Mar 11 15:45:46 2013 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.8.2.1 (ruby-1.9.3).
+  0.8.5.2 (ruby-1.9.3).
 </div>
 
   </body>
