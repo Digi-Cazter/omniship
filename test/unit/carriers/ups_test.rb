@@ -6,15 +6,15 @@ class UPSTest < Test::Unit::TestCase
     @packages  = TestFixtures.packages
     @locations = TestFixtures.locations
     @carrier   = UPS.new(
-                   :key => '***REMOVED***',
-                   :login => '***REMOVED***',
-                   :password => '***REMOVED***'
+                   :key => "#TODO",
+                   :login => "#TODO",
+                   :password => "#TODO"
                  )
     @tracking_response = xml_fixture('ups/shipment_from_tiger_direct')
   end
   
   def test_tracking_info
-    shipment_info = @carrier.find_tracking_info("1Z***REMOVED***9090010777",{:test => true,:key => "***REMOVED***",:login => '***REMOVED***', :password => "***REMOVED***", :origin_account => "***REMOVED***"})
+    shipment_info = @carrier.find_tracking_info("1Z0X505E9090010777",{:test => true,:key => '#TODO',:login => '#TODO', :password => "#TODO", :origin_account => "#TODO"})
     puts shipment_info.to_json
     assert_equal shipment_info.class, Hash
   end
@@ -44,18 +44,18 @@ class UPSTest < Test::Unit::TestCase
     response = @carrier.create_shipment( @locations[:sender_address],
                                     @locations[:cakestyle_address],
                                     @packages.values_at(:box),
-                                    {:service => '03',:test => true, :key => "***REMOVED***",:login => '***REMOVED***', :password => "***REMOVED***", :origin_account => "***REMOVED***"})
+                                    {:service => '03',:test => true, :key => "#TODO",:login => '#TODO', :password => "#TODO", :origin_account => "#TODO"})
     puts  "response: " + response.to_json     
     assert_equal response.class, String                   
   end
   
   def test_void_shipment
-    response = @carrier.void_shipment( "","1ZISDE016691676846",{:test => true, :key => "***REMOVED***",:login => '***REMOVED***', :password => "***REMOVED***", :origin_account => "***REMOVED***"})
+    response = @carrier.void_shipment( "","1ZISDE016691676846",{:test => true, :key => "#TODO",:login => '#TODO', :password => "#TODO", :origin_account => "#TODO"})
     assert_equal "Shipment successfully voided!", response
   end
   
   def test_validate_address
-     response = @carrier.validate_address( '455 N REXFORD DR','BEVERLY HILLS','CA','90210','US',{:test => true, :key => "***REMOVED***",:login => '***REMOVED***', :password => "***REMOVED***", :origin_account => "***REMOVED***"})
+     response = @carrier.validate_address( '455 N REXFORD DR','BEVERLY HILLS','CA','90210','US',{:test => true, :key => "#TODO",:login => '#TODO', :password => "#TODO", :origin_account => "#TODO"})
      if response.is_a? Array
         address_hash = {:address => '455 N REXFORD DR',:city=>"BEVERLY HILLS",:state=>"CA",:zip_code=>"90210",:country_code=>"US"}
         assert_equal address_hash , response.first
