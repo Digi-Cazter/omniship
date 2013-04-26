@@ -28,16 +28,16 @@ module Omniship #:nodoc:
       @country = (options[:country].nil? or options[:country].is_a?(ActiveMerchant::Country)) ?
           options[:country] :
           ActiveMerchant::Country.find(options[:country])
-      @postal_code = options[:postal_code] || options[:postal] || options[:zip]
-      @province = options[:province] || options[:state] || options[:territory] || options[:region]
-      @city = options[:city]
-      @name = options[:name]
-      @address1 = options[:address1]
-      @address2 = options[:address2]
-      @address3 = options[:address3]
-      @phone = options[:phone]
-      @fax = options[:fax]
-      @company_name = options[:company_name] || options[:company]
+      @postal_code    = options[:postal_code] || options[:postal] || options[:zip]
+      @province       = options[:province] || options[:state] || options[:territory] || options[:region]
+      @city           = options[:city]
+      @name           = options[:name]
+      @address1       = options[:address1]
+      @address2       = options[:address2]
+      @address3       = options[:address3]
+      @phone          = options[:phone]
+      @fax            = options[:fax]
+      @company_name   = options[:company_name] || options[:company]
       @attention_name = options[:attention_name]
 
       self.address_type = options[:address_type]
@@ -46,19 +46,19 @@ module Omniship #:nodoc:
     def self.from(object, options={})
       return object if object.is_a? Omniship::Address
       attr_mappings = {
-          :name => [:name],
-          :attention_name => [:attention_name],
-          :country => [:country_code, :country],
-          :postal_code => [:postal_code, :zip, :postal],
-          :province => [:province_code, :state_code, :territory_code, :region_code, :province, :state, :territory, :region],
-          :city => [:city, :town],
-          :address1 => [:address1, :address, :street],
-          :address2 => [:address2],
-          :address3 => [:address3],
-          :phone => [:phone, :phone_number],
-          :fax => [:fax, :fax_number],
-          :address_type => [:address_type],
-          :company_name => [:company, :company_name]
+        :name           => [:name],
+        :attention_name => [:attention_name],
+        :country        => [:country_code, :country],
+        :postal_code    => [:postal_code, :zip, :postal],
+        :province       => [:province_code, :state_code, :territory_code, :region_code, :province, :state, :territory, :region],
+        :city           => [:city, :town],
+        :address1       => [:address1, :address, :street],
+        :address2       => [:address2],
+        :address3       => [:address3],
+        :phone          => [:phone, :phone_number],
+        :fax            => [:fax, :fax_number],
+        :address_type   => [:address_type],
+        :company_name   => [:company, :company_name]
       }
       attributes = {}
       hash_access = begin
@@ -95,19 +95,19 @@ module Omniship #:nodoc:
 
     def to_hash
       {
-          :country => country_code,
-          :postal_code => postal_code,
-          :province => province,
-          :city => city,
-          :name => name,
-          :address1 => address1,
-          :address2 => address2,
-          :address3 => address3,
-          :phone => phone,
-          :fax => fax,
-          :address_type => address_type,
-          :company_name => company_name,
-          :attention_name => attention_name
+        :country        => country_code,
+        :postal_code    => postal_code,
+        :province       => province,
+        :city           => city,
+        :name           => name,
+        :address1       => address1,
+        :address2       => address2,
+        :address3       => address3,
+        :phone          => phone,
+        :fax            => fax,
+        :address_type   => address_type,
+        :company_name   => company_name,
+        :attention_name => attention_name
       }
     end
 

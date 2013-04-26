@@ -100,62 +100,62 @@ module Omniship
 
     def find_rates(origin, destination, packages, options={})
       origin, destination = upsified_location(origin), upsified_location(destination)
-      options = @options.merge(options)
-      options[:test] = options[:test].nil? ? false : options[:test]
-      packages = Array(packages)
-      access_request = build_access_request
-      rate_request = build_rate_request(origin, destination, packages, options)
-      response = commit(:rates, save_request(access_request.gsub("\n", "") + rate_request.gsub("\n", "")), options[:test])
+      options             = @options.merge(options)
+      options[:test]      = options[:test].nil? ? false : options[:test]
+      packages            = Array(packages)
+      access_request      = build_access_request
+      rate_request        = build_rate_request(origin, destination, packages, options)
+      response            = commit(:rates, save_request(access_request.gsub("\n", "") + rate_request.gsub("\n", "")), options[:test])
       parse_rate_response(origin, destination, packages, response, options)
     end
 
     def find_tracking_info(tracking_number, options={})
-      options = @options.update(options)
-      options[:test] = options[:test].nil? ? false : options[:test]
-      access_request = build_access_request
+      options          = @options.update(options)
+      options[:test]   = options[:test].nil? ? false : options[:test]
+      access_request   = build_access_request
       tracking_request = build_tracking_request(tracking_number, options)
-      response = commit(:track, save_request(access_request.gsub("\n", "") + tracking_request.gsub("\n", "")), options[:test])
+      response         = commit(:track, save_request(access_request.gsub("\n", "") + tracking_request.gsub("\n", "")), options[:test])
       parse_tracking_response(response, options)
     end
 
     # Creating shipping functionality for UPS
     def create_shipment(origin, destination, packages, options={})
-      @options = @options.merge(options)
-      origin, destination = upsified_location(origin), upsified_location(destination)
-      options = @options.merge(options)
-      options[:test] = options[:test].nil? ? true : options[:test]
-      packages = Array(packages)
-      access_request = build_access_request
+      @options             = @options.merge(options)
+      origin, destination  = upsified_location(origin), upsified_location(destination)
+      options              = @options.merge(options)
+      options[:test]       = options[:test].nil? ? true : options[:test]
+      packages             = Array(packages)
+      access_request       = build_access_request
       ship_confirm_request = build_ship_confirm(origin, destination, packages, options)
-      response = commit(:shipconfirm, save_request(access_request.gsub("\n", "") + ship_confirm_request.gsub("\n", "")), options[:test])
+      response             = commit(:shipconfirm, save_request(access_request.gsub("\n", "") + ship_confirm_request.gsub("\n", "")), options[:test])
       parse_ship_confirm_response(origin, destination, packages, response, options)
     end
 
     def accept_shipment(digest, options={})
-      options[:test] = options[:test].nil? ? true : options[:test]
-      access_request = build_access_request
+      options[:test]      = options[:test].nil? ? true : options[:test]
+      access_request      = build_access_request
       ship_accept_request = build_ship_accept(digest)
-      response = commit(:shipaccept, save_request(access_request.gsub("\n", "") + ship_accept_request.gsub("\n", "")), options[:test])
+      response            = commit(:shipaccept, save_request(access_request.gsub("\n", "") + ship_accept_request.gsub("\n", "")), options[:test])
       parse_ship_accept_response(response, options)
     end
 
     def void_shipment(ups_shipment_id,tracking_number, options={})
-      @options = @options.merge(options)
-      options = @options.merge(options)
-      options[:test] = options[:test].nil? ? true : options[:test]
-      access_request = build_access_request
+      @options          = @options.merge(options)
+      options           = @options.merge(options)
+      options[:test]    = options[:test].nil? ? true : options[:test]
+      access_request    = build_access_request
       ship_void_request = build_void_request(ups_shipment_id,tracking_number)
-      response = commit(:shipvoid, save_request(access_request.gsub("\n", "") + ship_void_request.gsub("\n", "")), options[:test])
+      response          = commit(:shipvoid, save_request(access_request.gsub("\n", "") + ship_void_request.gsub("\n", "")), options[:test])
       parse_ship_void_response(response, options)
     end
-    
+
     def validate_address(address,city,state,zip_code,country_code, options={})
-      @options = @options.merge(options)
-      access_request = build_access_request
+      @options                 = @options.merge(options)
+      access_request           = build_access_request
       validate_address_request = build_valid_address_request(address,city,state,zip_code,country_code)
-      options[:test] = options[:test].nil? ? true : options[:test]
-      response = commit(:valid_address, save_request(access_request.gsub("\n", "") + validate_address_request.gsub("\n", "")), options[:test])
-      parse_response = parse_ship_valid_address(response)
+      options[:test]           = options[:test].nil? ? true : options[:test]
+      response                 = commit(:valid_address, save_request(access_request.gsub("\n", "") + validate_address_request.gsub("\n", "")), options[:test])
+      parse_response           = parse_ship_valid_address(response)
       parse_response
     end
 
@@ -172,7 +172,7 @@ module Omniship
         location
       end
     end
-        
+
 
     def build_access_request
       builder = Nokogiri::XML::Builder.new do |xml|
@@ -190,7 +190,7 @@ module Omniship
       builder.to_xml
     end
 
-    # Build the ship_confirm XML request      
+    # Build the ship_confirm XML request
     def build_ship_confirm(origin, destination, packages, options={})
 
       #Return Service types:
@@ -312,7 +312,7 @@ module Omniship
       end
       builder.to_xml
     end
-    
+
     def build_valid_address_request(address,city,state,zip_code,country_code)
       builder = Nokogiri::XML::Builder.new do |xml|
           xml.AddressValidationRequest {
@@ -320,7 +320,7 @@ module Omniship
               xml.RequestAction 'XAV'
               xml.RequestOption 3
             }
-            
+
             xml.AddressKeyFormat{
               xml.AddressLine address
               xml.PoliticalDivision2 city
@@ -416,8 +416,8 @@ module Omniship
           xml.Request {
             xml.RequestAction 'Track'
             xml.RequestOption '7'
-          }          
-          xml.TrackingNumber tracking_number.to_s          
+          }
+          xml.TrackingNumber tracking_number.to_s
           xml.TrackingOption '02'
         }
       end
@@ -480,47 +480,47 @@ module Omniship
       RateResponse.new(success, message, Hash.from_xml(response).values.first, :rates => rate_estimates, :xml => response, :request => last_request)
     end
 
-    def parse_tracking_response(response, options={})      
+    def parse_tracking_response(response, options={})
       xml = Nokogiri::XML(response)
       success = response_success?(xml)
       message = response_message(xml)
-      
+
       puts "response :" + xml.to_s
-            
+
       if success
         tracking_number, origin, destination = nil
         shipment_details = Hash.new
-        
-        tracking_number = xml.xpath('/*/Shipment/Package/TrackingNumber').text        
+
+        tracking_number = xml.xpath('/*/Shipment/Package/TrackingNumber').text
         shipment_details[:tracking_number] = tracking_number
-         
-        estimated_delivery_date = xml.xpath('/*/Shipment/ScheduledDeliveryDate').text      
-        if !estimated_delivery_date.blank?  
+
+        estimated_delivery_date = xml.xpath('/*/Shipment/ScheduledDeliveryDate').text
+        if !estimated_delivery_date.blank?
           estimated_delivery_date = Date.strptime(estimated_delivery_date,'%Y%m%d')
           shipment_details[:estimated_delivery_date] = estimated_delivery_date
         else
-          reschedule_delivery_date = xml.xpath('/*/Shipment/Package/RescheduledDeliveryDate').text 
-          if !reschedule_delivery_date.blank?  
+          reschedule_delivery_date = xml.xpath('/*/Shipment/Package/RescheduledDeliveryDate').text
+          if !reschedule_delivery_date.blank?
             reschedule_delivery_date = Date.strptime(reschedule_delivery_date,'%Y%m%d')
             shipment_details[:estimated_delivery_date] = reschedule_delivery_date
           end
         end
-      
+
         puts 'tracking_number: ' + tracking_number
-        puts 'estimated_delivery_date: ' + estimated_delivery_date.to_s                        
-        
+        puts 'estimated_delivery_date: ' + estimated_delivery_date.to_s
+
         activities = []
         xml.xpath('/*/Shipment/Package/Activity').each do |activity|
-          status_code = activity.xpath('Status/StatusCode').text          
-          status_dsc = activity.xpath('Status/StatusType/Description').text          
-          date = activity.xpath('Date').text          
-          time = activity.xpath('Time').text          
+          status_code = activity.xpath('Status/StatusCode').text
+          status_dsc = activity.xpath('Status/StatusType/Description').text
+          date = activity.xpath('Date').text
+          time = activity.xpath('Time').text
           hour, minute, second = time.scan(/\d{2}/)
           year, month, day = date[0..3], date[4..5], date[6..7]
-          date_time = Time.utc(year, month, day, hour, minute, second)          
-          location =  activity.xpath('ActivityLocation/Address/City').text + ' ' + activity.xpath('ActivityLocation/Address/StateProvinceCode').text + ' ' + activity.xpath('ActivityLocation/Address/CountryCode').text          
+          date_time = Time.utc(year, month, day, hour, minute, second)
+          location =  activity.xpath('ActivityLocation/Address/City').text + ' ' + activity.xpath('ActivityLocation/Address/StateProvinceCode').text + ' ' + activity.xpath('ActivityLocation/Address/CountryCode').text
           activities << {:status_code => status_code, :status_dsc => status_dsc, :date => date_time, :location => location}
-        end 
+        end
         shipment_details[:activities] = activities
 
         #first_shipment = xml.gelements['/*/Shipment']
@@ -545,9 +545,9 @@ module Omniship
         #    location = location_from_address_node(activity.elements['ActivityLocation/Address'])
         #    ShipmentEvent.new(description, zoneless_time, location)
         #  end
-        #  
+        #
         #  shipment_events = shipment_events.sort_by(&:time)
-        #  
+        #
         #  if origin
         #    first_event = shipment_events[0]
         #    same_country = origin.country_code(:alpha2) == first_event.location.country_code(:alpha2)
@@ -633,7 +633,7 @@ module Omniship
 
       return @void
     end
-    
+
     def parse_ship_valid_address(response, options={})
       xml = Nokogiri::XML(response)
       success = response_success?(xml)

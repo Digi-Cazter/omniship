@@ -1,0 +1,32 @@
+development:
+  ups:
+    key:
+    account:
+  fedex:
+    key:
+    password:
+    account:
+    meter:
+  usps:
+
+test:
+  ups:
+    key:
+    account:
+  fedex:
+    key:
+    password:
+    account:
+    meter:
+  usps:
+
+production:
+  ups:
+    key:
+    account:
+  fedex:
+    key:
+    password:
+    account:
+    meter:
+  usps:

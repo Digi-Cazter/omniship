@@ -1,0 +1,1 @@
+OMNISHIP_CONFIG = YAML.load_file("#{Rails.root}/config/omniship.yml")[Rails.env]
