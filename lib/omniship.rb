@@ -30,11 +30,11 @@ def Omniship.setup
   if @root    
     @boot   = File.join(@root, "config", "boot.rb").freeze
     @config = File.join(@root, "config", "omniship.yml").freeze
-    @keys   = %w{ username password key }.map { |v| v.freeze }.freeze
+    @keys   = %w{ username password key account meter }.map { |v| v.freeze }.freeze
     require boot unless defined? Rails.env
     @@config = YAML.load_file(@config) rescue false
     if @@config != false
-      raise "Invalid fedex configuration file: #{@config}" unless @@config.is_a?(Hash)
+      raise "Invalid omniship configuration file: #{@config}" unless @@config.is_a?(Hash)
       if (@@config.keys & @keys).sort == @keys.sort and !@@config.has_key?(Rails.env)
         @@config[Rails.env] = {
           "ups"   => @@config["ups"],

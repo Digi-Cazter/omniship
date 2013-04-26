@@ -95,13 +95,10 @@ module Omniship
     end
     
     def find_rates(origin, destination, packages, options = {})
-      options = @options.update(options)
+      options = @options.merge(options)
       packages = Array(packages)
-      
       rate_request = build_rate_request(origin, destination, packages, options)
-      
       response = commit(save_request(rate_request), (options[:test] || false)).gsub(/<(\/)?.*?\:(.*?)>/, '<\1\2>')
-      
       parse_rate_response(origin, destination, packages, response, options)
     end
     
@@ -117,54 +114,40 @@ module Omniship
     def build_rate_request(origin, destination, packages, options={})
       imperial = ['US','LR','MM'].include?(origin.country_code(:alpha2))
 
-      xml_request = XmlNode.new('RateRequest', 'xmlns' => 'http://fedex.com/ws/rate/v6') do |root_node|
-        root_node << build_request_header
-
-        # Version
-        root_node << XmlNode.new('Version') do |version_node|
-          version_node << XmlNode.new('ServiceId', 'crs')
-          version_node << XmlNode.new('Major', '6')
-          version_node << XmlNode.new('Intermediate', '0')
-          version_node << XmlNode.new('Minor', '0')
-        end
-        
-        # Returns delivery dates
-        root_node << XmlNode.new('ReturnTransitAndCommit', true)
-        # Returns saturday delivery shipping options when available
-        root_node << XmlNode.new('VariableOptions', 'SATURDAY_DELIVERY')
-        
-        root_node << XmlNode.new('RequestedShipment') do |rs|
-          rs << XmlNode.new('ShipTimestamp', Time.now)
-          rs << XmlNode.new('DropoffType', options[:dropoff_type] || 'REGULAR_PICKUP')
-          rs << XmlNode.new('PackagingType', options[:packaging_type] || 'YOUR_PACKAGING')
-          
-          rs << build_location_node('Shipper', (options[:shipper] || origin))
-          rs << build_location_node('Recipient', destination)
-          if options[:shipper] and options[:shipper] != origin
-            rs << build_location_node('Origin', origin)
-          end
-          
-          rs << XmlNode.new('RateRequestTypes', 'ACCOUNT')
-          rs << XmlNode.new('PackageCount', packages.size)
-          packages.each do |pkg|
-            rs << XmlNode.new('RequestedPackages') do |rps|
-              rps << XmlNode.new('Weight') do |tw|
-                tw << XmlNode.new('Units', imperial ? 'LB' : 'KG')
-                tw << XmlNode.new('Value', [((imperial ? pkg.lbs : pkg.kgs).to_f*1000).round/1000.0, 0.1].max)
-              end
-              rps << XmlNode.new('Dimensions') do |dimensions|
-                [:length,:width,:height].each do |axis|
-                  value = ((imperial ? pkg.inches(axis) : pkg.cm(axis)).to_f*1000).round/1000.0 # 3 decimals
-                  dimensions << XmlNode.new(axis.to_s.capitalize, value.ceil)
-                end
-                dimensions << XmlNode.new('Units', imperial ? 'IN' : 'CM')
-              end
+      builder = Nokogiri::XML::Builder.new do |xml|
+        xml.RateRequest {
+          xml.ReturnTransitAndCommit true
+          xml.VariableOptions 'SATURDAY_DELIVERY'
+          xml.RequestedShipment {
+            xml.ShipTimestamp Time.now
+            xml.DropoffType options[:dropoff_type] || 'REGULAR_PICKUP'
+            xml.PackagingType options[:packaging_type] || 'YOUR_PACKAGING'
+            build_location_node('Shipper', (options[:shipper] || origin))
+            build_location_node('Recipient', destination)
+            if options[:shipper] && options[:shipper] != origin
+              build_location_node('Origin', origin)
             end
-          end
-          
-        end
+            xml.RateRequestTypes 'ACCOUNT'
+            xml.PackageCount packages.size
+            packages.each do |pkg|
+              xml.RequestedPackages {
+                xml.Weight {
+                  xml.Units (imperial ? 'LB' : 'KG')
+                  xml.Value ([((imperial ? pkg.lbs : pgk.kgs).to_f*1000).rount/1000.0, 0.1].max)
+                }
+                xml.Dimensions {
+                  [:length, :width, :height].each do |axis|
+                    value = ((imperial ? pkg.inches(axis) : pkg.cm(axis)).to_f*1000).rount/1000.0
+                    xml.(axis.to_s.capitalize) value.ceil
+                  end
+                  xml.Units (imperial ? 'IN' : 'CM')
+                }
+              }
+            end
+          }
+        }
       end
-      xml_request.to_s
+      builder.to_xml
     end
     
     def build_tracking_request(tracking_number, options={})
