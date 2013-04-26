@@ -91,7 +91,7 @@ module Omniship
     end
     
     def requirements
-      [:key, :password, :account, :login]
+      [:key, :account, :meter, :password]
     end
     
     def find_rates(origin, destination, packages, options = {})
