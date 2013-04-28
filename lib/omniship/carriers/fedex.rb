@@ -102,21 +102,23 @@ module Omniship
       parse_rate_response(origin, destination, packages, response, options)
     end
 
-    def create_shipment(origin, destination, packages, options = {})
-      options      = @options.merge(options)
-      packages     = Array(packages)
-      ship_request = build_ship_request(origin, destination, packages, options)
-      response     = commit(save_request(ship_request.gsub("\n", "")), options[:test])
-      #parse_ship_response(origin, destination, packages, response, options)
-    end
+    # def create_shipment(origin, destination, packages, options = {})
+    #   options      = @options.merge(options)
+    #   packages     = Array(packages)
+    #   ship_request = build_ship_request(origin, destination, packages, options)
+    #   response     = commit(save_request(ship_request.gsub("\n", "")), options[:test])
+    #   #parse_ship_response(origin, destination, packages, response, options)
+    # end
 
     def create_shipment(origin, destination, packages, options={})
-      options              = @options.merge(options)
-      options[:test]       = options[:test].nil? ? true : options[:test]
-      packages             = Array(packages)
-      access_request       = build_access_request
-      # ship_confirm_request = build_ship_confirm(origin, destination, packages, options)
-      # response             = commit(:shipconfirm, save_request(access_request.gsub("\n", "") + ship_confirm_request.gsub("\n", "")), options[:test])
+      options        = @options.merge(options)
+      options[:test] = options[:test].nil? ? true : options[:test]
+      packages       = Array(packages)
+      access_request = build_access_request
+      ship_request   = build_ship_request(origin, destination, packages, options)
+      access_request.gsub("\n", "") + ship_request.gsub("\n", "")
+      # response       = commit(save_request(access_request.gsub("\n", "") + ship_request.gsub("\n", "")), options[:test])
+      # response     = commit(:shipconfirm, save_request(access_request.gsub("\n", "") + ship_confirm_request.gsub("\n", "")), options[:test])
       # parse_ship_confirm_response(origin, destination, packages, response, options)
     end
 
@@ -174,10 +176,10 @@ module Omniship
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.RequestedShipment {
           xml.DropoffType options[:dropoff_type] || 'REGULAR_PICKUP'
-          xml.PackagingType options[:service_type]
-          xml.PackagingType options[:package_type]
+          xml.PackagingType options[:service_type] || 'FEDEX_GROUND'
+          xml.PackagingType options[:package_type] || 'YOUR_PACKAGING'
           xml.ShipTimestamp Time.now
-          xml.VariableOptions 'SATURDAY_DELIVERY'
+          xml.VariableOptions '' #'SATURDAY_DELIVERY'
           xml.ReturnTransitAndCommit true
           xml.Company options[:company]
           xml.Contact options[:contact]
@@ -197,7 +199,7 @@ module Omniship
                 [:length, :width, :height].each do |axis|
                   name  = axis.to_s.capitalize
                   value = ((imperial ? pkg.inches(axis) : pkg.cm(axis)).to_f*1000).round/1000.0
-                  xml.name value
+                  xml.send name, value
                 end
                 xml.Units (imperial ? 'IN' : 'CM')
               }
@@ -205,6 +207,7 @@ module Omniship
           end
         }
       end
+      builder.doc.root.to_xml
     end
 
     def build_tracking_request(tracking_number, options={})
@@ -231,27 +234,30 @@ module Omniship
       xml_request.to_s
     end
 
-    ###############
-    # Re-Write this first
-    ###############
-    def build_request_header
-      web_authentication_detail = XmlNode.new('WebAuthenticationDetail') do |wad|
-        wad << XmlNode.new('UserCredential') do |uc|
-          uc << XmlNode.new('Key', @options[:key])
-          uc << XmlNode.new('Password', @options[:password])
-        end
+    def build_access_request
+      web_authentication_detail = Nokogiri::XML::Builder.new do |xml|
+        xml.WebAuthenticationDetail {
+          xml.UserCredential {
+            xml.Key @options[:key]
+            xml.Password @options[:password]
+          }
+        }
       end
 
-      client_detail = XmlNode.new('ClientDetail') do |cd|
-        cd << XmlNode.new('AccountNumber', @options[:account])
-        cd << XmlNode.new('MeterNumber', @options[:login])
+      client_detail = Nokogiri::XML::Builder.new do |xml|
+        xml.ClientDetail {
+          xml.AccountNumber @options[:account]
+          xml.MeterNumber @options[:meter]
+        }
       end
 
-      trasaction_detail = XmlNode.new('TransactionDetail') do |td|
-        td << XmlNode.new('CustomerTransactionId', 'ActiveShipping') # TODO: Need to do something better with this..
+      transaction_detail = Nokogiri::XML::Builder.new do |xml|
+        xml.TransactionDetail {
+          xml.CustomerTransactionId 'Omniship' # TODO: Need to do something better with this...
+        }
       end
 
-      [web_authentication_detail, client_detail, trasaction_detail]
+      [web_authentication_detail.doc.root.to_xml, client_detail.doc.root.to_xml, transaction_detail.doc.root.to_xml].join
     end
 
     def build_location_node(name, location)
@@ -268,6 +274,7 @@ module Omniship
           }
         }
       end
+      builder.doc.root.to_xml
     end
 
     def parse_rate_response(origin, destination, packages, response, options)
