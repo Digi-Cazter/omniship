@@ -112,12 +112,11 @@ module Omniship
 
     def create_shipment(origin, destination, packages, options={})
       options        = @options.merge(options)
+      #origin, destination  = upsified_location(origin), upsified_location(destination)
       options[:test] = options[:test].nil? ? true : options[:test]
       packages       = Array(packages)
-      access_request = build_access_request
       ship_request   = build_ship_request(origin, destination, packages, options)
-      access_request.gsub("\n", "") + ship_request.gsub("\n", "")
-      # response       = commit(save_request(access_request.gsub("\n", "") + ship_request.gsub("\n", "")), options[:test])
+      response       = commit(save_request(ship_request.gsub("\n", "")), options[:test])
       # response     = commit(:shipconfirm, save_request(access_request.gsub("\n", "") + ship_confirm_request.gsub("\n", "")), options[:test])
       # parse_ship_confirm_response(origin, destination, packages, response, options)
     end
@@ -174,40 +173,61 @@ module Omniship
       imperial = ['US','LR','MM'].include?(origin.country_code(:alpha2))
 
       builder = Nokogiri::XML::Builder.new do |xml|
-        xml.RequestedShipment {
-          xml.DropoffType options[:dropoff_type] || 'REGULAR_PICKUP'
-          xml.PackagingType options[:service_type] || 'FEDEX_GROUND'
-          xml.PackagingType options[:package_type] || 'YOUR_PACKAGING'
-          xml.ShipTimestamp Time.now
-          xml.VariableOptions '' #'SATURDAY_DELIVERY'
-          xml.ReturnTransitAndCommit true
-          xml.Company options[:company]
-          xml.Contact options[:contact]
-          build_location_node("Shipper", (options[:shipper] || origin))
-          build_location_node("Recipient", destination)
-          if options[:shipper] && options[:shipper] != origin
-            build_location_node("Origin", origin)
-          end
-          xml.PackageCount packages.size
-          packages.each do |pkg|
-            xml.RequestedPackages {
-              xml.Weight {
-                xml.Units (imperial ? 'LB' : 'KG')
-                xml.Value ([((imperial ? pkg.lbs : pgk.kgs).to_f*1000).round/1000.0, 0.1].max)
-              }
-              xml.Dimensions {
-                [:length, :width, :height].each do |axis|
-                  name  = axis.to_s.capitalize
-                  value = ((imperial ? pkg.inches(axis) : pkg.cm(axis)).to_f*1000).round/1000.0
-                  xml.send name, value
-                end
-                xml.Units (imperial ? 'IN' : 'CM')
+        xml.ProcessShipmentRequest('xmlns' => 'http://fedex.com/ws/ship/v12') {
+          build_access_request(xml)
+          xml.Version {
+            xml.ServiceId "ship"
+            xml.Major "12"
+            xml.Intermediate "0"
+            xml.Minor "0"
+          }
+          xml.RequestedShipment {
+            xml.ShipTimestamp Time.now.strftime("%Y-%m-%dT%H:%M:%S%:z")
+            xml.DropoffType options[:dropoff_type] || 'REGULAR_PICKUP'
+            xml.ServiceType options[:service_type] || 'GROUND_HOME_DELIVERY'
+            xml.PackagingType options[:package_type] || 'YOUR_PACKAGING'
+            build_location_node(["Shipper"], (options[:shipper] || origin), xml)
+            build_location_node(["Recipient"], destination, xml)
+            if options[:shipper] && options[:shipper] != origin
+              build_location_node(["Origin"], origin, xml)
+            end
+            xml.ShippingChargesPayment {
+              xml.PaymentType "SENDER"
+              xml.Payor {
+                xml.ResponsibleParty {
+                  xml.AccountNumber @options[:account]
+                  xml.Contact nil
+                }
               }
             }
-          end
+            xml.LabelSpecification {
+              xml.LabelFormatType 'COMMON2D'
+              xml.ImageType 'PDF'
+              xml.LabelStockType 'PAPER_7X4.75'
+            }
+            xml.RateRequestTypes 'ACCOUNT'
+            xml.PackageCount packages.size
+            packages.each do |pkg|
+              xml.RequestedPackageLineItems {
+                xml.SequenceNumber 1
+                xml.Weight {
+                  xml.Units (imperial ? 'LB' : 'KG')
+                  xml.Value ((imperial ? pkg.weight : pkg.weight/2.2).to_f)
+                }
+                # xml.Dimensions {
+                #   [:length, :width, :height].each do |axis|
+                #     name  = axis.to_s.capitalize
+                #     value = ((imperial ? pkg.inches(axis) : pkg.cm(axis)).to_f*1000).round/1000.0
+                #     xml.send name, value.to_s
+                #   end
+                #   xml.Units (imperial ? 'IN' : 'CM')
+                # }
+              }
+            end
+          }
         }
       end
-      builder.doc.root.to_xml
+      builder.to_xml
     end
 
     def build_tracking_request(tracking_number, options={})
@@ -234,47 +254,43 @@ module Omniship
       xml_request.to_s
     end
 
-    def build_access_request
-      web_authentication_detail = Nokogiri::XML::Builder.new do |xml|
-        xml.WebAuthenticationDetail {
-          xml.UserCredential {
-            xml.Key @options[:key]
-            xml.Password @options[:password]
-          }
+    def build_access_request(xml)
+      xml.WebAuthenticationDetail {
+        xml.UserCredential {
+          xml.Key @options[:key]
+          xml.Password @options[:password]
         }
-      end
+      }
 
-      client_detail = Nokogiri::XML::Builder.new do |xml|
-        xml.ClientDetail {
-          xml.AccountNumber @options[:account]
-          xml.MeterNumber @options[:meter]
-        }
-      end
+      xml.ClientDetail {
+        xml.AccountNumber @options[:account]
+        xml.MeterNumber @options[:meter]
+      }
 
-      transaction_detail = Nokogiri::XML::Builder.new do |xml|
-        xml.TransactionDetail {
-          xml.CustomerTransactionId 'Omniship' # TODO: Need to do something better with this...
-        }
-      end
-
-      [web_authentication_detail.doc.root.to_xml, client_detail.doc.root.to_xml, transaction_detail.doc.root.to_xml].join
+      xml.TransactionDetail {
+        xml.CustomerTransactionId 'Omniship' # TODO: Need to do something better with this...
+      }
     end
 
-    def build_location_node(name, location)
-      builder = Nokogiri::XML::Builder.new do |xml|
-        xml.name {
+    def build_location_node(name, location, xml)
+      for name in name
+        xml.send(name) {
+          xml.Contact {
+            xml.PersonName location.name unless location.name.nil?
+            xml.CompanyName location.company unless location.company.nil?
+            xml.PhoneNumber location.phone
+          }
           xml.Address {
-            xml.StreetLines [location.address1, (location.address2 if !location.address2.nil?)]
+            xml.StreetLines location.address1
+            xml.StreetLines location.address2 unless location.address2.nil?
             xml.City location.city
             xml.StateOrProvinceCode location.state
             xml.PostalCode location.postal_code
             xml.CountryCode location.country_code(:alpha2)
-            xml.PhoneNumber location.phone
             xml.Residential true unless location.commercial?
           }
         }
       end
-      builder.doc.root.to_xml
     end
 
     def parse_rate_response(origin, destination, packages, response, options)
@@ -375,7 +391,8 @@ module Omniship
     end
 
     def commit(request, test = false)
-      ssl_post(test ? TEST_URL : LIVE_URL, request.gsub("\n",''))
+      ssl_post(test ? TEST_URL : LIVE_URL, request)
+      # RestClient.post(test ? TEST_URL : LIVE_URL, request, :content_type => "text/xml")
     end
 
     def handle_uk_currency(currency)
