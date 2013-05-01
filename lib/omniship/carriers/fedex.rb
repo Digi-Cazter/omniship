@@ -95,30 +95,21 @@ module Omniship
     end
 
     def find_rates(origin, destination, packages, options = {})
-      options      = @options.merge(options)
-      packages     = Array(packages)
-      rate_request = build_rate_request(origin, destination, packages, options)
-      response     = commit(save_request(rate_request), (options[:test] || false)).gsub(/<(\/)?.*?\:(.*?)>/, '<\1\2>')
+      options        = @options.merge(options)
+      options[:test] = options[:test].nil? ? true : options[:test]
+      packages       = Array(packages)
+      rate_request   = build_rate_request(origin, destination, packages, options)
+      response       = commit(save_request(rate_request.gsub("\n", "")), options[:test])
       parse_rate_response(origin, destination, packages, response, options)
     end
 
-    # def create_shipment(origin, destination, packages, options = {})
-    #   options      = @options.merge(options)
-    #   packages     = Array(packages)
-    #   ship_request = build_ship_request(origin, destination, packages, options)
-    #   response     = commit(save_request(ship_request.gsub("\n", "")), options[:test])
-    #   #parse_ship_response(origin, destination, packages, response, options)
-    # end
-
     def create_shipment(origin, destination, packages, options={})
       options        = @options.merge(options)
-      #origin, destination  = upsified_location(origin), upsified_location(destination)
       options[:test] = options[:test].nil? ? true : options[:test]
       packages       = Array(packages)
       ship_request   = build_ship_request(origin, destination, packages, options)
       response       = commit(save_request(ship_request.gsub("\n", "")), options[:test])
-      # response     = commit(:shipconfirm, save_request(access_request.gsub("\n", "") + ship_confirm_request.gsub("\n", "")), options[:test])
-      # parse_ship_confirm_response(origin, destination, packages, response, options)
+      parse_ship_response(response, options)
     end
 
     def find_tracking_info(tracking_number, options={})
@@ -133,34 +124,41 @@ module Omniship
       imperial = ['US','LR','MM'].include?(origin.country_code(:alpha2))
 
       builder = Nokogiri::XML::Builder.new do |xml|
-        xml.RateRequest {
-          xml.ReturnTransitAndCommit true
-          xml.VariableOptions 'SATURDAY_DELIVERY'
+        xml.RateRequest('xmlns' => 'http://fedex.com/ws/rate/v12') {
+          build_access_request(xml)
+          xml.Version {
+            xml.ServiceId "crs"
+            xml.Major "12"
+            xml.Intermediate "0"
+            xml.Minor "0"
+          }
           xml.RequestedShipment {
-            xml.ShipTimestamp Time.now
+            xml.ShipTimestamp options[:ship_date] || DateTime.now.strftime
             xml.DropoffType options[:dropoff_type] || 'REGULAR_PICKUP'
             xml.PackagingType options[:packaging_type] || 'YOUR_PACKAGING'
-            build_location_node('Shipper', (options[:shipper] || origin))
-            build_location_node('Recipient', destination)
+            build_location_node(['Shipper'], (options[:shipper] || origin), xml)
+            build_location_node(['Recipient'], destination, xml)
             if options[:shipper] && options[:shipper] != origin
-              build_location_node('Origin', origin)
+              build_location_node(['Origin'], origin, xml)
             end
             xml.RateRequestTypes 'ACCOUNT'
             xml.PackageCount packages.size
             packages.each do |pkg|
-              xml.RequestedPackages {
+              xml.RequestedPackageLineItems {
+                xml.SequenceNumber 1
+                xml.GroupPackageCount 1
                 xml.Weight {
                   xml.Units (imperial ? 'LB' : 'KG')
-                  xml.Value ([((imperial ? pkg.lbs : pgk.kgs).to_f*1000).round/1000.0, 0.1].max)
+                  xml.Value ((imperial ? pkg.weight : pkg.weight/2.2).to_f)
                 }
-                xml.Dimensions {
-                  [:length, :width, :height].each do |axis|
-                    name  = axis.to_s.capitalize
-                    value = ((imperial ? pkg.inches(axis) : pkg.cm(axis)).to_f*1000).round/1000.0
-                    xml.name value
-                  end
-                  xml.Units (imperial ? 'IN' : 'CM')
-                }
+                # xml.Dimensions {
+                #   [:length, :width, :height].each do |axis|
+                #     name  = axis.to_s.capitalize
+                #     value = ((imperial ? pkg.inches(axis) : pkg.cm(axis)).to_f*1000).round/1000.0
+                #     xml.name value
+                #   end
+                #   xml.Units (imperial ? 'IN' : 'CM')
+                # }
               }
             end
           }
@@ -182,7 +180,7 @@ module Omniship
             xml.Minor "0"
           }
           xml.RequestedShipment {
-            xml.ShipTimestamp Time.now.strftime("%Y-%m-%dT%H:%M:%S%:z")
+            xml.ShipTimestamp options[:ship_date] || DateTime.now.strftime
             xml.DropoffType options[:dropoff_type] || 'REGULAR_PICKUP'
             xml.ServiceType options[:service_type] || 'GROUND_HOME_DELIVERY'
             xml.PackagingType options[:package_type] || 'YOUR_PACKAGING'
@@ -224,6 +222,30 @@ module Omniship
                 # }
               }
             end
+            xml.SpecialServicesRequested {
+              xml.EmailNotificationDetail {
+                xml.PersonalMessage # Personal Message to be sent to all recipients
+                @options[:emails].each do |email|
+                  xml.Recipients {
+                    xml.EmailAddress email.address
+                    xml.NotificationEventsRequested {
+                      xml.EmailNotificationEventType{
+                        xml.ON_DELIVERY  if email.on_delivery
+                        xml.ON_EXCEPTION if email.on_exception
+                        xml.ON_SHIPMENT  if email.on_shipment
+                        xml.ON_TENDER    if email.on_tender
+                      }
+                    }
+                    xml.Format email.format || "HTML" # options are "HTML" "Text" "Wireless"
+                    xml.Localization {
+                      xml.Language email.language || "EN" # Default to EN (English)
+                      xml.LocaleCode email.locale_code if !email.locale_code.nil?
+                    }
+                  }
+                end
+                xml.EMailNotificationAggregationType @options[:notification_aggregation_type] if @options.has_key?(:notification_aggregation_type)
+              }
+            }
           }
         }
       end
@@ -276,8 +298,8 @@ module Omniship
       for name in name
         xml.send(name) {
           xml.Contact {
-            xml.PersonName location.name unless location.name.nil?
-            xml.CompanyName location.company unless location.company.nil?
+            xml.PersonName location.name unless location.name == "" || location.name == nil
+            xml.CompanyName location.company unless location.company == "" || location.name == nil
             xml.PhoneNumber location.phone
           }
           xml.Address {
@@ -294,29 +316,28 @@ module Omniship
     end
 
     def parse_rate_response(origin, destination, packages, response, options)
-      rate_estimates = []
+      rate_estimates   = []
       success, message = nil
 
-      xml = REXML::Document.new(response)
-      root_node = xml.elements['RateReply']
+      xml = Nokogiri::XML(response).remove_namespaces!
 
       success = response_success?(xml)
       message = response_message(xml)
 
-      root_node.elements.each('RateReplyDetails') do |rated_shipment|
-        service_code = rated_shipment.get_text('ServiceType').to_s
-        is_saturday_delivery = rated_shipment.get_text('AppliedOptions').to_s == 'SATURDAY_DELIVERY'
-        service_type = is_saturday_delivery ? "#{service_code}_SATURDAY_DELIVERY" : service_code
 
-        currency = handle_uk_currency(rated_shipment.get_text('RatedShipmentDetails/ShipmentRateDetail/TotalNetCharge/Currency').to_s)
-        rate_estimates << RateEstimate.new(origin, destination, @@name,
-                            self.class.service_name_for_code(service_type),
-                            :service_code => service_code,
-                            :total_price => rated_shipment.get_text('RatedShipmentDetails/ShipmentRateDetail/TotalNetCharge/Amount').to_s.to_f,
-                            :currency => currency,
-                            :packages => packages,
-                            :delivery_range => [rated_shipment.get_text('DeliveryTimestamp').to_s] * 2)
-      end
+      service_code         = xml.xpath('//ServiceType').text == options[:service_type]
+      is_saturday_delivery = xml.xpath('//AppliedOptions').text == 'SATURDAY_DELIVERY'
+      service_type         = is_saturday_delivery ? "#{service_code}_SATURDAY_DELIVERY" : service_code
+
+      currency = handle_uk_currency(xml.xpath('//RatedShipmentDetails/ShipmentRateDetail/TotalNetCharge/Currency').text)
+      rate_estimates << RateEstimate.new(origin, destination, @@name,
+                          self.class.service_name_for_code(service_type),
+                          :service_code   => service_code,
+                          :total_price    => xml.xpath('//RatedShipmentDetails/ShipmentRateDetail/TotalNetCharge/Amount').text.to_f,
+                          :currency       => currency,
+                          :packages       => packages,
+                          :delivery_range => [xml.xpath('//DeliveryTimestamp').text] * 2)
+
 
       if rate_estimates.empty?
         success = false
@@ -324,6 +345,23 @@ module Omniship
       end
 
       RateResponse.new(success, message, Hash.from_xml(response), :rates => rate_estimates, :xml => response, :request => last_request, :log_xml => options[:log_xml])
+    end
+
+    def parse_ship_response(response, options)
+      xml     = Nokogiri::XML(response).remove_namespaces!
+      success = response_success?(xml)
+      message = response_message(xml)
+      label   = nil
+
+      if success
+        label           = xml.xpath("//Image").text
+        tracking_number = xml.xpath("//TrackingNumber").text
+      else
+        success = false
+        message = "Shipment was not succcessful." if message.blank?
+      end
+
+      ShipResponse.new(success, message, :tracking_number => tracking_number, :label_encoded => label )
     end
 
     def parse_tracking_response(response, options)
@@ -377,22 +415,20 @@ module Omniship
       )
     end
 
-    def response_status_node(document)
-      document.elements['/*/Notifications/']
+    def response_status_node(xml)
+      xml.ProcessShipmentReply
     end
 
-    def response_success?(document)
-      %w{SUCCESS WARNING NOTE}.include? response_status_node(document).get_text('Severity').to_s
+    def response_success?(xml)
+      %w{SUCCESS WARNING NOTE}.include? xml.xpath('//Notifications/Severity').text
     end
 
-    def response_message(document)
-      response_node = response_status_node(document)
-      "#{response_status_node(document).get_text('Severity').to_s} - #{response_node.get_text('Code').to_s}: #{response_node.get_text('Message').to_s}"
+    def response_message(xml)
+      "#{xml.xpath('//Notifications/Severity').text} - #{xml.xpath('//Notifications/Code').text}: #{xml.xpath('//Notifications/Message').text}"
     end
 
     def commit(request, test = false)
       ssl_post(test ? TEST_URL : LIVE_URL, request)
-      # RestClient.post(test ? TEST_URL : LIVE_URL, request, :content_type => "text/xml")
     end
 
     def handle_uk_currency(currency)

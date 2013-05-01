@@ -26,8 +26,8 @@
 require 'omniship/base'
 
 def Omniship.setup
-  @root   = Rails.root 
-  if @root    
+  @root   = Rails.root
+  if @root
     @boot   = File.join(@root, "config", "boot.rb").freeze
     @config = File.join(@root, "config", "omniship.yml").freeze
     @keys   = %w{ username password key account meter }.map { |v| v.freeze }.freeze
@@ -75,3 +75,4 @@ require 'omniship/rate_estimate'
 require 'omniship/carrier'
 require 'omniship/carriers'
 require 'omniship/shipment_event'
+require 'omniship/ship_response'
