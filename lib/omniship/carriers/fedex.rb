@@ -222,30 +222,30 @@ module Omniship
                 # }
               }
             end
-            xml.SpecialServicesRequested {
-              xml.EmailNotificationDetail {
-                xml.PersonalMessage # Personal Message to be sent to all recipients
-                @options[:emails].each do |email|
-                  xml.Recipients {
-                    xml.EmailAddress email.address
-                    xml.NotificationEventsRequested {
-                      xml.EmailNotificationEventType{
-                        xml.ON_DELIVERY  if email.on_delivery
-                        xml.ON_EXCEPTION if email.on_exception
-                        xml.ON_SHIPMENT  if email.on_shipment
-                        xml.ON_TENDER    if email.on_tender
-                      }
-                    }
-                    xml.Format email.format || "HTML" # options are "HTML" "Text" "Wireless"
-                    xml.Localization {
-                      xml.Language email.language || "EN" # Default to EN (English)
-                      xml.LocaleCode email.locale_code if !email.locale_code.nil?
-                    }
-                  }
-                end
-                xml.EMailNotificationAggregationType @options[:notification_aggregation_type] if @options.has_key?(:notification_aggregation_type)
-              }
-            }
+            # xml.SpecialServicesRequested {
+            #   xml.EmailNotificationDetail {
+            #     xml.PersonalMessage # Personal Message to be sent to all recipients
+            #     @options[:emails].each do |email|
+            #       xml.Recipients {
+            #         xml.EmailAddress email.address
+            #         xml.NotificationEventsRequested {
+            #           xml.EmailNotificationEventType{
+            #             xml.ON_DELIVERY  if email.on_delivery
+            #             xml.ON_EXCEPTION if email.on_exception
+            #             xml.ON_SHIPMENT  if email.on_shipment
+            #             xml.ON_TENDER    if email.on_tender
+            #           }
+            #         }
+            #         xml.Format email.format || "HTML" # options are "HTML" "Text" "Wireless"
+            #         xml.Localization {
+            #           xml.Language email.language || "EN" # Default to EN (English)
+            #           xml.LocaleCode email.locale_code if !email.locale_code.nil?
+            #         }
+            #       }
+            #     end
+            #     xml.EMailNotificationAggregationType @options[:notification_aggregation_type] if @options.has_key?(:notification_aggregation_type)
+            #   }
+            # }
           }
         }
       end
