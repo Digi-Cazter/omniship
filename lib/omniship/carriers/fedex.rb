@@ -118,7 +118,7 @@ module Omniship
       parse_delete_response(response, options)
     end
 
-    def build_delete_request(tracking_number, shipment_type, option={})
+    def build_delete_request(tracking_number, shipment_type, options={})
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.DeleteShipmentRequest('xmlns' => 'http://fedex.com/ws/ship/v12') {
           build_access_request(xml)
