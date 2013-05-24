@@ -1,5 +1,4 @@
-# FedEx module by Jimmy Baker
-# http://github.com/jimmyebaker
+# FedEx module by Donavan White
 
 module Omniship
   # :key is your developer API key
@@ -110,6 +109,40 @@ module Omniship
       ship_request   = build_ship_request(origin, destination, packages, options)
       response       = commit(save_request(ship_request.gsub("\n", "")), options[:test])
       parse_ship_response(response, options)
+    end
+
+    def delete_shipment(tracking_number, shipment_type, options={})
+      options = @options.merge(options)
+      delete_shipment_request = build_delete_request(tracking_number, shipment_type, options)
+      response = commit(save_request(delete_shipment_request.gsub("\n", "")), options[:test])
+      parse_delete_response(response, options)
+    end
+
+    def build_delete_request(tracking_number, shipment_type, option={})
+      builder = Nokogiri::XML::Builder.new do |xml|
+        xml.DeleteShipmentRequest('xmlns' => 'http://fedex.com/ws/ship/v12') {
+          build_access_request(xml)
+          xml.Version {
+            xml.ServiceId "ship"
+            xml.Major "12"
+            xml.Intermediate "0"
+            xml.Minor "0"
+          }
+          xml.ShipTimestamp options[:ship_timestamp] if options[:ship_timestamp]
+          xml.TrackingId {
+            xml.TrackingIdType shipment_type
+            xml.TrackingNumber tracking_number
+          }
+          xml.DeletionControl options[:deletion_type] || "DELETE_ALL_PACKAGES"
+        }
+      end
+    end
+
+    def parse_delete_response(response, options={})
+      xml     = Nokogiri::XML(response).remove_namespaces!
+      success = response_success?(xml)
+      message = response_message(xml)
+      return [success, message]
     end
 
     def find_tracking_info(tracking_number, options={})
@@ -224,7 +257,8 @@ module Omniship
             end
             if @options.has_key(:notifications)
               xml.SpecialServicesRequested {
-                xml.SpecialServiceTypes "EMAIL_NOTIFICATION"
+                xml.ShipmentSpecialServiceType "SATURDAY_DELIVERY" if @options[:saturday_delivery]
+                xml.ShipmentSpecialServiceType "EMAIL_NOTIFICATION"
                 xml.EmailNotificationDetail {
                   xml.PersonalMessage # Personal Message to be sent to all recipients
                   @options[:notifications].each do |email|
