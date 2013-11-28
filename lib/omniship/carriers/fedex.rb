@@ -222,7 +222,7 @@ module Omniship
                 # }
               }
             end
-            if @options.has_key(:notifications)
+            if !!@options[:notifications]
               xml.SpecialServicesRequested {
                 xml.SpecialServiceTypes "EMAIL_NOTIFICATION"
                 xml.EmailNotificationDetail {
