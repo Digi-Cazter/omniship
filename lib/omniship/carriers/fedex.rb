@@ -1,5 +1,4 @@
-# FedEx module by Jimmy Baker
-# http://github.com/jimmyebaker
+# FedEx module by Donavan White
 
 module Omniship
   # :key is your developer API key
@@ -112,6 +111,13 @@ module Omniship
       parse_ship_response(response, options)
     end
 
+    def delete_shipment(tracking_number, shipment_type, options={})
+      options                 = @options.merge(options)
+      delete_shipment_request = build_delete_request(tracking_number, shipment_type, options)
+      response                = commit(save_request(delete_shipment_request.gsub("\n", "")), options[:test])
+      parse_delete_response(response, options)
+    end
+
     def find_tracking_info(tracking_number, options={})
       options          = @options.update(options)
       tracking_request = build_tracking_request(tracking_number, options)
@@ -198,6 +204,15 @@ module Omniship
                 }
               }
             }
+            xml.SpecialServicesRequested {
+              xml.SpecialServiceTypes "SATURDAY_DELIVERY" if options[:saturday_delivery]
+              if options[:return_shipment]
+                xml.SpecialServiceTypes "RETURN_SHIPMENT"
+                xml.ReturnShipmentDetail {
+                  xml.ReturnType "PRINT_RETURN_LABEL"
+                }
+              end
+            }
             xml.LabelSpecification {
               xml.LabelFormatType 'COMMON2D'
               xml.ImageType 'PDF'
@@ -222,6 +237,7 @@ module Omniship
                 # }
               }
             end
+
             if !!@options[:notifications]
               xml.SpecialServicesRequested {
                 xml.SpecialServiceTypes "EMAIL_NOTIFICATION"
@@ -250,6 +266,27 @@ module Omniship
               }
             end
           }
+        }
+      end
+      builder.to_xml
+    end
+
+    def build_delete_request(tracking_number, shipment_type, options={})
+      builder = Nokogiri::XML::Builder.new do |xml|
+        xml.DeleteShipmentRequest('xmlns' => 'http://fedex.com/ws/ship/v12') {
+          build_access_request(xml)
+          xml.Version {
+            xml.ServiceId "ship"
+            xml.Major "12"
+            xml.Intermediate "0"
+            xml.Minor "0"
+          }
+          xml.ShipTimestamp options[:ship_timestamp] if options[:ship_timestamp]
+          xml.TrackingId {
+            xml.TrackingIdType shipment_type
+            xml.TrackingNumber tracking_number
+          }
+          xml.DeletionControl options[:deletion_type] || "DELETE_ALL_PACKAGES"
         }
       end
       builder.to_xml
@@ -351,10 +388,11 @@ module Omniship
     end
 
     def parse_ship_response(response, options)
-      xml     = Nokogiri::XML(response).remove_namespaces!
-      success = response_success?(xml)
-      message = response_message(xml)
-      label   = nil
+      xml             = Nokogiri::XML(response).remove_namespaces!
+      success         = response_success?(xml)
+      message         = response_message(xml)
+      label           = nil
+      tracking_number = nil
 
       if success
         label           = xml.xpath("//Image").text
@@ -363,8 +401,14 @@ module Omniship
         success = false
         message = "Shipment was not succcessful." if message.blank?
       end
+      ShipResponse.new(success, message, :tracking_number => tracking_number, :label_encoded => label)
+    end
 
-      ShipResponse.new(success, message, :tracking_number => tracking_number, :label_encoded => label )
+    def parse_delete_response(response, options={})
+      xml     = Nokogiri::XML(response).remove_namespaces!
+      success = response_success?(xml)
+      message = response_message(xml)
+      return [success, message]
     end
 
     def parse_tracking_response(response, options)
@@ -410,10 +454,10 @@ module Omniship
       end
 
       TrackingResponse.new(success, message, Hash.from_xml(response),
-        :xml => response,
-        :request => last_request,
+        :xml             => response,
+        :request         => last_request,
         :shipment_events => shipment_events,
-        :destination => destination,
+        :destination     => destination,
         :tracking_number => tracking_number
       )
     end
