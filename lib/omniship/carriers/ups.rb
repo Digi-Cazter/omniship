@@ -636,6 +636,7 @@ module Omniship
 
     def parse_ship_valid_address(response, options={})
       xml = Nokogiri::XML(response)
+      puts xml
       success = response_success?(xml)
       suggested_addresses = Array.new
       if success

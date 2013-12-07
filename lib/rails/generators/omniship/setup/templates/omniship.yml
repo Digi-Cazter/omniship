@@ -1,7 +1,8 @@
 development:
   ups:
     key:
-    account:
+    username:
+    password:
   fedex:
     key:
     password:
@@ -11,8 +12,8 @@ development:
 
 test:
   ups:
-    key:
-    account:
+    username:
+    password:
   fedex:
     key:
     password:
@@ -22,8 +23,8 @@ test:
 
 production:
   ups:
-    key:
-    account:
+    username:
+    password:
   fedex:
     key:
     password:
