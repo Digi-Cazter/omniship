@@ -206,7 +206,7 @@ module Omniship
         xml.ShipmentConfirmRequest {
           xml.Request {
             xml.RequestAction 'ShipConfirm'
-            xml.RequestOption 'validate'
+            xml.RequestOption options[:nonvalidate] ? 'nonvalidate' : 'validate'
           }
           xml.Shipment {
             build_location_node(['Shipper'], (options[:shipper] || origin), options, xml)
