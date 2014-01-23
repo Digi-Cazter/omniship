@@ -270,6 +270,17 @@ module Omniship
                     }
                   end
                 }
+                if package.options[:references].present?
+                  package.options[:references].each do |reference|
+                    xml.ReferenceNumber {
+                      xml.Code reference[:code]
+                      xml.Value reference[:value]
+                      if reference[:barcode]
+                        xml.BarCodeIndicator
+                      end
+                    }
+                  end
+                end
               }
             end
             xml.LabelSpecification {
