@@ -213,6 +213,7 @@ module Omniship
                 }
               end
             }
+            # TODO: Add options to change the label specifications
             xml.LabelSpecification {
               xml.LabelFormatType 'COMMON2D'
               xml.ImageType 'PDF'

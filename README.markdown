@@ -1,6 +1,6 @@
-[![Gem Version](https://badge.fury.io/rb/omniship.png)](http://badge.fury.io/rb/omniship) [![Code Climate](https://codeclimate.com/github/Digi-Cazter/omniship.png)](https://codeclimate.com/github/Digi-Cazter/omniship) 
+[![Gem Version](https://badge.fury.io/rb/omniship.png)](http://badge.fury.io/rb/omniship) [![Code Climate](https://codeclimate.com/github/Digi-Cazter/omniship.png)](https://codeclimate.com/github/Digi-Cazter/omniship)
 
-# Omniship 
+# Omniship
 
 This gem is under active development, I'm only in the Alpha stage right now, so keep checking back for updates.
 
@@ -9,53 +9,62 @@ This library has been created to make web requests to common shipping carriers u
 ## Supported Shipping Carriers
 
 * [UPS](http://www.ups.com)
+  - Create Shipment
+  - Void Shipment
+  - Get Rates
+  - Validate Address
+  - Validate Address with Street
+* [FedEx](http://www.fedex.com) (These listed features work, but still need more options added)
+  - Create Shipment
+  - Void Shipment
+  - Get Rates
+  - Shipment Tracking
 * [USPS](http://www.usps.com) COMING SOON!
-* [FedEx](http://www.fedex.com) COMING SOON!
 
 ## Simple example snippets
 ### UPS Code Example ###
 To run in test mode during development, pass :test => true as an option
 into create_shipment and accept_shipment.
 
-	  def create_shipment
-	    # If you have created the omniship.yml config file
-	    @config  = OMNISHIP_CONFIG[Rails.env]['ups']
-	    shipment = create_ups_shipment
-	  end
+      def create_shipment
+      # If you have created the omniship.yml config file
+      @config  = OMNISHIP_CONFIG[Rails.env]['ups']
+      shipment = create_ups_shipment
+    end
 
-	  def create_ups_shipment
-	    # If using the yml config
-	    ups = Omniship::UPS.new
-	    # Else just pass in the credentials
-	    ups = Omniship::UPS.new(:login => @user, :password => @password, :key => @key)
-	    send_options = {}
-	    send_options[:origin_account] = @config["account"] # Or just put the shipper account here
-	    send_options[:service]        = "03"
-	    response = ups.create_shipment(origin, destination, package, options = send_options)
-	    return ups.accept_shipment(response)
-	  end
- 
-	  def origin
-	    address = {}
-	    address[:name]     = "My House"
-	    address[:address1] = "555 Diagonal"
-	    address[:city]     = "Saint George"
-	    address[:state]    = "UT"
-	    address[:zip]      = "84770"
-	    address[:country]  = "USA"
-	    return Omniship::Address.new(address)
-	  end
+    def create_ups_shipment
+      # If using the yml config
+      ups = Omniship::UPS.new
+      # Else just pass in the credentials
+      ups = Omniship::UPS.new(:login => @user, :password => @password, :key => @key)
+      send_options = {}
+      send_options[:origin_account] = @config["account"] # Or just put the shipper account here
+      send_options[:service]        = "03"
+      response = ups.create_shipment(origin, destination, package, options = send_options)
+      return ups.accept_shipment(response)
+    end
 
-	  def destination
-	    address = {}
-	    address[:company_name] = "Wal-Mart"
-	    address[:address1]     = "555 Diagonal"
-	    address[:city]         = "Saint George"
-	    address[:state]        = "UT"
-	    address[:zip]          = "84770"
-	    address[:country]      = "USA"
-	    return Omniship::Address.new(address)
-	  end
+    def origin
+      address = {}
+      address[:name]     = "My House"
+      address[:address1] = "555 Diagonal"
+      address[:city]     = "Saint George"
+      address[:state]    = "UT"
+      address[:zip]      = "84770"
+      address[:country]  = "USA"
+      return Omniship::Address.new(address)
+    end
+
+    def destination
+      address = {}
+      address[:company_name] = "Wal-Mart"
+      address[:address1]     = "555 Diagonal"
+      address[:city]         = "Saint George"
+      address[:state]        = "UT"
+      address[:zip]          = "84770"
+      address[:country]      = "USA"
+      return Omniship::Address.new(address)
+    end
 
     def packages
       # UPS can handle a single package or multiple packages
