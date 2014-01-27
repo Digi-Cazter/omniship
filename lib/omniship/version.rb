@@ -1,3 +1,3 @@
-module Omniship 
-  VERSION = "0.3.2.2"
+module Omniship
+  VERSION = "0.4.0"
 end
