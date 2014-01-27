@@ -210,7 +210,7 @@ module Omniship
         xml.ShipmentConfirmRequest {
           xml.Request {
             xml.RequestAction 'ShipConfirm'
-            xml.RequestOption 'validate'
+            xml.RequestOption options[:nonvalidate] ? 'nonvalidate' : 'validate'
           }
           xml.Shipment {
             build_location_node(['Shipper'], (options[:shipper] || origin), options, xml)
@@ -274,6 +274,17 @@ module Omniship
                     }
                   end
                 }
+                if package.options[:references].present?
+                  package.options[:references].each do |reference|
+                    xml.ReferenceNumber {
+                      xml.Code reference[:code]
+                      xml.Value reference[:value]
+                      if reference[:barcode]
+                        xml.BarCodeIndicator
+                      end
+                    }
+                  end
+                end
               }
             end
             xml.LabelSpecification {
