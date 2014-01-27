@@ -12,6 +12,7 @@ Gem::Specification.new do |s|
   s.homepage    = "http://github.com/Digi-Cazter/omniship"
   s.summary     = "Shipping API for creating, tracking, and getting rates."
   s.description = "Create shipments and get rates and tracking info from various shipping carriers."
+  s.license     = "MIT"
 
   s.required_rubygems_version = ">= 1.3.6"
 
