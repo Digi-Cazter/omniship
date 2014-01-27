@@ -15,7 +15,8 @@ module Omniship
         :shipconfirm => 'ups.app/xml/ShipConfirm',
         :shipaccept => 'ups.app/xml/ShipAccept',
         :shipvoid => 'ups.app/xml/Void',
-        :valid_address => 'ups.app/xml/XAV'
+        :valid_address => 'ups.app/xml/AV',
+        :valid_address_street => 'ups.app/xml/XAV'
     }
 
     PICKUP_CODES = HashWithIndifferentAccess.new({
@@ -115,7 +116,7 @@ module Omniship
       access_request   = build_access_request
       tracking_request = build_tracking_request(tracking_number, options)
       response         = commit(:track, save_request(access_request.gsub("\n", "") + tracking_request.gsub("\n", "")), options[:test])
-      parse_tracking_response(response, options)
+      # parse_tracking_response(response, options)
     end
 
     # Creating shipping functionality for UPS
@@ -139,7 +140,7 @@ module Omniship
       parse_ship_accept_response(response, options)
     end
 
-    def void_shipment(ups_shipment_id,tracking_number, options={})
+    def void_shipment(ups_shipment_id, tracking_number, options={})
       @options          = @options.merge(options)
       options           = @options.merge(options)
       options[:test]    = options[:test].nil? ? true : options[:test]
@@ -149,14 +150,22 @@ module Omniship
       parse_ship_void_response(response, options)
     end
 
-    def validate_address(address,city,state,zip_code,country_code, options={})
+    def validate_address(city, state, zip_code, country_code, options={})
       @options                 = @options.merge(options)
       access_request           = build_access_request
-      validate_address_request = build_valid_address_request(address,city,state,zip_code,country_code)
+      validate_address_request = build_valid_address_request(city,state,zip_code,country_code)
       options[:test]           = options[:test].nil? ? true : options[:test]
       response                 = commit(:valid_address, save_request(access_request.gsub("\n", "") + validate_address_request.gsub("\n", "")), options[:test])
-      parse_response           = parse_ship_valid_address(response)
-      parse_response
+      parse_ship_valid_address(response)
+    end
+
+    def validate_address_street(address, city, state, zip_code, country_code, options={})
+      @options = @options.merge(options)
+      access_request = build_access_request
+      validate_address_street_request = build_valid_address_street_request(address,city,state,zip_code,country_code)
+      options[:test] = options[:test].nil? ? true : options[:test]
+      response = commit(:valid_address_street, save_request(access_request.gsub("\n", "") + validate_address_street_request.gsub("\n", "")), options[:test])
+      parse_ship_valid_address_street(response)
     end
 
     protected
@@ -180,11 +189,6 @@ module Omniship
           xml.AccessLicenseNumber @options[:key].nil? ? @config['ups']['key'] : @options[:key]
           xml.UserId @options[:login].nil? ? @config['ups']['username'] : @options[:login]
           xml.Password @options[:password].nil? ? @config['ups']['password'] : @options[:password]
-
-
-          xml.AccessLicenseNumber @config['ups']['key'] unless @options[:key]
-          xml.UserId @config['ups']['username'] unless @options[:login]
-          xml.Password @config['ups']['password'] unless @options[:password]
         }
       end
       builder.to_xml
@@ -313,22 +317,39 @@ module Omniship
       builder.to_xml
     end
 
-    def build_valid_address_request(address,city,state,zip_code,country_code)
+    def build_valid_address_street_request(address,city,state,zip_code,country_code)
       builder = Nokogiri::XML::Builder.new do |xml|
-          xml.AddressValidationRequest {
-            xml.Request{
-              xml.RequestAction 'XAV'
-              xml.RequestOption 3
-            }
-
-            xml.AddressKeyFormat{
-              xml.AddressLine address
-              xml.PoliticalDivision2 city
-              xml.PoliticalDivision1 state
-              xml.PostcodePrimaryLow zip_code
-              xml.CountryCode country_code
-            }
+        xml.AddressValidationRequest {
+          xml.Request {
+            xml.RequestAction "XAV"
           }
+
+          xml.AddressKeyFormat {
+            xml.AddressLine address
+            xml.PoliticalDivision2 city
+            xml.PoliticalDivision1 state
+            xml.PostcodePrimaryLow zip_code
+            xml.CountryCode country_code
+          }
+        }
+      end
+      builder.to_xml
+    end
+
+    def build_valid_address_request(city,state,zip_code,country_code)
+      builder = Nokogiri::XML::Builder.new do |xml|
+        xml.AddressValidationRequest {
+          xml.Request{
+            xml.RequestAction 'AV'
+          }
+
+          xml.Address{
+            xml.City city
+            xml.StateProvinceCode state
+            xml.CountryCode country_code
+            xml.PostalCode zip_code
+          }
+        }
       end
       builder.to_xml
     end
@@ -414,11 +435,14 @@ module Omniship
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.TrackRequest {
           xml.Request {
-            xml.RequestAction 'Track'
-            xml.RequestOption '7'
+            xml.TransactionReference {
+            }
+            xml.RequestAction "Track"
           }
           xml.TrackingNumber tracking_number.to_s
-          xml.TrackingOption '02'
+          xml.ShipmentType {
+            xml.Code "01"
+          }
         }
       end
       builder.to_xml
@@ -638,22 +662,47 @@ module Omniship
       xml = Nokogiri::XML(response)
       puts xml
       success = response_success?(xml)
-      suggested_addresses = Array.new
+      response_text = Array.new
       if success
-        addresses = xml.xpath('/*/AddressKeyFormat').each do |address_data|
-          address_hash = Hash.new
-          address_hash[:address] = address_data.xpath('AddressLine').text
-          address_hash[:city] = address_data.xpath('PoliticalDivision2').text
-          address_hash[:state] = address_data.xpath('PoliticalDivision1').text
-          address_hash[:zip_code] = address_data.xpath('PostcodePrimaryLow').text
-          address_hash[:country_code] = address_data.xpath('CountryCode').text
-          suggested_addresses << address_hash
+        addresses = xml.xpath('/*/AddressValidationResult').each do |address_data|
+          response_text = Hash.new
+          response_text[:rank] = address_data.xpath('Rank').text
+          response_text[:quality] = address_data.xpath('Quality').text
+          response_text[:city] = address_data.xpath('Address/City').text
+          response_text[:state] = address_data.xpath('Address/StateProvinceCode').text
+          response_text[:postal_code_low] = address_data.xpath('PostalCodeLowEnd').text
+          response_text[:postal_code_high] = address_data.xpath('PostalCodeHighEnd').text
         end
       else
         return "Address validation failed!"
       end
+      return response_text
+    end
 
-      return suggested_addresses
+    def parse_ship_valid_address_street(response, options={})
+      n = 1
+      xml = Nokogiri::XML(response)
+      puts xml
+      success = response_success?(xml)
+      response_text = Array.new
+      if success
+        addresses = xml.xpath('/*/AddressKeyFormat').each do |address_data|
+          response_text = Hash.new
+          address_data.xpath('AddressLine').each do |address_line|
+            response_text["address_#{n}".to_sym] = address_line.text
+            n += 1
+          end
+          response_text[:region] = address_data.xpath('Region').text
+          response_text[:city] = address_data.xpath('PoliticalDivision2').text
+          response_text[:state] = address_data.xpath('PoliticalDivision1').text
+          response_text[:postal_code] = address_data.xpath('PostcodePrimaryLow').text
+          response_text[:postal_code_extended] = address_data.xpath('PostcodeExtendedLow').text
+          response_text[:country_code] = address_data.xpath("CountryCode").text
+        end
+      else
+        return "Address validation failed!"
+      end
+      return response_text
     end
 
     def location_from_address_node(address)
