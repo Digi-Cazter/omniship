@@ -366,8 +366,8 @@ module Omniship
       message = response_message(xml)
 
 
-      service_code         = xml.xpath('//ServiceType').text == options[:service_type]
-      is_saturday_delivery = xml.xpath('//AppliedOptions').text == 'SATURDAY_DELIVERY'
+      service_code         = xml.xpath('//ServiceType').text ||= options[:service_type]
+      is_saturday_delivery = xml.xpath('//AppliedOptions').text ||= 'SATURDAY_DELIVERY'
       service_type         = is_saturday_delivery ? "#{service_code}_SATURDAY_DELIVERY" : service_code
 
       currency = handle_uk_currency(xml.xpath('//RatedShipmentDetails/ShipmentRateDetail/TotalNetCharge/Currency').text)
