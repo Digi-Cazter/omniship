@@ -138,6 +138,8 @@ module Omniship
             xml.Intermediate "0"
             xml.Minor "0"
           }
+          xml.ReturnTransitAndCommit options[:return_transit_and_commit] || false
+          xml.VariableOptions "SATURDAY_DELIVERY"
           xml.RequestedShipment {
             xml.ShipTimestamp options[:ship_date] || DateTime.now.strftime
             xml.DropoffType options[:dropoff_type] || 'REGULAR_PICKUP'
@@ -156,6 +158,14 @@ module Omniship
                 xml.Weight {
                   xml.Units (imperial ? 'LB' : 'KG')
                   xml.Value ((imperial ? pkg.weight : pkg.weight/2.2).to_f)
+                }
+                xml.SpecialServicesRequested {
+                  if options[:without_signature]
+                    xml.SpecialServiceTypes "SIGNATURE_OPTION"
+                    xml.SignatureOptionDetail {
+                      xml.OptionType "NO_SIGNATURE_REQUIRED"
+                    }
+                  end
                 }
                 # xml.Dimensions {
                 #   [:length, :width, :height].each do |axis|
@@ -227,6 +237,14 @@ module Omniship
                 xml.Weight {
                   xml.Units (imperial ? 'LB' : 'KG')
                   xml.Value ((imperial ? pkg.weight : pkg.weight/2.2).to_f)
+                }
+                xml.SpecialServicesRequested {
+                  if options[:without_signature]
+                    xml.SpecialServiceTypes "SIGNATURE_OPTION"
+                    xml.SignatureOptionDetail {
+                      xml.OptionType "NO_SIGNATURE_REQUIRED"
+                    }
+                  end
                 }
                 # xml.Dimensions {
                 #   [:length, :width, :height].each do |axis|
@@ -357,28 +375,24 @@ module Omniship
     end
 
     def parse_rate_response(origin, destination, packages, response, options)
+      xml = Nokogiri::XML(response).remove_namespaces!
+      puts xml
       rate_estimates   = []
       success, message = nil
-
-      xml = Nokogiri::XML(response).remove_namespaces!
 
       success = response_success?(xml)
       message = response_message(xml)
 
-
-      service_code         = options[:service_type]
-      is_saturday_delivery = options[:saturday_delivery] ? 'SATURDAY_DELIVERY' : nil
-      service_type         = is_saturday_delivery ? "#{service_code}_SATURDAY_DELIVERY" : service_code
-
-      currency = handle_uk_currency(xml.xpath('//RatedShipmentDetails/ShipmentRateDetail/TotalNetCharge/Currency').text)
-      rate_estimates << RateEstimate.new(origin, destination, @@name,
-                          self.class.service_name_for_code(service_type),
-                          :service_code   => service_code,
-                          :total_price    => xml.xpath('//RatedShipmentDetails/ShipmentRateDetail/TotalNetCharge/Amount').text.to_f,
-                          :currency       => currency,
-                          :packages       => packages,
-                          :delivery_range => [xml.xpath('//DeliveryTimestamp').text] * 2)
-
+      xml.xpath('//RateReplyDetails').each do |rate|
+        rate_estimates << RateEstimate.new(origin, destination, @@name,
+                          :service_code     => rate.xpath('ServiceType').text,
+                          :service_name     => rate.xpath('AppliedOptions').text == "SATURDAY_DELIVERY" ? "#{self.class.service_name_for_code(rate.xpath('ServiceType').text + '_SATURDAY_DELIVERY')}".upcase : self.class.service_name_for_code(rate.xpath('ServiceType').text),
+                          :total_price      => rate.xpath('RatedShipmentDetails').first.xpath('ShipmentRateDetail/TotalNetCharge/Amount').text.to_f,
+                          :currency         => handle_uk_currency(rate.xpath('RatedShipmentDetails').first.xpath('ShipmentRateDetail/TotalNetCharge/Currency').text),
+                          :packages         => packages,
+                          :delivery_date    => rate.xpath('ServiceType').text == "FEDEX_GROUND" ? rate.xpath('TransitTime').text : rate.xpath('DeliveryTimestamp').text
+                          )
+      end
 
       if rate_estimates.empty?
         success = false
@@ -390,6 +404,7 @@ module Omniship
 
     def parse_ship_response(response, options)
       xml             = Nokogiri::XML(response).remove_namespaces!
+      puts xml
       success         = response_success?(xml)
       message         = response_message(xml)
       label           = nil
