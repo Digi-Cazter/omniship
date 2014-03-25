@@ -225,6 +225,14 @@ module Omniship
                 }
               }
             }
+            if options[:return_service_code].present?
+              xml.ReturnService {
+                xml.Code options[:return_service_code]
+                # if options[:return_service_description].present?
+                #   xml.Description options[:return_service_description]
+                # end
+              }
+            end
             xml.Service {
               xml.Code options[:service]
             }
@@ -236,14 +244,6 @@ module Omniship
                 }
               end
             }
-            if options[:return_service_code].present?
-              xml.ReturnService {
-                xml.Code options[:return_service_code]
-                if options[:return_service_description].present?
-                  xml.Description options[:return_service_description]
-                end
-              }
-            end
             packages.each do |package|
               imperial = ['US', 'LR', 'MM'].include?(origin.country_code(:alpha2))
               xml.Package {
@@ -504,7 +504,8 @@ module Omniship
           delivery_date = days_to_delivery >= 1 ? days_to_delivery.days.from_now.strftime("%Y-%m-%d") : nil
 
           rate_estimates << RateEstimate.new(origin, destination, @@name,
-                                             service_name_for(origin, service_code),
+                                             :service_code => service_code,
+                                             :service_name => service_name_for(origin, service_code),
                                              :total_price => rated_shipment.xpath('TotalCharges/MonetaryValue').text.to_s.to_f,
                                              :currency => rated_shipment.xpath('TotalCharges/CurrencyCode').text.to_s,
                                              :service_code => service_code,
@@ -627,6 +628,7 @@ module Omniship
 
     def parse_ship_accept_response(response, options={})
       xml = Nokogiri::XML(response)
+      puts xml
       success = response_success?(xml)
       @response_text = {}
 
