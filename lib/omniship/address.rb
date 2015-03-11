@@ -25,9 +25,9 @@ module Omniship #:nodoc:
     alias_method :company, :company_name
 
     def initialize(options = {})
-      @country = (options[:country].nil? or options[:country].is_a?(ActiveUtil::Country)) ?
+      @country = (options[:country].nil? or options[:country].is_a?(ActiveUtils::Country)) ?
           options[:country] :
-          ActiveUtil::Country.find(options[:country])
+          ActiveUtils::Country.find(options[:country])
       @postal_code    = options[:postal_code] || options[:postal] || options[:zip]
       @province       = options[:province] || options[:state] || options[:territory] || options[:region]
       @city           = options[:city]

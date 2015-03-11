@@ -1,10 +1,8 @@
-require 'active_utils'
-
 module Omniship
   class Carrier
 
-    include ActiveUtil::RequiresParameters
-    include ActiveUtil::PostsData
+    include ActiveUtils::RequiresParameters
+    include ActiveUtils::PostsData
     include Quantified
 
     attr_reader :last_request
