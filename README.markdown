@@ -84,7 +84,7 @@ Currently this is on my TODO list. Check back for updates
 
 ## Change Log
 **0.4.1**
-   • Bug fixes for dependencies
+* Bug fixes for dependencies
 
 ## Contributing
 
