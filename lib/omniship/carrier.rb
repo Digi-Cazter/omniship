@@ -1,3 +1,5 @@
+require 'active_utils'
+
 module Omniship
   class Carrier
 
