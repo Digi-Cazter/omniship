@@ -51,12 +51,12 @@ $:.unshift File.dirname(__FILE__)
 
 begin
   require 'active_support/all'
-  require 'active_merchant'
+  require 'active_merchant/all'
 rescue LoadError => e
   require 'rubygems'
   gem "activesupport", ">= 2.3.5"
   require "active_support/all"
-  require 'active_merchant'
+  require 'active_merchant/all'
 end
 
 autoload :XmlNode, 'vendor/xml_node/lib/xml_node'
