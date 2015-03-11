@@ -82,6 +82,10 @@ into create_shipment and accept_shipment.
 
 Currently this is on my TODO list. Check back for updates
 
+## Change Log
+**0.4.1**
+   • Bug fixes for dependencies
+
 ## Contributing
 
 Before anyone starts contributing, I want to get a good stable version going and tests to follow, after I get that going then for the features you add, you should have both unit tests and remote tests. It's probably best to start with the remote tests, and then log those requests and responses and use them as the mocks for the unit tests.
