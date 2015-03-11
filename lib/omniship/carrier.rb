@@ -1,14 +1,14 @@
-module Omniship 
+module Omniship
   class Carrier
-    
-    include ActiveMerchant::RequiresParameters
-    include ActiveMerchant::PostsData
+
+    include ActiveUtil::RequiresParameters
+    include ActiveUtil::PostsData
     include Quantified
-    
+
     attr_reader :last_request
     attr_accessor :test_mode
     alias_method :test_mode?, :test_mode
-    
+
     # Credentials should be in options hash under keys :login, :password and/or :key.
     def initialize(options = {})
       #requirements.each {|key| requires!(options, key)}
@@ -22,11 +22,11 @@ module Omniship
     def requirements
       []
     end
-    
+
     # Override with whatever you need to get the rates
     def find_rates(origin, destination, packages, options = {})
     end
-    
+
     # Validate credentials with a call to the API. By default this just does a find_rates call
     # with the orgin and destination both as the carrier's default_location. Override to provide
     # alternate functionality, such as checking for test_mode to use test servers, etc.
@@ -38,17 +38,17 @@ module Omniship
     else
       true
     end
-    
+
     def maximum_weight
       Mass.new(150, :pounds)
     end
-    
+
     protected
-    
+
     def node_text_or_nil(xml_node)
       xml_node ? xml_node.text : nil
     end
-    
+
     # Override in subclasses for non-U.S.-based carriers.
     def self.default_location
       Address.new( :country => 'US',
@@ -60,7 +60,7 @@ module Omniship
                     :phone => '1-310-285-1013',
                     :fax => '1-310-275-8159')
     end
-    
+
     # Use after building the request to save for later inspection. Probably won't ever be overridden.
     def save_request(r)
       @last_request = r
