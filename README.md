@@ -83,8 +83,11 @@ into create_shipment and accept_shipment.
 Currently this is on my TODO list. Check back for updates
 
 ## Change Log
-**0.4.1**
+**0.4.2**
+* Bug fixes for UPS
+* Updated syntax for gemspec
 
+**0.4.1**
 * Bug fixes for dependencies
 
 ## Contributing
