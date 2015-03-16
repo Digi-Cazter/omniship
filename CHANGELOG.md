@@ -1,7 +1,0 @@
-**0.4.2**
-* Bug fixes for UPS
-* Updated syntax for gemspec
-
-**0.4.1**
-* Bug fixes for dependencies
-
