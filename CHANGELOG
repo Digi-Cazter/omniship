@@ -1,6 +1,7 @@
-0.4.2
+0.4.5
   Bug fixes for UPS
   Updated syntax for gemspec
+  Updated dependencies
 
 0.4.1
   Bug fixes for dependencies
