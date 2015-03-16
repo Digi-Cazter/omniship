@@ -1,4 +1,4 @@
-#--
+4#--
 # Copyright (c) 2009 Jaded Pixel
 #
 # Permission is hereby granted, free of charge, to any person obtaining
@@ -64,7 +64,7 @@ require 'net/https'
 require 'active_utils'
 require 'nokogiri'
 
-#require 'omniship/base'
+require 'omniship/base'
 require 'omniship/contact'
 require 'omniship/response'
 require 'omniship/rate_response'
