@@ -140,12 +140,12 @@ module Omniship
       parse_ship_accept_response(response, options)
     end
 
-    def void_shipment(ups_shipment_id, tracking_number, options={})
+    def void_shipment(ups_shipment_id, tracking_numbers = [], options={})
       @options          = @options.merge(options)
       options           = @options.merge(options)
       options[:test]    = options[:test].nil? ? true : options[:test]
       access_request    = build_access_request
-      ship_void_request = build_void_request(ups_shipment_id,tracking_number)
+      ship_void_request = build_void_request(ups_shipment_id,tracking_numbers)
       response          = commit(:shipvoid, save_request(access_request.gsub("\n", "") + ship_void_request.gsub("\n", "")), options[:test])
       parse_ship_void_response(response, options)
     end
@@ -313,7 +313,7 @@ module Omniship
       builder.to_xml
     end
 
-    def build_void_request(ups_shipment_id,tracking_number)
+    def build_void_request(ups_shipment_id,tracking_numbers)
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.VoidShipmentRequest {
           xml.Request {
@@ -321,7 +321,9 @@ module Omniship
           }
           xml.ExpandedVoidShipment {
             xml.ShipmentIdentificationNumber ups_shipment_id
-            xml.TrackingNumber tracking_number
+            tracking_numbers.each do |tracking_number|
+              xml.TrackingNumber tracking_number
+            end
           }
         }
       end
