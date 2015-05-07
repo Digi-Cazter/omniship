@@ -661,15 +661,39 @@ module Omniship
 
     def parse_ship_void_response(response, options={})
       xml = Nokogiri::XML(response)
-      puts "Void response: " + xml.to_s
       success = response_success?(xml)
+      @response_text = {}
+      package_level_results = []
       if success
-        @void = "Shipment successfully voided!"
-      else
-        @void = "Voiding shipment failed!"
-      end
+        @response_text[:status_type_code] = xml.xpath('/*/Status/StatusType/Code').text
+        @response_text[:status_type_description] = xml.xpath('/*/Status/StatusType/Description').text
+        @response_text[:response_status_code] = xml.xpath('/*/Response/ResponseStatusCode').text
+        @response_text[:response_status_description] = xml.xpath('/*/Response/ResponseStatusDescription').text
+        @response_text[:error_severity] = xml.xpath('/*/Response/Error/ErrorSeverity').text
+        @response_text[:error_code] = xml.xpath('/*/Response/Error/ErrorCode')
+        @response_text[:error_description] = xml.xpath('/*/Response/Error/ErrorDescription').text
+        @response_text[:minimum_retry_seconds] = xml.xpath('/*/Response/Error/MinimumRetrySeconds').text
+        @response_text[:error_location_element_name] = xml.xpath('/*/Response/Error/ErrorLocation/ErrorLocationElementName').text
+        @response_text[:error_location_attribute_name] = xml.xpath('/*/Response/Error/ErrorLocation/ErrorLocationAttributeName').text
+        @response_text[:error_digest] = xml.xpath('/*/Response/Error/ErrorDigest').text
+        @response_text[:status_code] = xml.xpath('/*/Status/StatusCode/Code')
+        @response_text[:status_code_description] = xml.xpath('/*/Status/StatusCode/Description')
 
-      return @void
+        xml.xpath('/*/PackageLevelResults').each do |result|
+          package = {}
+          package[:tracking_number] = result.xpath('/TrackingNumber').text
+          package[:status_code] = result.xpath('/StatusCode').text
+          package[:status_code_description] = result.xpath('/Description').text
+          package_level_results << package
+        end
+        @response_text[:package_results] = package_level_results
+      else
+        @response_text[:status] = xml.xpath('/*/Response/ResponseStatusDescription').text
+        @response_text[:error_severity] = xml.xpath('/*/Response/Error/ErrorSeverity').text
+        @response_text[:error_code] = xml.xpath('/*/Response/Error/ErrorCode')
+        @response_text[:error_description] = xml.xpath('/*/Response/Error/ErrorDescription').text
+      end
+      return @response_text
     end
 
     def parse_ship_valid_address(response, options={})
