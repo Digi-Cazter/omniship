@@ -681,9 +681,9 @@ module Omniship
 
         xml.xpath('/*/PackageLevelResults').each do |result|
           package = {}
-          package[:tracking_number] = result.xpath('/TrackingNumber').text
-          package[:status_code] = result.xpath('/StatusCode').text
-          package[:status_code_description] = result.xpath('/Description').text
+          package[:tracking_number] = result.at('TrackingNumber').text
+          package[:status_code] = result.at('StatusCode').text
+          package[:status_code_description] = result.at('Description').text
           package_level_results << package
         end
         @response_text[:package_results] = package_level_results
