@@ -616,7 +616,15 @@ module Omniship
       success = response_success?(xml)
 
       if success
-        @response_text = xml.xpath('//*/ShipmentDigest').text
+        if options[:details]
+          @response_text = {}
+          @response_text[:digest] = xml.xpath('//*/ShipmentDigest').text
+          @response_text[:response_status_code] = xml.xpath('//*/ResponseStatusCode').text
+          @response_text[:response_status_description] = xml.xpath('//*/ResponseStatusDescription').text
+          @response_text[:tracking_number] = xml.xpath('//*/ShipmentIdentificationNumber').text
+        else
+          @response_text = xml.xpath('//*/ShipmentDigest').text
+        end
       else
         @response_text = {}
         @response_text[:status] = xml.xpath('/*/Response/ResponseStatusDescription').text
