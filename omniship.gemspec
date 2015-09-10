@@ -16,7 +16,6 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = ">= 1.3.6"
 
-  s.add_dependency 'railties', '~> 4.2', '>= 4.2'
   s.add_runtime_dependency 'activesupport', '~> 4.2', '>= 2.3.5'
   s.add_runtime_dependency 'i18n', '~> 0.7', '>= 0.7.0'
   s.add_runtime_dependency 'active_utils', '~> 3.0', '>= 3.0.0'
