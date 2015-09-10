@@ -12,6 +12,7 @@ rescue Bundler::BundlerError => e
 end
 require 'rails/all'
 require 'test/unit'
+require 'minitest/autorun'
 require 'minitest/spec'
 require 'omniship'
 require 'mocha/setup'
@@ -23,57 +24,57 @@ module Test
   module Unit
     class TestCase
       include Omniship
-      
+
       LOCAL_CREDENTIALS = ENV['HOME'] + '/.active_merchant/fixtures.yml' unless defined?(LOCAL_CREDENTIALS)
       DEFAULT_CREDENTIALS = File.dirname(__FILE__) + '/fixtures.yml' unless defined?(DEFAULT_CREDENTIALS)
-      
+
       MODEL_FIXTURES = File.dirname(__FILE__) + '/fixtures/' unless defined?(MODEL_FIXTURES)
 
       def all_fixtures
         @@fixtures ||= load_fixtures
       end
-      
+
       def fixtures(key)
         data = all_fixtures[key] || raise(StandardError, "No fixture data was found for '#{key}'")
-        
+
         data.dup
       end
-          
+
       def load_fixtures
         file = File.exists?(LOCAL_CREDENTIALS) ? LOCAL_CREDENTIALS : DEFAULT_CREDENTIALS
         yaml_data = YAML.load(File.read(file))
-        
+
         model_fixtures = Dir.glob(File.join(MODEL_FIXTURES,'**','*.yml'))
         model_fixtures.each do |file|
           name = File.basename(file, '.yml')
           yaml_data[name] = YAML.load(File.read(file))
         end
-        
+
         symbolize_keys(yaml_data)
-      
+
         yaml_data
       end
-      
+
       def xml_fixture(path) # where path is like 'usps/beverly_hills_to_ottawa_response'
         open(File.join(File.dirname(__FILE__),'fixtures','xml',"#{path}.xml")) {|f| f.read}
       end
-      
+
       def symbolize_keys(hash)
         return unless hash.is_a?(Hash)
-        
+
         hash.symbolize_keys!
         hash.each{|k,v| symbolize_keys(v)}
       end
-      
+
     end
   end
 end
 
 module Omniship
   module TestFixtures
-      
+
     mattr_reader :packages, :locations
-      
+
     @@packages = {
       :just_ounces => Package.new(16, nil, :units => :imperial),
       :just_grams => Package.new(1000, nil),
@@ -90,7 +91,7 @@ module Omniship
       :shipping_container => Package.new(2200000, [2440, 2600, 6058], :description => '20 ft Standard Container', :units => :metric),
       :box => Package.new(14, [19,10,8], {:units => :imperial, :package_type => "02"})
     }
-      
+
     @@locations = {
       :bare_ottawa => Address.new(:country => 'CA', :postal_code => 'K1P 1J1'),
       :bare_beverly_hills => Address.new(:country => 'US', :zip => '90210'),
@@ -119,15 +120,15 @@ module Omniship
                                     :address2 => '3rd Floor',
                                     :zip => '90210',
                                     :phone => '1-310-285-1013',
-                                    :fax => '1-310-275-8159'),                         
-      :cakestyle_address => Address.new( 
-                                    :company_name => "CakeStyle",                                   
+                                    :fax => '1-310-275-8159'),
+      :cakestyle_address => Address.new(
+                                    :company_name => "CakeStyle",
                                     :country => 'US',
                                     :city => 'Chicago',
                                     :state => 'IL',
                                     :address1 => '213 North Racine',
                                     :zip => '60607',
-                                    :address_type => 'commercial'),   
+                                    :address_type => 'commercial'),
       :real_home_as_commercial => Address.new(
                                     :country => 'US',
                                     :city => 'Tampa',
@@ -175,13 +176,13 @@ module Omniship
                                     :address1 => '123 fake st.',
                                     :zip => '33615',
                                     :address_type => 'residential'),
-      :real_home_as_residential => Address.new(                                    
+      :real_home_as_residential => Address.new(
                                     :country => 'US',
                                     :city => 'Tampa',
                                     :state => 'FL',
                                     :address1 => '7926 Woodvale Circle',
                                     :zip => '33615',
-                                    :address_type => 'residential'),                                     
+                                    :address_type => 'residential'),
       :london => Address.new(
                                     :country => 'GB',
                                     :city => 'London',
@@ -209,6 +210,6 @@ module Omniship
                                     :address2 => 'Te Aro',
                                     :postal_code => '6011')
     }
-     
+
   end
 end
