@@ -2,6 +2,8 @@
 
 # Omniship
 
+Update 9/21/2015 - I have started working on the 1.0.0 release for this gem, this will include a complete test suite as well as UPS, FedEx, and USPS full integeration 1-to-1 with all basic features of these carriers.  After this release, then I'll get into developing out the more advanced features of these carriers which will include full support for international shipping. If you wish to provide a suggestion for more carriers, please create an issue with the "feature" tag.
+
 This gem is under active development, I'm only in the Alpha stage right now, so keep checking back for updates.
 
 This library has been created to make web requests to common shipping carriers using XML.  I created this to be easy to use with a nice Ruby API.  This code was originally forked from the *Shopify/active_shipping* code, I began to strip it down cause I wan't a cleaner API along with the ability to actually create shipment labels with it.  After changing enough code, I created this gem as its own project since it's different enough.
