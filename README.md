@@ -1,6 +1,7 @@
 [![Gem Version](https://badge.fury.io/rb/omniship.png)](http://badge.fury.io/rb/omniship) [![Code Climate](https://codeclimate.com/github/Digi-Cazter/omniship.png)](https://codeclimate.com/github/Digi-Cazter/omniship) [![Build Status](https://travis-ci.org/Digi-Cazter/omniship.svg)](https://travis-ci.org/Digi-Cazter/omniship)
 
-[Imgur](http://i.imgur.com/6DWrBNq.png)
+![Omniship Logo]
+(http://i.imgur.com/6DWrBNq.png)
 
 This library has been created to make web requests to common shipping carriers using XML.  I created this to be easy to use with a nice Ruby API.  This code was originally forked from the *Shopify/active_shipping* code, I began to strip it down cause I wan't a cleaner API along with the ability to actually create shipment labels with it.  After changing enough code, I created this gem as its own project since it's different enough.
 
