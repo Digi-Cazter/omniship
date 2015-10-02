@@ -25,26 +25,12 @@ This library has been created to make web requests to common shipping carriers u
 Currently this is on my TODO list. Check back for updates
 
 ## Change Log
-**0.4.5**
-* Bug fixes for UPS
-* Updated syntax for gemspec
-* Updated dependencies
-
-**0.4.1**
-* Bug fixes for dependencies
 
 ## Contributing
 
-Before anyone starts contributing, I want to get a good stable version going and tests to follow, after I get that going then for the features you add, you should have both unit tests and remote tests. It's probably best to start with the remote tests, and then log those requests and responses and use them as the mocks for the unit tests.
+Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/omniship. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](contributor-covenant.org) code of conduct.
 
-To log requests and responses, just set the `logger` on your carrier class to some kind of `Logger` object:
 
-    Omniship::USPS.logger = Logger.new($stdout)
+## License
 
-(This logging functionality is provided by the [`PostsData` module](https://github.com/Shopify/active_utils/blob/master/lib/active_utils/common/posts_data.rb) in the `active_utils` dependency.)
-
-After you've pushed your well-tested changes to your github fork, make a pull request and we'll take it from there!
-
-## Legal Mumbo Jumbo
-
-Unless otherwise noted in specific files, all code in the Omniship project is under the copyright and license described in the included MIT-LICENSE file.
+The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
