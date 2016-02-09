@@ -1,4 +1,4 @@
-4#--
+#--
 # Copyright (c) 2009 Jaded Pixel
 #
 # Permission is hereby granted, free of charge, to any person obtaining
