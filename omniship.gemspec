@@ -33,5 +33,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rails', '~> 4.2', '>= 4.2'
 
   s.files        = Dir.glob("lib/**/*") + %w(MIT-LICENSE README.markdown CHANGELOG)
-  s.require_path = "lib"
+  s.require_path = 'lib'
 end

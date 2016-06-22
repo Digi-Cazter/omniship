@@ -44,16 +44,16 @@ class PackageTest < Minitest::Test
       assert_equal 4.5 * CM_IN_AN_INCH, wii.cm(sym)
     end
     [:pounds, :lbs, :lb].each do |sym|
-      assert_equal 7.5, wii.send(sym)
+      assert_equal 0.46875, wii.send(sym)
     end
     [:ounces, :oz].each do |sym|
-      assert_equal 120, wii.send(sym)
+      assert_equal 7.5, wii.send(sym)
     end
     [:grams, :g].each do |sym|
-      assert_equal 120 * GRAMS_IN_AN_OUNCE, wii.send(sym)
+      assert_equal 7.5 * GRAMS_IN_AN_OUNCE, wii.send(sym)
     end
     [:kilograms, :kgs, :kg].each do |sym|
-      assert_equal 120 * GRAMS_IN_AN_OUNCE / 1000, wii.send(sym)
+      assert_equal 7.5 * GRAMS_IN_AN_OUNCE / 1000, wii.send(sym)
     end
     assert_equal 675.0, wii.inches(:volume)
     assert_equal 675.0, wii.inches(:box_volume)
