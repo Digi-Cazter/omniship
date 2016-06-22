@@ -1,8 +1,7 @@
-require 'test_helper'
+require_relative '../test_helper'
 
-class LocationTest < Test::Unit::TestCase
-  include Omniship
-  
+class LocationTest < Minitest::Test
+
   def setup
     @locations = TestFixtures.locations.dup
   end

@@ -1,7 +1,7 @@
-require 'test_helper'
+require_relative '../test_helper'
 
-class PackageTest < Test::Unit::TestCase
- 
+class PackageTest < Minitest::Test
+
   GRAMS_IN_AN_OUNCE = 28.349523125
   OUNCES_IN_A_GRAM = 0.0352739619495804
   INCHES_IN_A_CM = 0.393700787401575

@@ -1,7 +1,6 @@
-require 'test_helper'
+require_relative '../test_helper'
 
-class BaseTest < Test::Unit::TestCase
-  include Omniship
+class BaseTest < Minitest::Test
 
   def test_get_usps_by_string
     assert_equal USPS, Base.carrier('usps')

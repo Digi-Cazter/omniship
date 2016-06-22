@@ -1,7 +1,7 @@
 require 'test_helper'
 
-class USPSTest < Test::Unit::TestCase
-  
+class USPSTest < Minitest::Test
+
   def setup
     @packages  = TestFixtures.packages
     @locations = TestFixtures.locations

@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class FedExTest < Test::Unit::TestCase
+class FedExTest < Minitest::Test
 
   def setup
     @packages  = TestFixtures.packages
