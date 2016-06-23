@@ -1,7 +1,7 @@
-require 'test_helper'
+require_relative '../test_helper'
 
-class PackageTest < Test::Unit::TestCase
- 
+class PackageTest < Minitest::Test
+
   GRAMS_IN_AN_OUNCE = 28.349523125
   OUNCES_IN_A_GRAM = 0.0352739619495804
   INCHES_IN_A_CM = 0.393700787401575
@@ -44,16 +44,16 @@ class PackageTest < Test::Unit::TestCase
       assert_equal 4.5 * CM_IN_AN_INCH, wii.cm(sym)
     end
     [:pounds, :lbs, :lb].each do |sym|
-      assert_equal 7.5, wii.send(sym)
+      assert_equal 0.46875, wii.send(sym)
     end
     [:ounces, :oz].each do |sym|
-      assert_equal 120, wii.send(sym)
+      assert_equal 7.5, wii.send(sym)
     end
     [:grams, :g].each do |sym|
-      assert_equal 120 * GRAMS_IN_AN_OUNCE, wii.send(sym)
+      assert_equal 7.5 * GRAMS_IN_AN_OUNCE, wii.send(sym)
     end
     [:kilograms, :kgs, :kg].each do |sym|
-      assert_equal 120 * GRAMS_IN_AN_OUNCE / 1000, wii.send(sym)
+      assert_equal 7.5 * GRAMS_IN_AN_OUNCE / 1000, wii.send(sym)
     end
     assert_equal 675.0, wii.inches(:volume)
     assert_equal 675.0, wii.inches(:box_volume)

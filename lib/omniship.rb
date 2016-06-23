@@ -23,6 +23,14 @@
 
 ### TODO Working on creating code for using an initializer for configuration ###
 
+begin
+  require 'active_support/all'
+rescue LoadError => e
+  require 'rubygems'
+  gem "activesupport", ">= 2.3.5"
+  require "active_support/all"
+end
+
 require 'omniship/base'
 
 def Omniship.setup
@@ -49,13 +57,6 @@ end
 
 $:.unshift File.dirname(__FILE__)
 
-begin
-  require 'active_support/all'
-rescue LoadError => e
-  require 'rubygems'
-  gem "activesupport", ">= 2.3.5"
-  require "active_support/all"
-end
 
 autoload :XmlNode, 'vendor/xml_node/lib/xml_node'
 autoload :Quantified, 'vendor/quantified/lib/quantified'

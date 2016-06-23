@@ -1,7 +1,7 @@
 require 'test_helper'
 
-class UPSTest < Test::Unit::TestCase
-  
+class UPSTest < Minitest::Test
+
   def setup
     @packages  = TestFixtures.packages
     @locations = TestFixtures.locations
